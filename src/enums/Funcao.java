@@ -1,4 +1,4 @@
-package entities.enums;
+package enums;
 
 public enum Funcao {
     PASSEIO, VIAGEM, CARGA, BLINDADO, ALTO_DESEMPENHO
