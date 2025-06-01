@@ -1,6 +1,6 @@
 package entities;
 
-import entities.enums.Sexo;
+import enums.Sexo;
 
 import java.time.LocalDateTime;
 

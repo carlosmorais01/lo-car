@@ -1,6 +1,6 @@
 package entities;
 
-import entities.enums.*;
+import enums.*;
 
 public class Caminhao extends Veiculo {
     private double cargaMaxima;

@@ -1,9 +1,9 @@
 package entities;
 
-import entities.enums.Combustivel;
-import entities.enums.Cor;
-import entities.enums.Funcao;
-import entities.enums.Tracao;
+import enums.Combustivel;
+import enums.Cor;
+import enums.Funcao;
+import enums.Tracao;
 
 public class Carro extends Veiculo {
     private int portas;
