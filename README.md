@@ -64,7 +64,7 @@ lo-car/
 ### Instalação
 1. Clone o repositório:
 ```
-bash git clone [https://github.com/carlosmorais01/lo-car.git](https://github.com/carlosmorais01/lo-car.git)
+git clone [https://github.com/carlosmorais01/lo-car.git](https://github.com/carlosmorais01/lo-car.git)
 ``` 
 
 2. Abra o projeto em sua IDE
