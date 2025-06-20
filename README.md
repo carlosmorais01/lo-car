@@ -38,10 +38,9 @@ O LoCar! é um sistema de gerenciamento de locação de veículos desenvolvido e
 ## 📁 Estrutura do Projeto
 ```
 lo-car/ 
-├── src/ 
-│ ├── application/ 
-│ │ └── Main.java 
+├── src/  
 │ ├── entities/ 
+│ │ ├── enums/ 
 │ │ ├── Caminhao.java 
 │ │ ├── Carro.java 
 │ │ ├── Cliente.java 
@@ -51,12 +50,9 @@ lo-car/
 │ │ ├── Moto.java 
 │ │ ├── Pessoa.java 
 │ │ └── Veiculo.java 
-│ ├── enums/ 
-│ └── images/ 
-├── dump/ 
-│ └── carros.txt 
-└── .gitignore
-
+│ └── Main.java 
+└── dump/ 
+└── carros.txt
 ``` 
 
 ## 💻 Como Usar
@@ -75,7 +71,7 @@ bash git clone [https://github.com/carlosmorais01/lo-car.git](https://github.com
 
 3. Configure o JDK 17
 
-4. Execute a classe application.Main.java
+4. Execute a classe Main.java
 
 ## 📄 Formato do Arquivo de Dados
 Os veículos são armazenados no arquivo `dump/carros.txt` no seguinte formato:
