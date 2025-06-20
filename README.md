@@ -86,7 +86,7 @@ descricao#placa#marca#nome#modelo#ano#cor#funcao#quilometragem#numeroPassageiros
 
 ## 📬 Contato
 - Email: carlos.morais@discente.ufg.br
-- LinkedIn: [Carlos Henrique](https://www.linkedin.com/in/carlos-henrique-alves-morais/)
+- LinkedIn: [Carlos Henrique](https://www.linkedin.com/in/carlos-henrique-alves-morais-74040527b/)
 
 
 - Email: jose_borges@discente.ufg.br
