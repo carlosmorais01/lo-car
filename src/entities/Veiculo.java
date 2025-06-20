@@ -1,9 +1,9 @@
 package entities;
 
-import enums.Combustivel;
-import enums.Cor;
-import enums.Funcao;
-import enums.Tracao;
+import entities.enums.Combustivel;
+import entities.enums.Cor;
+import entities.enums.Funcao;
+import entities.enums.Tracao;
 
 public abstract class Veiculo {
     private String descricao;
