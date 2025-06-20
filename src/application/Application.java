@@ -1,23 +1,22 @@
-// src/application/Main.java (versão atualizada)
-
 package application;
 
-import view.frames.MainFrame;
-import controller.MainController; // Importa o seu Controller
-import javax.swing.SwingUtilities;
+import view.panels.HomePagePanel;
+
+import javax.swing.*;
 
 public class Application {
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            MainFrame mainFrame = new MainFrame();
+            JFrame frame = new JFrame("LoCar!");
 
-            // Instancia o Controller e associa-o à MainFrame
-            // Agora o Controller gerenciará os eventos da MainFrame
-            MainController mainController = new MainController(mainFrame);
+            HomePagePanel painel = new HomePagePanel();
+            frame.setContentPane(painel.getContentPanel());
 
-            mainFrame.setDefaultCloseOperation(MainFrame.EXIT_ON_CLOSE);
-            mainFrame.setVisible(true);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+            frame.setVisible(true);
         });
     }
 }
