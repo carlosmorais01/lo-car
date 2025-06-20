@@ -6,6 +6,7 @@ import controller.AuthController;
 import entities.Cliente; // Importe a classe Cliente
 import enums.Sexo; // Importe o enum Sexo, se necessário para testes/registro
 import entities.Endereco; // Importe a classe Endereco, se necessário para testes/registro
+import util.ImageScaler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,24 +30,21 @@ public class LoginScreen extends JFrame {
     private void initializeUI() {
         setTitle("LoCar! - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600); // Tamanho da janela de login
-        setLocationRelativeTo(null); // Centraliza a janela na tela
+        setSize(1280, 720);
+        setLocationRelativeTo(null);
 
-        // Painel principal com BoxLayout para organizar verticalmente
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(UIManager.getColor("Panel.background")); // Usa a cor de fundo definida no UIManager
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Padding
+        mainPanel.setBackground(UIManager.getColor("Panel.background"));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
         // Adiciona um espaço superior
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // Logo
         ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/logo.png")));
+        Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 300, 300);
+        logoIcon = new ImageIcon(scaledImage);
 
-        Image image = logoIcon.getImage();
-        Image newimg = image.getScaledInstance(150, 150,  java.awt.Image.SCALE_SMOOTH);
-        logoIcon = new ImageIcon(newimg);
         JLabel logoLabel = new JLabel(logoIcon);
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(logoLabel);
@@ -56,6 +54,7 @@ public class LoginScreen extends JFrame {
         // Campos de entrada
         emailField = new JTextField(20);
         emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, emailField.getPreferredSize().height + 10));
+        emailField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         emailField.setBackground(Color.WHITE);
         mainPanel.add(emailField);
 
@@ -65,6 +64,7 @@ public class LoginScreen extends JFrame {
 
         passwordField = new JPasswordField(20);
         passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, passwordField.getPreferredSize().height + 10));
+        passwordField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         passwordField.setBackground(Color.WHITE);
         mainPanel.add(passwordField);
 
