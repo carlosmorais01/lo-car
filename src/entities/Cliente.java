@@ -16,7 +16,7 @@ public class Cliente extends Pessoa {
         this.saldo += valor;
     }
 
-    public void resgatarSaldo(double valor) {
+    public void descontarSaldo(double valor) {
         this.saldo -= valor;
     }
 
