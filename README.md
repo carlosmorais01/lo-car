@@ -64,7 +64,7 @@ lo-car/
 ### Instalação
 1. Clone o repositório:
 ```
-bash git clone [https://github.com/carlosmorais01/lo-car.git](https://github.com/carlosmorais01/lo-car.git)
+git clone [https://github.com/carlosmorais01/lo-car.git](https://github.com/carlosmorais01/lo-car.git)
 ``` 
 
 2. Abra o projeto em sua IDE
@@ -90,11 +90,11 @@ descricao#placa#marca#nome#modelo#ano#cor#funcao#quilometragem#numeroPassageiros
 
 
 - Email: jose_borges@discente.ufg.br
-- LinkedIn: [JOSÉ BORGES DA CRUZ](https://www.linkedin.com/in/josé-borges-da-cruz-3a7284369/)
+- LinkedIn: [José Borges da Cruz](https://www.linkedin.com/in/www.linkedin.com/in/josé-borges-da-cruz-3a7284369/)
 
 
 - Email: viniciusespindola@discente.ufg.br
-- LinkedIn: [Vinícius](https://www.linkedin.com/in/viniciusespindola1011/)
+- LinkedIn: [Vinícius](www.linkedin.com/in/viniciusespindola1011)
 
 ---
 ⌨️ com ❤️ por Carlin, Zézin e Vinic1n
