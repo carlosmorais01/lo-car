@@ -1,102 +1,97 @@
-// src/application/Main.java
 package application;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-import view.LoginScreen;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.InputStream;
+import entities.*;
+import enums.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Configura o FlatLaf como o Look and Feel
-        try {
-            // Define o tema FlatDarkLaf como base
-            FlatDarkLaf.setup(); // Alterado para FlatDarkLaf.setup()
 
-            UIManager.put("Component.arc", 5); // Arredonda os cantos dos componentes
-            UIManager.put("Button.arc", 20);
-            UIManager.put("TextComponent.arc", 10);
-            UIManager.put("TabbedPane.arc", 5);
-            UIManager.put("ProgressBar.arc", 5);
-            UIManager.put("ScrollBar.arc", 999); // Arredonda as barras de rolagem
-            UIManager.put("Table.arc", 5);
-            UIManager.put("TitlePane.unifiedBackground", false); // Ajuste para melhor visualização do título
-            UIManager.put("TitlePane.buttonHoverColor", new Color(255,255,255, 50));
-            UIManager.put("TitlePane.buttonPressedColor", new Color(255,255,255, 100));
+        List<Veiculo> veiculos = new ArrayList<>();
 
+        String path = Paths.get("dump", "carros.txt").toString();
 
-            // Cores personalizadas
-            UIManager.put("Panel.background", new Color(243, 243, 243)); // Fundo principal da aplicação #F3F3F3
-            UIManager.put("TextComponent.background", new Color(255, 255, 255));
-            UIManager.put("Button.background", new Color(10, 40, 61)); // Cor principal #0A283D
-            UIManager.put("Button.foreground", Color.WHITE);
-            UIManager.put("Button.hoverBackground", new Color(15, 55, 85));
-            UIManager.put("Button.pressedBackground", new Color(5, 25, 40));
-            UIManager.put("Label.foreground", new Color(10, 40, 61)); // Cor do texto dos labels
-            UIManager.put("TextField.foreground", new Color(10, 40, 61));
-            UIManager.put("PasswordField.foreground", new Color(10, 40, 61));
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String linha = br.readLine();
 
-            // Configura a fonte Roboto Slab ou alternativa
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            boolean robotoSlabAvailable = false;
-            boolean montserratAvailable = false;
+            while (linha != null && !linha.isEmpty()) {
+                String[] dados = linha.split("#");
 
-            // Para carregar fontes customizadas se necessário (ex: de um arquivo .ttf no seu projeto)
-            try (InputStream is = Main.class.getResourceAsStream("/fonts/Roboto_Slab/static/RobotoSlab-Regular.ttf")) {
-                if (is != null) {
-                    Font customFont = Font.createFont(Font.TRUETYPE_FONT, is);
-                    ge.registerFont(customFont);
-                    robotoSlabAvailable = true;
-                }
-            } catch (Exception ex) {
-                System.err.println("Erro ao carregar a fonte Roboto Slab do arquivo: " + ex.getMessage());
+                Carro c = new Carro(
+                        dados[0],                            // descrição
+                        dados[1],                            // placa
+                        dados[2],                            // marca
+                        dados[3],                            // nome
+                        dados[4],                            // modelo
+                        Integer.parseInt(dados[5]),          // ano
+                        Cor.valueOf(dados[6]),              // cor
+                        Funcao.valueOf(dados[7]),           // função
+                        Double.parseDouble(dados[8]),       // quilometragem
+                        Integer.parseInt(dados[9]),         // número de passageiros
+                        Double.parseDouble(dados[10]),      // consumo combustível
+                        Double.parseDouble(dados[11]),      // velocidade máxima
+                        Boolean.parseBoolean(dados[12]),    // automático
+                        Combustivel.valueOf(dados[13]),     // combustível
+                        Tracao.valueOf(dados[14]),          // tração
+                        Integer.parseInt(dados[15]),        // quantidade de assentos
+                        Boolean.parseBoolean(dados[16]),    // air bag
+                        dados[17],                          // caminho foto
+                        Double.parseDouble(dados[18]),      // potência
+                        Boolean.parseBoolean(dados[19]),    // vidro elétrico
+                        Boolean.parseBoolean(dados[20]),    // ar condicionado
+                        Boolean.parseBoolean(dados[21]),    // multimídia
+                        Boolean.parseBoolean(dados[22]),    // entrada USB
+                        Boolean.parseBoolean(dados[23]),    // vidro fumê
+                        Double.parseDouble(dados[24]),      // peso
+                        Boolean.parseBoolean(dados[25]),    // engate
+                        Boolean.parseBoolean(dados[26]),    // direção hidráulica
+                        Double.parseDouble(dados[27]),      // valor diário
+                        Integer.parseInt(dados[28]),        // portas
+                        Boolean.parseBoolean(dados[29])     // aerofólio
+                );
+
+                veiculos.add(c);
+                linha = br.readLine();
             }
 
-            // Verifica se as fontes estão disponíveis no sistema ou foram carregadas
-            String[] fontNames = ge.getAvailableFontFamilyNames();
-            for (String fontName : fontNames) {
-                if (fontName.equalsIgnoreCase("Roboto Slab")) {
-                    robotoSlabAvailable = true;
-                }
-                if (fontName.equalsIgnoreCase("Montserrat")) {
-                    montserratAvailable = true;
-                }
-            }
-
-            Font appFont;
-            if (robotoSlabAvailable) {
-                appFont = new Font("Roboto Slab", Font.PLAIN, 14);
-            } else if (montserratAvailable) {
-                appFont = new Font("Montserrat", Font.PLAIN, 14);
-            } else {
-                appFont = new Font("Roboto", Font.PLAIN, 14); // Fallback para Roboto padrão
-            }
-
-            // Define a fonte para todos os componentes
-            UIManager.put("Button.font", appFont);
-            UIManager.put("Label.font", appFont);
-            UIManager.put("TextField.font", appFont);
-            UIManager.put("PasswordField.font", appFont);
-            UIManager.put("TextArea.font", appFont);
-            UIManager.put("ComboBox.font", appFont);
-            UIManager.put("List.font", appFont);
-            UIManager.put("Table.font", appFont);
-            UIManager.put("TableHeader.font", appFont);
-            UIManager.put("TitledBorder.font", appFont);
-            UIManager.put("CheckBox.font", appFont);
-            UIManager.put("RadioButton.font", appFont);
-            UIManager.put("OptionPane.font", appFont);
-
-        } catch (Exception e) {
-            System.err.println("Failed to initialize FlatLaf: " + e.getMessage());
-            e.printStackTrace(); // Imprime o stack trace para mais detalhes do erro
+        } catch (IOException e) {
+            System.out.println("Erro ao ler o arquivo: " + e.getMessage());
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Erro no formato do arquivo: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro ao converter valor de enum: " + e.getMessage());
         }
 
-        SwingUtilities.invokeLater(() -> {
-            LoginScreen loginScreen = new LoginScreen();
-            loginScreen.setVisible(true);
-        });
+        Endereco end = new Endereco(
+                "casad",
+                "asdad",
+                "dasdasd",
+                "asdads",
+                12313,
+                "123123213"
+        );
+
+        Cliente c1 = new Cliente(
+                "Carlos",
+                "1231313",
+                "3131231",
+                "asdasdadas",
+                "dasdasd",
+                end,
+                LocalDateTime.now().minusYears(19),
+                Sexo.MASCULINO
+        );
+
+        Locacao l1 = new Locacao(LocalDateTime.now(), LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(7).plusHours(3), veiculos.get(0), c1);
+        Locacao l2 = new Locacao(LocalDateTime.now(), LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(7), veiculos.get(1), c1);
+        System.out.println(l1.calcularValorTotal());
+        System.out.println(l2.calcularValorTotal());
+
     }
 }
