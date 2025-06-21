@@ -1,5 +1,6 @@
 package util;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -19,35 +20,30 @@ public class ImageScaler {
     }
 
     /**
-     * Redimensiona uma imagem com transparência usando fator de escala, preservando qualidade e canal alpha.
-     *
-     * @param originalImage Imagem original com ou sem transparência
-     * @param scaleFactor   Fator de escala (0.5 = reduz pela metade, 2.0 = dobra)
-     * @return BufferedImage redimensionada com preservação de transparência
+     * Reescalona uma imagem para as dimensões especificadas.
+     * @param originalImage A imagem original a ser reescalada.
+     * @param targetWidth A largura desejada.
+     * @param targetHeight A altura desejada.
+     * @return A imagem reescalada.
      */
-    public static BufferedImage resizeImageByScale(Image originalImage, float scaleFactor) {
-        if (scaleFactor <= 0) {
-            throw new IllegalArgumentException("O fator de escala deve ser maior que zero.");
+    public static Image scaleImage(Image originalImage, int targetWidth, int targetHeight) {
+        if (originalImage == null) {
+            return null;
         }
+        // Usamos Image.SCALE_SMOOTH para uma melhor qualidade de reescalonamento
+        return originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+    }
 
-        int originalWidth = originalImage.getWidth(null);
-        int originalHeight = originalImage.getHeight(null);
-        int newWidth = Math.round(originalWidth * scaleFactor);
-        int newHeight = Math.round(originalHeight * scaleFactor);
-
-        // Usa ARGB para manter transparência
-        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = resizedImage.createGraphics();
-
-        // Ativa qualidade máxima de renderização e suporte ao canal alpha
-        g2d.setComposite(AlphaComposite.Src);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-        g2d.dispose();
-
-        return resizedImage;
+    /**
+     * Reescalona uma imagem carregada de um caminho de arquivo.
+     * Este método é útil se você quiser carregar e escalar em uma única etapa.
+     * @param imagePath O caminho do arquivo da imagem.
+     * @param targetWidth A largura desejada.
+     * @param targetHeight A altura desejada.
+     * @return A imagem reescalada.
+     */
+    public static Image scaleImage(String imagePath, int targetWidth, int targetHeight) {
+        ImageIcon originalIcon = new ImageIcon(imagePath);
+        return scaleImage(originalIcon.getImage(), targetWidth, targetHeight);
     }
 }
