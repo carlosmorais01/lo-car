@@ -115,8 +115,9 @@ public class LoginScreen extends JFrame {
 
         if (authenticatedClient != null) {
             JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedClient.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            // Aqui fechar a tela de login e abrir a próxima tela da aplicação.
-            // Ex: dispose(); new MainApplicationScreen(authenticatedClient).setVisible(true);
+            dispose();
+            VehicleListScreen vehicleListScreen = new VehicleListScreen();
+            vehicleListScreen.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
         }
