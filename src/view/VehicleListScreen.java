@@ -185,7 +185,7 @@ public class VehicleListScreen extends JFrame {
     }
 
     private void aplicarFiltros() {
-        String nome = headerPanel.getSearchText();
+        String nome = headerPanel.getSearchText().toLowerCase();
 
         Double precoMax = null;
         try {
@@ -248,13 +248,12 @@ public class VehicleListScreen extends JFrame {
 
         if (veiculos.isEmpty()) {
             JLabel noResultsLabel = new JLabel("Nenhum veículo encontrado com os filtros aplicados.", SwingConstants.CENTER);
-            noResultsLabel.setFont(new Font("SansSerif", Font.ITALIC, 16));
+            noResultsLabel.setFont(getFont().deriveFont(16f));
             cardPanel.add(noResultsLabel);
         } else {
             for (Veiculo veiculo : veiculos) {
                 JPanel card = new JPanel();
                 card.setLayout(new BorderLayout());
-                card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
                 card.setBackground(Color.WHITE);
 
                 // Imagem
@@ -272,26 +271,25 @@ public class VehicleListScreen extends JFrame {
                     icon = new ImageIcon(new byte[0]); // ImageIcon vazio
                 }
 
-                if (icon != null && icon.getImage() != null) {
+                if (icon.getImage() != null) {
                     Image img = icon.getImage().getScaledInstance(180, 120, Image.SCALE_SMOOTH);
                     JLabel imgLabel = new RoundedImageLabel(new ImageIcon(img), 15);
                     card.add(imgLabel, BorderLayout.NORTH);
                 } else {
                     JLabel placeholder = new JLabel("Imagem Indisponível", SwingConstants.CENTER);
                     placeholder.setPreferredSize(new Dimension(180, 120));
-                    placeholder.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
                     card.add(placeholder, BorderLayout.NORTH);
                 }
 
                 // Informações do veículo
-                JLabel nome = new JLabel(veiculo.getNome(), SwingConstants.CENTER);
+                JLabel nome = new JLabel(veiculo.getMarca() + " " + veiculo.getNome(), SwingConstants.CENTER);
                 JLabel local = new JLabel("Setor Marista - Goiânia", SwingConstants.CENTER);
                 JLabel preco = new JLabel("R$ " + String.format("%.2f", veiculo.getValorDiario()) + " / dia", SwingConstants.CENTER);
 
-                nome.setFont(new Font("SansSerif", Font.BOLD, 14));
-                local.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                nome.setFont(nome.getFont().deriveFont(Font.BOLD, 20f));
+                local.setFont(local.getFont().deriveFont(Font.PLAIN, 18f));
                 local.setForeground(Color.GRAY);
-                preco.setFont(new Font("SansSerif", Font.BOLD, 14));
+                preco.setFont(preco.getFont().deriveFont(Font.BOLD, 16f));
                 preco.setForeground(new Color(0, 100, 0));
 
                 JPanel info = new JPanel(new GridLayout(3, 1));
@@ -305,7 +303,7 @@ public class VehicleListScreen extends JFrame {
                 // Status de disponibilidade - Agora usando o método do controller
                 boolean isLocado = veiculoController.estaLocado(veiculo);
                 JLabel status = new JLabel(isLocado ? "Indisponível" : "Disponível", SwingConstants.CENTER);
-                status.setFont(new Font("SansSerif", Font.BOLD, 12));
+                status.setFont(status.getFont().deriveFont(Font.BOLD, 12f));
                 status.setOpaque(true);
                 status.setBackground(isLocado ? new Color(255, 230, 230) : new Color(230, 255, 230));
                 status.setForeground(isLocado ? Color.RED : new Color(0, 150, 0));
