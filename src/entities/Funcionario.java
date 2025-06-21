@@ -9,8 +9,8 @@ public class Funcionario extends Pessoa implements Serializable { // Adicionar i
     private int id;
     private static int ultimoId = 0; // Cuidado com static para serialização se o ID for persistido
 
-    public Funcionario(String nome, String cpf, String telefone, String email, String senha, Endereco endereco, LocalDateTime dataNascimento, Sexo sexo) {
-        super(nome, cpf, telefone, email, senha, endereco, dataNascimento, sexo);
+    public Funcionario(String nome, String cpf, String telefone, String email, String senha, Endereco endereco, LocalDateTime dataNascimento, Sexo sexo, String caminhoFoto) {
+        super(nome, cpf, telefone, email, senha, endereco, dataNascimento, sexo, caminhoFoto);
         // Para garantir IDs únicos após deserialização, o ideal seria carregar ultimoId do arquivo ou de um gerador de ID persistente
         // Por simplicidade, para este projeto POO, manter assim pode ser aceitável, mas em produção geraria IDs repetidos.
         this.id = ++ultimoId;
