@@ -1,10 +1,11 @@
 package entities;
 
 import enums.Sexo;
-
+import java.io.Serializable; // Importar Serializable
 import java.time.LocalDateTime;
 
-public abstract class Pessoa {
+public abstract class Pessoa implements Serializable { // Adicionar implements Serializable
+    private static final long serialVersionUID = 1L; // Adicionar serialVersionUID
     private String nome;
     private String cpf;
     private String telefone;
