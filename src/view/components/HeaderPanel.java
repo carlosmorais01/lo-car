@@ -7,15 +7,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Objects; // Para Objects.requireNonNull
+import java.util.Objects;
 
 public class HeaderPanel extends JPanel {
     private final JTextField searchField;
     private JButton searchButton;
     private JLabel userLabel;
-    private JLabel profileIconLabel; // Renomeado de profileIcon para evitar conflito com ImageIcon
+    private JLabel profileIconLabel;
 
-    // Novo construtor que aceita o nome e o caminho da foto
     public HeaderPanel(String userName, String profileImagePath) {
         setLayout(new BorderLayout());
         setBackground(new Color(10, 38, 64));
@@ -23,12 +22,16 @@ public class HeaderPanel extends JPanel {
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Esquerda: ícone e nome do sistema (aqui você pode adicionar a logo principal do LoCar)
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel leftPanel = new JPanel(new GridBagLayout());
         leftPanel.setOpaque(false);
-        // ImageIcon do menu e da logo do sistema (se houver)
-        // leftPanel.add(new JLabel(new ImageIcon("assets/menu.png"))); // Se houver um ícone de menu
-        // leftPanel.add(new JLabel(new ImageIcon("assets/logo_pequena.png"))); // Se houver uma logo pequena do sistema
+
+        GridBagConstraints gbcLeft = new GridBagConstraints();
+        gbcLeft.insets = new Insets(0, 0, 0, 0);
+        gbcLeft.anchor = GridBagConstraints.CENTER;
+
+        Image logo = ImageScaler.scaleImage("src/images/logotipo.png", 70, 70);
+        JLabel logoLabel = new JLabel(new ImageIcon(logo));
+        leftPanel.add(logoLabel, gbcLeft);
 
         // Centro: campo de busca (mantido como está)
         JPanel centerPanel = new JPanel(new GridBagLayout());
@@ -52,9 +55,8 @@ public class HeaderPanel extends JPanel {
             }
         });
 
-        // Ajuste o caminho do ícone da lupa se necessário
         ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/lupa-icon.png")));
-        Image scaledLupa = ImageScaler.getScaledImage(lupaIcon.getImage(), 20, 20); // Ajuste o tamanho da lupa
+        Image scaledLupa = ImageScaler.getScaledImage(lupaIcon.getImage(), 20, 20);
         searchButton = new JButton(new ImageIcon(scaledLupa));
         searchButton.setContentAreaFilled(false);
         searchButton.setBorderPainted(false);
@@ -78,19 +80,16 @@ public class HeaderPanel extends JPanel {
         userLabel.setForeground(Color.WHITE);
         userLabel.setFont(userLabel.getFont().deriveFont(Font.BOLD, 18f));
 
-        // Carrega a imagem do perfil do cliente
         ImageIcon pfpIcon = null;
         if (profileImagePath != null && !profileImagePath.isEmpty()) {
             try {
-                // Tenta carregar a imagem do caminho absoluto
                 pfpIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(profileImagePath).getImage(), 50, 50));
             } catch (Exception e) {
                 System.err.println("Erro ao carregar foto de perfil: " + e.getMessage());
-                // Fallback para ícone padrão ou vazia se houver erro
-                pfpIcon = new ImageIcon(ImageScaler.scaleImage("src/images/pfp.png", 50, 50)); // Seu pfp padrão
+                pfpIcon = new ImageIcon(ImageScaler.scaleImage("src/images/pfp.png", 50, 50));
             }
         } else {
-            pfpIcon = new ImageIcon(ImageScaler.scaleImage("src/images/pfp.png", 50, 50)); // Seu pfp padrão
+            pfpIcon = new ImageIcon(ImageScaler.scaleImage("src/images/pfp.png", 50, 50));
         }
 
         profileIconLabel = new JLabel(pfpIcon);
@@ -111,8 +110,7 @@ public class HeaderPanel extends JPanel {
         searchButton.addActionListener(actionListener);
     }
 
-    // Construtor padrão (se ainda for necessário para outros contextos)
     public HeaderPanel(String userName) {
-        this(userName, null); // Chama o construtor completo com caminho nulo para a foto
+        this(userName, null);
     }
 }
