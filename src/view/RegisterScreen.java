@@ -36,6 +36,9 @@ public class RegisterScreen extends JFrame {
     private JTextField numberField;
     private JTextField cepField;
 
+    private JLabel profileImagePreview;
+    private String selectedImagePath;
+
     private JButton registerButton;
     private JButton backButton;
 
@@ -116,6 +119,21 @@ public class RegisterScreen extends JFrame {
         formPanel.add(numberField);
         cepField = createStyledTextField("CEP (xxxxx-xxx)");
         formPanel.add(cepField);
+
+        JPanel imageSelectionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        imageSelectionPanel.setBackground(UIManager.getColor("Panel.background"));
+
+        profileImagePreview = new JLabel();
+        profileImagePreview.setPreferredSize(new Dimension(100, 100)); // Tamanho da prévia
+        profileImagePreview.setHorizontalAlignment(SwingConstants.CENTER);
+        profileImagePreview.setVerticalAlignment(SwingConstants.CENTER);
+        imageSelectionPanel.add(profileImagePreview);
+
+        JButton selectImageButton = new JButton("Selecionar Foto");
+        selectImageButton.addActionListener(e -> selectProfileImage());
+        imageSelectionPanel.add(selectImageButton);
+
+        headerPanel.add(imageSelectionPanel);
 
         JScrollPane scrollPane = new JScrollPane(formPanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -261,7 +279,8 @@ public class RegisterScreen extends JFrame {
                 password,
                 newAddress,
                 birthDateTime,
-                selectedGender
+                selectedGender,
+                selectedImagePath // Adiciona o caminho da foto aqui
         );
 
         boolean success = authController.registerClient(newClient);
@@ -274,4 +293,27 @@ public class RegisterScreen extends JFrame {
             JOptionPane.showMessageDialog(this, "Erro ao registrar. Email ou CPF já podem estar em uso.", "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
         }
     }
+    private void selectProfileImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecione sua Foto de Perfil");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Imagens", "jpg", "jpeg", "png", "gif"));
+
+        int userSelection = fileChooser.showOpenDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToLoad = fileChooser.getSelectedFile();
+            try {
+                ImageIcon originalIcon = new ImageIcon(fileToLoad.getAbsolutePath());
+                // Redimensiona para a prévia
+                Image scaledImage = ImageScaler.getScaledImage(originalIcon.getImage(), 100, 100);
+                profileImagePreview.setIcon(new ImageIcon(scaledImage));
+                selectedImagePath = fileToLoad.getAbsolutePath(); // Salva o caminho
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao carregar imagem: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                selectedImagePath = null;
+                profileImagePreview.setIcon(null);
+            }
+        }
+    }
+
 }
