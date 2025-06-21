@@ -10,10 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class AuthController {
-    private static final String CLIENTS_FILE_PATH = "dump/clientes/clients.dat"; // Caminho do arquivo de clientes serializados
+    private static final String CLIENTS_FILE_PATH = "dump/clientes/clients.dat";
 
     public AuthController() {
-        // Garante que o diretório 'dump/clientes/' exista
         File dir = new File("dump/clientes/");
         if (!dir.exists()) {
             dir.mkdirs();
@@ -51,7 +50,7 @@ public class AuthController {
         List<Cliente> clients = new ArrayList<>();
         File file = new File(CLIENTS_FILE_PATH);
 
-        if (file.exists() && file.length() > 0) { // Verifica se o arquivo existe e não está vazio
+        if (file.exists() && file.length() > 0) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 Object obj = ois.readObject();
                 if (obj instanceof List) {
@@ -94,12 +93,11 @@ public class AuthController {
     public boolean registerClient(Cliente newClient) {
         List<Cliente> clients = loadClients();
 
-        // Verifica se já existe um cliente com o mesmo email ou CPF
         boolean exists = clients.stream().anyMatch(c ->
                 c.getEmail().equals(newClient.getEmail()) || c.getCpf().equals(newClient.getCpf()));
 
         if (exists) {
-            return false; // Cliente com email ou CPF já cadastrado
+            return false;
         }
 
         String hashedPassword = PasswordHasher.hashPassword(newClient.getSenha());

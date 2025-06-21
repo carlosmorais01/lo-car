@@ -97,12 +97,11 @@ public class RegisterScreen extends JFrame {
         genderComboBox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Sexo");
         genderComboBox.setFont(UIManager.getFont("TextField.font"));
         genderComboBox.setBackground(Color.WHITE);
-        genderComboBox.setBorder(BorderFactory.createLineBorder(new Color(10, 40, 61), 2));
+        genderComboBox.setBorder(BorderFactory.createEmptyBorder());
         JPanel genderPanel = new JPanel(new BorderLayout());
         genderPanel.add(genderComboBox, BorderLayout.CENTER);
         genderPanel.setBackground(UIManager.getColor("Panel.background"));
         formPanel.add(genderPanel);
-
 
         // Atributos de Endereço
         cityField = createStyledTextField("Cidade");
@@ -123,11 +122,8 @@ public class RegisterScreen extends JFrame {
         scrollPane.setBackground(UIManager.getColor("Panel.background"));
         scrollPane.getViewport().setBackground(UIManager.getColor("Panel.background"));
 
-
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-
-        // Painel para os botões
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
         buttonPanel.setBackground(UIManager.getColor("Panel.background"));
@@ -144,7 +140,6 @@ public class RegisterScreen extends JFrame {
 
         registerButton = new JButton("Cadastrar");
         registerButton.setPreferredSize(new Dimension(200, 70));
-
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -242,8 +237,7 @@ public class RegisterScreen extends JFrame {
             return;
         }
 
-        // 5. Validações de formato (CPF, Telefone, CEP - simplificado aqui)
-        // Em um sistema real, você usaria REGEX ou bibliotecas de validação mais robustas.
+        // 5. Validações de formato
         if (!cpf.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
             JOptionPane.showMessageDialog(this, "Formato de CPF inválido. Use xxx.xxx.xxx-xx.", "Erro de Cadastro", JOptionPane.WARNING_MESSAGE);
             return;
@@ -257,22 +251,19 @@ public class RegisterScreen extends JFrame {
             return;
         }
 
-        // Cria o objeto Endereco
         Endereco newAddress = new Endereco(city, state, neighborhood, street, number, cep);
 
-        // Cria o objeto Cliente
         Cliente newClient = new Cliente(
                 name,
                 cpf,
                 phone,
                 email,
-                password, // Senha em texto simples aqui, será hashed pelo AuthController
+                password,
                 newAddress,
                 birthDateTime,
                 selectedGender
         );
 
-        // Tenta registrar o cliente usando o AuthController
         boolean success = authController.registerClient(newClient);
 
         if (success) {
