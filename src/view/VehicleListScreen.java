@@ -247,7 +247,7 @@ public class VehicleListScreen extends JFrame {
 
         if (veiculos.isEmpty()) {
             JLabel noResultsLabel = new JLabel("Nenhum veículo encontrado com os filtros aplicados.", SwingConstants.CENTER);
-            noResultsLabel.setFont(getFont().deriveFont(16f));
+            noResultsLabel.setFont(noResultsLabel.getFont().deriveFont(16f));
             cardPanel.add(noResultsLabel);
         } else {
             for (Veiculo veiculo : veiculos) {
