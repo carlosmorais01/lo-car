@@ -1,6 +1,9 @@
 package entities;
 
-public class Endereco {
+import java.io.Serializable; // Importar Serializable
+
+public class Endereco implements Serializable { // Adicionar implements Serializable
+    private static final long serialVersionUID = 1L; // Adicionar serialVersionUID
     private String cidade;
     private String estado;
     private String bairro;

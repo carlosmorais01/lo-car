@@ -8,7 +8,7 @@ import enums.Tracao;
 import java.io.Serial;
 import java.io.Serializable;
 
-public abstract class Veiculo implements Serializable {
+public abstract class Veiculo implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
