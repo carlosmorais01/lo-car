@@ -2,7 +2,6 @@ package entities;
 
 import enums.Sexo;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
