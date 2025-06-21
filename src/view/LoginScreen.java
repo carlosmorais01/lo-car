@@ -30,19 +30,19 @@ public class LoginScreen extends JFrame {
     private void initializeUI() {
         setTitle("LoCar! - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1280, 720);
+        setSize(1280, 800);
         setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(UIManager.getColor("Panel.background"));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
 
         // Adiciona um espaço superior
         mainPanel.add(Box.createVerticalStrut(20));
 
         ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/logo.png")));
-        Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 300, 300);
+        Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 350, 350);
         logoIcon = new ImageIcon(scaledImage);
 
         JLabel logoLabel = new JLabel(logoIcon);
@@ -53,7 +53,8 @@ public class LoginScreen extends JFrame {
 
         // Campos de entrada
         emailField = new JTextField(20);
-        emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, emailField.getPreferredSize().height + 10));
+        emailField.setPreferredSize(new Dimension(600,70));
+        emailField.setMaximumSize(new Dimension(700, emailField.getPreferredSize().height + 10));
         emailField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         emailField.setBackground(Color.WHITE);
         mainPanel.add(emailField);
@@ -63,22 +64,22 @@ public class LoginScreen extends JFrame {
         mainPanel.add(Box.createVerticalStrut(15));
 
         passwordField = new JPasswordField(20);
-        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, passwordField.getPreferredSize().height + 10));
+        passwordField.setPreferredSize(new Dimension(600,70));
+        passwordField.setMaximumSize(new Dimension(700, passwordField.getPreferredSize().height + 10));
         passwordField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         passwordField.setBackground(Color.WHITE);
         mainPanel.add(passwordField);
 
         passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Senha");
 
-        mainPanel.add(Box.createVerticalStrut(30)); // Espaço entre campos e botões
+        mainPanel.add(Box.createVerticalStrut(30));
 
-        // Painel para os botões (para que fiquem lado a lado)
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 0)); // Centraliza com espaçamento
         buttonPanel.setBackground(UIManager.getColor("Panel.background")); // Mantém o fundo igual ao mainPanel
 
         registerButton = new JButton("Cadastrar");
-        registerButton.setPreferredSize(new Dimension(120, 40)); // Tamanho fixo para o botão
+        registerButton.setPreferredSize(new Dimension(300, 70));
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,7 +89,7 @@ public class LoginScreen extends JFrame {
         buttonPanel.add(registerButton);
 
         loginButton = new JButton("Entrar");
-        loginButton.setPreferredSize(new Dimension(120, 40)); // Tamanho fixo para o botão
+        loginButton.setPreferredSize(new Dimension(300, 70));
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -99,8 +100,7 @@ public class LoginScreen extends JFrame {
 
         mainPanel.add(buttonPanel);
 
-        // Adiciona um espaço inferior
-        mainPanel.add(Box.createVerticalGlue()); // Empurra os componentes para cima
+        mainPanel.add(Box.createVerticalGlue());
 
         add(mainPanel);
     }
@@ -118,7 +118,7 @@ public class LoginScreen extends JFrame {
 
         if (authenticatedClient != null) {
             JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedClient.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            // Aqui você pode fechar a tela de login e abrir a próxima tela da aplicação.
+            // Aqui fechar a tela de login e abrir a próxima tela da aplicação.
             // Ex: dispose(); new MainApplicationScreen(authenticatedClient).setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
@@ -126,38 +126,7 @@ public class LoginScreen extends JFrame {
     }
 
     private void handleRegister() {
-        // Para fins de teste e demonstração da serialização, vamos simular um registro simples aqui.
-        // Em um sistema real, isso abriria uma nova tela de cadastro de cliente.
-
-        String email = emailField.getText();
-        String password = new String(passwordField.getPassword());
-
-        if (email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Para simular o registro, preencha Email e Senha.", "Erro de Registro", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Simula um novo cliente com dados mínimos para teste
-        Endereco enderecoTeste = new Endereco("Cidade Teste", "Estado Teste", "Bairro Teste", "Rua Teste", 123, "12345-678");
-        Cliente newClient = new Cliente(
-                "Novo Usuário", // Nome
-                "123.456.789-00", // CPF (apenas para teste, em real deveria ser validado e único)
-                "99999-9999", // Telefone
-                email, // Email do campo
-                password, // Senha do campo (será hashed pelo controller)
-                enderecoTeste,
-                LocalDateTime.of(1990, 1, 1, 0, 0), // Data de Nascimento
-                Sexo.MASCULINO // Sexo
-        );
-
-        boolean success = authController.registerClient(newClient);
-
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Registro simulado com sucesso! Tente fazer login.", "Registro", JOptionPane.INFORMATION_MESSAGE);
-            emailField.setText("");
-            passwordField.setText("");
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao registrar. Email ou CPF podem já estar em uso.", "Erro de Registro", JOptionPane.ERROR_MESSAGE);
-        }
+        dispose();
+        new RegisterScreen().setVisible(true);
     }
 }
