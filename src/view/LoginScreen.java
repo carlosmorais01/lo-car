@@ -118,7 +118,7 @@ public class LoginScreen extends JFrame {
         if (authenticatedClient != null) {
             JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedClient.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             dispose();
-            VehicleListScreen vehicleListScreen = new VehicleListScreen();
+            VehicleListScreen vehicleListScreen = new VehicleListScreen(authenticatedClient); // NOVO: Construtor com Cliente
             vehicleListScreen.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
