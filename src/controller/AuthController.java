@@ -11,11 +11,16 @@ import java.util.Optional;
 
 public class AuthController {
     private static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
+    private static final String PROFILE_PICS_DIR = "dump/profile_pics/";
 
     public AuthController() {
         File dir = new File("dump/clientes/");
         if (!dir.exists()) {
             dir.mkdirs();
+        }
+        File profileDir = new File(PROFILE_PICS_DIR);
+        if (!profileDir.exists()) {
+            profileDir.mkdirs();
         }
     }
 
@@ -106,7 +111,34 @@ public class AuthController {
         }
         newClient.setSenha(hashedPassword);
 
+        String savedPhotoPath = saveProfilePicture(newClient.getCaminhoFoto(), newClient.getCpf());
+        newClient.setCaminhoFoto(savedPhotoPath);
         clients.add(newClient);
         return saveClients(clients);
+    }
+
+    public String saveProfilePicture(String originalImagePath, String cpf) {
+        if (originalImagePath == null || originalImagePath.isEmpty()) {
+            return null; // Nenhuma imagem para salvar
+        }
+
+        File originalFile = new File(originalImagePath);
+        String fileExtension = "";
+        int i = originalImagePath.lastIndexOf('.');
+        if (i > 0) {
+            fileExtension = originalImagePath.substring(i); // Ex: .png
+        }
+
+        String newFileName = cpf + fileExtension; // Nomeia a imagem com o CPF do cliente
+        File newFile = new File(PROFILE_PICS_DIR + newFileName);
+
+        try {
+            java.nio.file.Files.copy(originalFile.toPath(), newFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return newFile.getAbsolutePath(); // Retorna o caminho absoluto do arquivo salvo
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar imagem de perfil para " + cpf + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }
