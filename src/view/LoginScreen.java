@@ -3,16 +3,13 @@ package view;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import controller.AuthController;
-import entities.Cliente; // Importe a classe Cliente
-import enums.Sexo; // Importe o enum Sexo, se necessário para testes/registro
-import entities.Endereco; // Importe a classe Endereco, se necessário para testes/registro
+import entities.Cliente;
 import util.ImageScaler;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.LocalDateTime; // Importe LocalDateTime
 import java.util.Objects;
 
 public class LoginScreen extends JFrame {
