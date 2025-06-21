@@ -24,23 +24,26 @@ public class Main {
             UIManager.put("TitlePane.unifiedBackground", false);
 
             UIManager.put("TitlePane.background", new Color(243, 243, 243));
-            UIManager.put("TitlePane.inactiveBackground", new Color(243, 243, 243)); // Uma variação um pouco mais escura ou acinzentada
+            UIManager.put("TitlePane.inactiveBackground", new Color(243, 243, 243));
 
             UIManager.put("TitlePane.foreground", new Color(74, 74, 74));
-            UIManager.put("TitlePane.inactiveForeground", new Color(39, 39, 39)); // Uma cor mais suave para o estado inativo
+            UIManager.put("TitlePane.inactiveForeground", new Color(39, 39, 39));
 
             UIManager.put("TitlePane.buttonHoverColor", new Color(255,255,255, 50));
             UIManager.put("TitlePane.buttonPressedColor", new Color(255,255,255, 100));
 
-            UIManager.put("Panel.background", new Color(243, 243, 243)); // Fundo principal da aplicação #F3F3F3
+            UIManager.put("Panel.background", new Color(243, 243, 243));
             UIManager.put("TextComponent.background", new Color(255, 255, 255));
-            UIManager.put("Button.background", new Color(10, 40, 61)); // Cor principal #0A283D
+            UIManager.put("Button.background", new Color(10, 40, 61));
             UIManager.put("Button.foreground", Color.WHITE);
             UIManager.put("Button.hoverBackground", new Color(15, 55, 85));
             UIManager.put("Button.pressedBackground", new Color(5, 25, 40));
-            UIManager.put("Label.foreground", new Color(10, 40, 61)); // Cor do texto dos labels
+            UIManager.put("Label.foreground", new Color(43, 43, 43));
             UIManager.put("TextField.foreground", new Color(10, 40, 61));
             UIManager.put("PasswordField.foreground", new Color(10, 40, 61));
+
+            UIManager.put("OptionPane.background", new Color(243, 243, 243));
+            UIManager.put("OptionPane.messageForeground", new Color(43, 43, 43));
 
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             boolean robotoSlabAvailable = false;
@@ -68,11 +71,11 @@ public class Main {
 
             Font appFont;
             if (robotoSlabAvailable) {
-                appFont = new Font("Roboto Slab", Font.PLAIN, 14);
+                appFont = new Font("Roboto Slab", Font.PLAIN, 27);
             } else if (montserratAvailable) {
-                appFont = new Font("Montserrat", Font.PLAIN, 14);
+                appFont = new Font("Montserrat", Font.PLAIN, 27);
             } else {
-                appFont = new Font("Roboto", Font.PLAIN, 14);
+                appFont = new Font("Roboto", Font.PLAIN, 27);
             }
 
             UIManager.put("Button.font", appFont);
