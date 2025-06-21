@@ -21,8 +21,7 @@ public class DumpGenerator {
         gerarCarros();
         gerarMotos();
         gerarCaminhoes();
-        gerarClientes(); // Gerar clientes primeiro
-        gerarLocacoes(); // Gerar locações depois dos clientes e veículos
+        gerarLocacoes();
     }
 
     private static void gerarCarros() {
@@ -95,23 +94,6 @@ public class DumpGenerator {
 
             oos.writeObject(caminhao1);
             oos.writeObject(caminhao2);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void gerarClientes() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("dump/clientes/clientes.dat"))) {
-            // Criando instâncias de Endereco para os clientes
-            Endereco endereco1 = new Endereco("Goiânia", "GO", "Centro", "Rua 1", 100, "74000-000");
-            Endereco endereco2 = new Endereco("Goiânia", "GO", "Setor Marista", "Avenida Principal", 50, "74150-100");
-
-            // Agora passando todos os 8 argumentos para o construtor de Cliente
-            Cliente cliente1 = new Cliente("João Silva", "123.456.789-00", "62998877665", "joao.silva@email.com", "senha123", endereco1, LocalDateTime.of(1990, Month.JANUARY, 15, 0, 0), Sexo.MASCULINO);
-            Cliente cliente2 = new Cliente("Maria Oliveira", "987.654.321-99", "62991122334", "maria.oliveria@email.com", "senha456", endereco2, LocalDateTime.of(1985, Month.MARCH, 20, 0, 0), Sexo.FEMININO);
-
-            oos.writeObject(cliente1);
-            oos.writeObject(cliente2);
         } catch (Exception e) {
             e.printStackTrace();
         }
