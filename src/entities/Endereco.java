@@ -1,9 +1,12 @@
 package entities;
 
-import java.io.Serializable; // Importar Serializable
+import java.io.Serial;
+import java.io.Serializable;
 
-public class Endereco implements Serializable { // Adicionar implements Serializable
-    private static final long serialVersionUID = 1L; // Adicionar serialVersionUID
+public class Endereco implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String cidade;
     private String estado;
     private String bairro;
