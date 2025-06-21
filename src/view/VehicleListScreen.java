@@ -1,10 +1,7 @@
 package view;
 
 import controller.VeiculoController;
-import entities.Veiculo;
-import entities.Carro; // Para filtro de tipo
-import entities.Moto; // Para filtro de tipo
-import entities.Caminhao; // Para filtro de tipo
+import entities.*;
 import enums.Cor;
 import view.components.HeaderPanel;
 import view.components.RoundedImageLabel; // Ajustado para o seu pacote 'view'
@@ -17,6 +14,7 @@ public class VehicleListScreen extends JFrame {
     private JPanel cardPanel;
     private VeiculoController veiculoController;
     private HeaderPanel headerPanel;
+    private Cliente loggedInClient;
 
     // Componentes para os filtros
     private JTextField precoMaxField;
@@ -36,7 +34,8 @@ public class VehicleListScreen extends JFrame {
     private JRadioButton todosModelosRadio;
     private ButtonGroup modeloButtonGroup;
 
-    public VehicleListScreen() {
+    public VehicleListScreen(Cliente client) {
+        this.loggedInClient = client;
         setTitle("Tela de Pesquisa - LoCar!");
         setSize(1200, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -45,7 +44,7 @@ public class VehicleListScreen extends JFrame {
 
         veiculoController = new VeiculoController();
 
-        headerPanel = new HeaderPanel("José Borges");
+        headerPanel = new HeaderPanel(loggedInClient.getNome(), loggedInClient.getCaminhoFoto());
         headerPanel.setSearchAction(e -> aplicarFiltros());
         add(headerPanel, BorderLayout.NORTH);
 
