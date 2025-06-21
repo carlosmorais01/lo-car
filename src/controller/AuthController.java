@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class AuthController {
-    private static final String CLIENTS_FILE_PATH = "dump/clientes/clients.dat";
+    private static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
 
     public AuthController() {
         File dir = new File("dump/clientes/");
