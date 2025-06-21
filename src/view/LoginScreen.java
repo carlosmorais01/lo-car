@@ -1,10 +1,10 @@
-// src/view/LoginScreen.java
 package view;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import controller.AuthController;
 import entities.Cliente;
 import util.ImageScaler;
+import view.components.HeaderPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,30 +50,24 @@ public class LoginScreen extends JFrame {
 
         // Campos de entrada
         emailField = new JTextField(20);
-        emailField.setPreferredSize(new Dimension(600,70));
-        emailField.setMaximumSize(new Dimension(700, emailField.getPreferredSize().height + 10));
-        emailField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        emailField.setBackground(Color.WHITE);
-        mainPanel.add(emailField);
-
+        criarCampoTextoArredondado(mainPanel, emailField);
         emailField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Email");
+        // Adiciona ActionListener para o Enter
+        emailField.addActionListener(e -> handleLogin()); //
 
         mainPanel.add(Box.createVerticalStrut(15));
 
         passwordField = new JPasswordField(20);
-        passwordField.setPreferredSize(new Dimension(600,70));
-        passwordField.setMaximumSize(new Dimension(700, passwordField.getPreferredSize().height + 10));
-        passwordField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        passwordField.setBackground(Color.WHITE);
-        mainPanel.add(passwordField);
-
+        criarCampoTextoArredondado(mainPanel, passwordField);
         passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Senha");
+        // Adiciona ActionListener para o Enter
+        passwordField.addActionListener(e -> handleLogin()); //
 
         mainPanel.add(Box.createVerticalStrut(30));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 0)); // Centraliza com espaçamento
-        buttonPanel.setBackground(UIManager.getColor("Panel.background")); // Mantém o fundo igual ao mainPanel
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.setBackground(UIManager.getColor("Panel.background"));
 
         registerButton = new JButton("Cadastrar");
         registerButton.setPreferredSize(new Dimension(300, 70));
@@ -100,6 +94,14 @@ public class LoginScreen extends JFrame {
         mainPanel.add(Box.createVerticalGlue());
 
         add(mainPanel);
+    }
+
+    private void criarCampoTextoArredondado(JPanel mainPanel, JTextField field) {
+        field.setPreferredSize(new Dimension(600,70));
+        field.setMaximumSize(new Dimension(700, field.getPreferredSize().height + 10)); // Usar field.getPreferredSize()
+        field.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        field.setBackground(Color.WHITE);
+        mainPanel.add(field);
     }
 
     private void handleLogin() {
