@@ -78,7 +78,8 @@ public class AuthController {
             oos.writeObject(clients);
             return true;
         } catch (IOException e) {
-            System.err.println("Erro ao salvar clientes no arquivo: " + e.getMessage());
+            System.err.println("Erro ao salvar clientes no arquivo: ");
+            e.printStackTrace();
             return false;
         }
     }
@@ -101,12 +102,11 @@ public class AuthController {
             return false; // Cliente com email ou CPF já cadastrado
         }
 
-        // Hashing da senha antes de salvar
         String hashedPassword = PasswordHasher.hashPassword(newClient.getSenha());
         if (hashedPassword == null) {
-            return false; // Erro ao gerar o hash da senha
+            return false;
         }
-        newClient.setSenha(hashedPassword); // Define a senha hashed para o cliente
+        newClient.setSenha(hashedPassword);
 
         clients.add(newClient);
         return saveClients(clients);
