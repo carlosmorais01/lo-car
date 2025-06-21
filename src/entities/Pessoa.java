@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public abstract class Pessoa implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
     private String nome;
     private String cpf;
     private String telefone;
@@ -17,8 +18,9 @@ public abstract class Pessoa implements Serializable {
     private Endereco endereco;
     private LocalDateTime dataNascimento;
     private Sexo sexo;
+    private String caminhoFoto;
 
-    public Pessoa(String nome, String cpf, String telefone, String email, String senha, Endereco endereco, LocalDateTime dataNascimento, Sexo sexo) {
+    public Pessoa(String nome, String cpf, String telefone, String email, String senha, Endereco endereco, LocalDateTime dataNascimento, Sexo sexo, String caminhoFoto) {
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
@@ -27,6 +29,7 @@ public abstract class Pessoa implements Serializable {
         this.endereco = endereco;
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;
+        this.caminhoFoto = caminhoFoto;
     }
 
     public String getNome() {
@@ -91,5 +94,13 @@ public abstract class Pessoa implements Serializable {
 
     public void setSexo(Sexo sexo) {
         this.sexo = sexo;
+    }
+
+    public String getCaminhoFoto() {
+        return caminhoFoto;
+    }
+
+    public void setCaminhoFoto(String caminhoFoto) {
+        this.caminhoFoto = caminhoFoto;
     }
 }

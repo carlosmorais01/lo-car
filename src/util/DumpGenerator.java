@@ -108,10 +108,10 @@ public class DumpGenerator {
 
             // Clientes (recriando para ter instâncias para a locação)
             Endereco endC1 = new Endereco("Goiânia", "GO", "Centro", "Rua 1", 100, "74000-000");
-            Cliente cliente1Loc = new Cliente("João Silva", "123.456.789-00", "62998877665", "joao.silva@email.com", "senha123", endC1, LocalDateTime.of(1990, Month.JANUARY, 15, 0, 0), Sexo.MASCULINO);
+            Cliente cliente1Loc = new Cliente("João Silva", "123.456.789-00", "62998877665", "joao.silva@email.com", "senha123", endC1, LocalDateTime.of(1990, Month.JANUARY, 15, 0, 0), Sexo.MASCULINO, "");
 
             Endereco endC2 = new Endereco("Goiânia", "GO", "Setor Marista", "Avenida Principal", 50, "74150-100");
-            Cliente cliente2Loc = new Cliente("Maria Oliveira", "987.654.321-99", "62991122334", "maria.oliveria@email.com", "senha456", endC2, LocalDateTime.of(1985, Month.MARCH, 20, 0, 0), Sexo.FEMININO);
+            Cliente cliente2Loc = new Cliente("Maria Oliveira", "987.654.321-99", "62991122334", "maria.oliveria@email.com", "senha456", endC2, LocalDateTime.of(1985, Month.MARCH, 20, 0, 0), Sexo.FEMININO, "");
 
             // Veículos (recriando para ter instâncias para a locação)
             // Usar as PLACAS que foram usadas em gerarCarros/gerarMotos
