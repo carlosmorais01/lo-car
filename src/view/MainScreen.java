@@ -16,7 +16,7 @@ public class MainScreen extends JFrame {
     private Cliente loggedInClient;
     private HeaderPanel headerPanel;
     private CarrosselPanel carrosselPanel;
-    private JPanel mostRentedCarsPanel; // Painel para os carros mais alugados
+    private JPanel mostRentedCarsPanel;
 
     public MainScreen(Cliente client) {
         this.loggedInClient = client;
@@ -39,8 +39,7 @@ public class MainScreen extends JFrame {
         headerPanel = new HeaderPanel(userName, userProfilePic);
         headerPanel.setSearchAction(e -> {
             String searchText = headerPanel.getSearchText();
-            // Ação do botão de busca no header: Abre VehicleListScreen com o filtro
-            dispose(); // Fecha a MainScreen
+            dispose();
             VehicleListScreen searchResultsScreen = new VehicleListScreen(loggedInClient, searchText);
             searchResultsScreen.setVisible(true);
         });
@@ -48,14 +47,14 @@ public class MainScreen extends JFrame {
 
         // Painel de Conteúdo Principal (Carrossel + Carros Mais Alugados)
         JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); // Layout vertical para as seções
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(UIManager.getColor("Panel.background"));
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50)); // Padding geral
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
         // Carrossel de Veículos
         List<Veiculo> veiculosCarrossel = veiculoController.listarTodos();
         carrosselPanel = new CarrosselPanel(veiculosCarrossel);
-        carrosselPanel.setAlignmentX(Component.CENTER_ALIGNMENT); // Já está aqui, bom
+        carrosselPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         contentPanel.add(carrosselPanel);
         contentPanel.add(Box.createVerticalStrut(40));
 
@@ -63,29 +62,30 @@ public class MainScreen extends JFrame {
         JLabel mostRentedTitle = new JLabel("Carros mais alugados");
         mostRentedTitle.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 24f));
         mostRentedTitle.setForeground(new Color(10, 40, 61));
-        mostRentedTitle.setAlignmentX(Component.CENTER_ALIGNMENT); // ALINHAR AO CENTRO
+        mostRentedTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         contentPanel.add(mostRentedTitle);
         contentPanel.add(Box.createVerticalStrut(20));
 
         // Painel para os cards de carros mais alugados
         mostRentedCarsPanel = new JPanel();
-        mostRentedCarsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // FlowLayout já centraliza os items dentro dele
+        mostRentedCarsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
         mostRentedCarsPanel.setBackground(UIManager.getColor("Panel.background"));
-        mostRentedCarsPanel.setAlignmentX(Component.CENTER_ALIGNMENT); // ALINHAR AO CENTRO
+        // Remova mostRentedCarsPanel.setAlignmentX(Component.CENTER_ALIGNMENT); daqui
+        // Será centralizado pelo wrapper abaixo
 
-        // Carrega e exibe os carros mais alugados
         loadMostRentedCars();
 
-        JScrollPane mostRentedScrollPane = new JScrollPane(mostRentedCarsPanel);
-        mostRentedScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        mostRentedScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        mostRentedScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mostRentedScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        mostRentedScrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); // ALINHAR AO CENTRO (o scroll pane)
+        // NOVO: Wrapper para centralizar o FlowLayout dentro do BoxLayout
+        JPanel mostRentedCarsWrapper = new JPanel(new BorderLayout()); // Usa BorderLayout
+        mostRentedCarsWrapper.setBackground(UIManager.getColor("Panel.background"));
+        mostRentedCarsWrapper.add(mostRentedCarsPanel, BorderLayout.CENTER); // Adiciona o FlowLayout no centro
 
-        contentPanel.add(mostRentedScrollPane);
+        mostRentedCarsWrapper.setAlignmentX(Component.CENTER_ALIGNMENT); // Centraliza o wrapper no BoxLayout
+        contentPanel.add(mostRentedCarsWrapper); // Adiciona o wrapper ao contentPanel
+
         contentPanel.add(Box.createVerticalGlue());
 
+        // Apenas um JScrollPane principal para todo o conteúdo rolável
         JScrollPane mainScrollPane = new JScrollPane(contentPanel);
         mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
         mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -96,7 +96,7 @@ public class MainScreen extends JFrame {
 
     private void loadMostRentedCars() {
         mostRentedCarsPanel.removeAll();
-        List<Veiculo> carrosMaisAlugados = veiculoController.getVeiculosMaisAlugados(4); // Exibe os 4 mais alugados
+        List<Veiculo> carrosMaisAlugados = veiculoController.getVeiculosMaisAlugados(4);
 
         if (carrosMaisAlugados.isEmpty()) {
             JLabel noCarsLabel = new JLabel("Nenhum carro popular encontrado.");
@@ -104,8 +104,8 @@ public class MainScreen extends JFrame {
             mostRentedCarsPanel.add(noCarsLabel);
         } else {
             for (Veiculo veiculo : carrosMaisAlugados) {
-                CarCardPanel card = new CarCardPanel(veiculo, veiculoController); // Usa o novo componente
-                card.setPreferredSize(new Dimension(280, 280)); // Ajuste o tamanho do card aqui
+                CarCardPanel card = new CarCardPanel(veiculo, veiculoController);
+                card.setPreferredSize(new Dimension(280, 280));
                 mostRentedCarsPanel.add(card);
             }
         }

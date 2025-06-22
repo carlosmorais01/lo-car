@@ -130,6 +130,7 @@ public class VehicleListScreen extends JFrame {
         coresComboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         coresComboBox.addActionListener(e -> aplicarFiltros());
         coresComboBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        coresComboBox.setFont(coresComboBox.getFont().deriveFont(Font.PLAIN, 14));
         filterPanel.add(coresComboBox);
         filterPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
