@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 public class VeiculoController {
 
     private List<Veiculo> veiculos;
-    private List<Locacao> locacoes;
 
     private static final String VEHICLE_PICS_DIR = "dump/vehicle_pics/";
+    private static final String LOCACOES_FILE_PATH = "dump/locacoes/locacoes.dat";
 
     public VeiculoController() {
         File vehiclePicDir = new File(VEHICLE_PICS_DIR);
@@ -29,7 +29,6 @@ public class VeiculoController {
             vehiclePicDir.mkdirs();
         }
         this.veiculos = carregarTodosVeiculos();
-        this.locacoes = carregarLocacoes();
     }
 
     public boolean excluirVeiculo(Veiculo veiculoParaExcluir) {
@@ -212,19 +211,26 @@ public class VeiculoController {
         return lista;
     }
 
-    private List<Locacao> carregarLocacoes() {
+    public List<Locacao> carregarLocacoes() {
         List<Locacao> lista = new ArrayList<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("dump/locacoes/locacoes.dat"))) {
-            while (true) {
+        File file = new File(LOCACOES_FILE_PATH);
+
+        if (file.exists() && file.length() > 0) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 Object obj = ois.readObject();
-                if (obj instanceof Locacao) {
-                    lista.add((Locacao) obj);
+                if (obj instanceof List) {
+                    List<?> rawList = (List<?>) obj;
+                    for (Object item : rawList) {
+                        if (item instanceof Locacao) {
+                            lista.add((Locacao) item);
+                        }
+                    }
                 }
+            } catch (IOException e) {
+                System.err.println("Erro ao carregar locações: " + e.getMessage());
+            } catch (ClassNotFoundException e) {
+                System.err.println("Classe Locacao não encontrada durante a desserialização: " + e.getMessage());
             }
-        } catch (java.io.EOFException eof) {
-            // Fim do arquivo, esperado
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar locações: " + e.getMessage());
         }
         return lista;
     }
@@ -234,35 +240,31 @@ public class VeiculoController {
     }
 
     public List<Veiculo> getVeiculosMaisAlugados(int limit) {
-        // Para carros "mais alugados", vamos usar o campo 'locacoes' na entidade Veiculo.
-        // Em um sistema real, você faria um sumário das locações no período.
         return veiculos.stream()
-                .sorted(Comparator.comparingInt(Veiculo::getLocacoes).reversed()) // Ordena pelo maior número de locações
-                .limit(limit) // Limita a quantidade de veículos
+                .sorted(Comparator.comparingInt(Veiculo::getLocacoes).reversed())
+                .limit(limit)
                 .collect(Collectors.toList());
     }
 
     public List<Veiculo> filtrarVeiculos(String termoBuscaGeral, Double precoMax, Cor cor, String statusDisponibilidade, Integer anoMin, Integer anoMax, String tipoVeiculo) {
         Stream<Veiculo> resultadoStream = veiculos.stream();
 
-        // Filtro de busca geral (nome, marca, ano) - AGORA COM MÚLTIPLOS PARÂMETROS
+        // Recarrega as locações para ter o status de disponibilidade mais recente para o filtro
+        List<Locacao> locacoesAtuais = carregarLocacoes(); // Chama o método aqui
+
         if (termoBuscaGeral != null && !termoBuscaGeral.trim().isEmpty()) {
-            String[] termosIndividuais = termoBuscaGeral.toLowerCase().split("\\s+"); // Divide por espaços
+            String[] termosIndividuais = termoBuscaGeral.toLowerCase().split("\\s+");
 
             resultadoStream = resultadoStream.filter(veiculo -> {
-                // Concatena todos os campos relevantes do veículo em uma única string para busca
                 String infoVeiculo = (veiculo.getNome() + " " +
                         veiculo.getMarca() + " " +
-                        veiculo.getModelo() + " " + // Adicionado Modelo também
+                        veiculo.getModelo() + " " +
                         veiculo.getAno()).toLowerCase();
-
-                // Verifica se CADA termo individual está contido em infoVeiculo
                 return Arrays.stream(termosIndividuais)
                         .allMatch(termo -> infoVeiculo.contains(termo));
             });
         }
 
-        // Filtro por preço por dia (se houver)
         if (precoMax != null) {
             resultadoStream = resultadoStream.filter(v -> v.getValorDiario() <= precoMax);
         }
@@ -275,7 +277,8 @@ public class VeiculoController {
             switch (statusDisponibilidade) {
                 case "Disponíveis":
                     resultadoStream = resultadoStream.filter(v -> {
-                        return locacoes.stream()
+                        // Usa a lista de locações recarregada
+                        return locacoesAtuais.stream()
                                 .noneMatch(loc -> loc.getVeiculo().getPlaca().equals(v.getPlaca()) && loc.getDataDevolucao() == null);
                     });
                     break;
@@ -284,7 +287,8 @@ public class VeiculoController {
                         LocalDateTime agora = LocalDateTime.now();
                         LocalDateTime limiteSuperior = agora.plusDays(3);
 
-                        return locacoes.stream()
+                        // Usa a lista de locações recarregada
+                        return locacoesAtuais.stream()
                                 .anyMatch(loc -> loc.getVeiculo().getPlaca().equals(v.getPlaca())
                                         && loc.getDataDevolucao() == null
                                         && loc.getDataPrevistaDevolucao() != null
@@ -326,7 +330,8 @@ public class VeiculoController {
     }
 
     public boolean estaLocado(Veiculo veiculo) {
-        return locacoes.stream()
+        List<Locacao> locacoesAtuais = carregarLocacoes(); // Recarrega a lista de locações
+        return locacoesAtuais.stream()
                 .anyMatch(loc -> loc.getVeiculo().getPlaca().equals(veiculo.getPlaca()) && loc.getDataDevolucao() == null);
     }
 }
