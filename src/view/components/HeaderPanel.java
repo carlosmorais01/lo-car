@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter; // Importar MouseAdapter
+import java.awt.event.MouseEvent; // Importar MouseEvent
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
@@ -43,12 +45,11 @@ public class HeaderPanel extends JPanel {
             if (logoUrl != null) {
                 systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(logoUrl).getImage(), 70, 70));
             } else {
-                // Fallback: tentar carregar como arquivo direto (para desenvolvimento no IDE)
                 systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/logotipo.png")), 70, 70));
             }
         } catch (Exception e) {
             System.err.println("Erro ao carregar logotipo do sistema: " + e.getMessage());
-            systemLogoIcon = new ImageIcon(new byte[0]); // Ícone vazio em caso de erro
+            systemLogoIcon = new ImageIcon(new byte[0]);
         }
 
         systemLogoLabel = new JLabel(systemLogoIcon);
@@ -57,9 +58,9 @@ public class HeaderPanel extends JPanel {
 
         ImageIcon gearIcon = null;
         try {
-            URL gearUrl = getClass().getResource("/icons/gear-icon.png"); // Caminho do ícone da engrenagem
+            URL gearUrl = getClass().getResource("/icons/gear-icon.png");
             if (gearUrl != null) {
-                gearIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(gearUrl).getImage(), 25, 25)); // Tamanho do ícone
+                gearIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(gearUrl).getImage(), 25, 25));
             } else {
                 System.err.println("Ícone de engrenagem não encontrado como recurso. Tentando carregar de arquivo.");
                 gearIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/gear-icon.png")), 25, 25));
@@ -73,12 +74,12 @@ public class HeaderPanel extends JPanel {
         settingsButton.setBorderPainted(false);
         settingsButton.setFocusPainted(false);
         settingsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        settingsButton.setVisible(false); // Inicia invisível
-        gbcLeft.gridx = 1; // Coloca ao lado do logotipo
-        gbcLeft.insets = new Insets(0, 0, 0, 0); // Ajusta margem
+        settingsButton.setVisible(false);
+        gbcLeft.gridx = 1;
+        gbcLeft.insets = new Insets(0, 0, 0, 0);
         leftPanel.add(settingsButton, gbcLeft);
 
-        // Centro: campo de busca (mantido como está)
+        // Centro: campo de busca
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
 
@@ -128,17 +129,14 @@ public class HeaderPanel extends JPanel {
         ImageIcon pfpIcon = null;
         int pfpSize = 50;
 
-        // Tenta carregar a PFP do cliente/funcionário
         if (profileImagePath != null && !profileImagePath.isEmpty()) {
             try {
                 Image loadedPfpImage = null;
-                // Tentativa 1: Carregar como arquivo absoluto (para imagens salvas em dump/profile_pics)
                 File filePfp = new File(profileImagePath);
                 if (filePfp.exists()) {
                     loadedPfpImage = ImageIO.read(filePfp);
                 }
 
-                // Tentativa 2: Se não carregou como arquivo, tenta como recurso do classpath (para imagens do dump)
                 if (loadedPfpImage == null) {
                     URL resourcePfpUrl = getClass().getResource(profileImagePath);
                     if (resourcePfpUrl != null) {
@@ -159,15 +157,13 @@ public class HeaderPanel extends JPanel {
             }
         }
 
-        // Fallback para PFP padrão se nenhuma imagem foi carregada com sucesso
-        if (pfpIcon == null || pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+        if (pfpIcon == null || (pfpIcon.getImageLoadStatus() != -1 && pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE)) {
             try {
                 Image defaultPfpImage = null;
-                URL defaultPfpUrl = getClass().getResource("/images/default_pfp.png"); // Caminho para PFP padrão do projeto
+                URL defaultPfpUrl = getClass().getResource("/images/default_pfp.png");
                 if (defaultPfpUrl != null) {
                     defaultPfpImage = ImageIO.read(defaultPfpUrl);
                 } else {
-                    // Fallback para arquivo local em desenvolvimento (se o recurso não for encontrado)
                     System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo local.");
                     File defaultPfpFile = new File("src/images/default_pfp.png");
                     if (defaultPfpFile.exists()) {
@@ -194,23 +190,8 @@ public class HeaderPanel extends JPanel {
 
         profileIconLabel = new JLabel(pfpIcon);
         profileIconLabel.setPreferredSize(new Dimension(pfpSize, pfpSize));
-        profileIconLabel.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Adicionar cursor de mão
-        // NOVO: Adicionar MouseListener para cliques
-        profileIconLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            private ActionListener clickListener;
-
-            // Este método será chamado para definir o ActionListener de clique
-            public void setClickListener(ActionListener listener) {
-                this.clickListener = listener;
-            }
-
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (clickListener != null) {
-                    clickListener.actionPerformed(new ActionEvent(profileIconLabel, ActionEvent.ACTION_PERFORMED, "profileIconClicked"));
-                }
-            }
-        });
+        profileIconLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // O MouseListener será adicionado externamente pelo setProfileIconClickListener
 
         rightPanel.add(userLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -221,30 +202,22 @@ public class HeaderPanel extends JPanel {
         add(rightPanel, BorderLayout.EAST);
     }
 
+    // Método refatorado para ser a única forma de definir o listener do ícone de perfil
     public void setProfileIconClickListener(ActionListener listener) {
+        // Primeiro, remova TODOS os MouseListeners existentes para evitar duplicação.
+        // Isso é seguro porque não estamos removendo MouseListeners que o próprio Swing pode ter adicionado.
         for (java.awt.event.MouseListener ml : profileIconLabel.getMouseListeners()) {
-            if (ml instanceof ProfileIconMouseListener) {
-                profileIconLabel.removeMouseListener(ml);
+            profileIconLabel.removeMouseListener(ml);
+        }
+        // Agora, adicione um novo MouseListener anônimo que irá disparar o ActionListener
+        profileIconLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (listener != null) {
+                    listener.actionPerformed(new ActionEvent(profileIconLabel, ActionEvent.ACTION_PERFORMED, "profileIconClicked"));
+                }
             }
-        }
-        profileIconLabel.addMouseListener(new ProfileIconMouseListener(profileIconLabel, listener));
-    }
-
-    private static class ProfileIconMouseListener extends java.awt.event.MouseAdapter {
-        private final JLabel label;
-        private final ActionListener listener;
-
-        public ProfileIconMouseListener(JLabel label, ActionListener listener) {
-            this.label = label;
-            this.listener = listener;
-        }
-
-        @Override
-        public void mouseClicked(java.awt.event.MouseEvent e) {
-            if (listener != null) {
-                listener.actionPerformed(new ActionEvent(label, ActionEvent.ACTION_PERFORMED, "profileIconClicked"));
-            }
-        }
+        });
     }
 
     public String getSearchText() {
@@ -264,9 +237,17 @@ public class HeaderPanel extends JPanel {
     }
 
     public void setLogoClickListener(ActionListener listener) {
-        systemLogoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        // Remover MouseAdapter anônimo se já não tiver sido
+        for (java.awt.event.MouseListener ml : systemLogoLabel.getMouseListeners()) {
+            // Heurística para anônimo ou auto-gerado
+            // (Uso de contains("$") é uma heurística, idealmente você saberia o tipo exato do seu próprio listener)
+            if (ml.getClass().getName().contains("$")) {
+                systemLogoLabel.removeMouseListener(ml);
+            }
+        }
+        systemLogoLabel.addMouseListener(new MouseAdapter() { // Usar MouseAdapter aqui também
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 listener.actionPerformed(new ActionEvent(systemLogoLabel, ActionEvent.ACTION_PERFORMED, "logoClicked"));
             }
         });
