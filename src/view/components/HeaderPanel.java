@@ -7,13 +7,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
+
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class HeaderPanel extends JPanel {
     private final JTextField searchField;
     private JButton searchButton;
     private JLabel userLabel;
     private JLabel profileIconLabel;
+    private JLabel systemLogoLabel;
 
     public HeaderPanel(String userName, String profileImagePath) {
         setLayout(new BorderLayout());
@@ -29,9 +35,24 @@ public class HeaderPanel extends JPanel {
         gbcLeft.insets = new Insets(0, 0, 0, 0);
         gbcLeft.anchor = GridBagConstraints.CENTER;
 
-        Image logo = ImageScaler.scaleImage("src/images/logotipo.png", 70, 70);
-        JLabel logoLabel = new JLabel(new ImageIcon(logo));
-        leftPanel.add(logoLabel, gbcLeft);
+        ImageIcon systemLogoIcon = null;
+        try {
+            URL logoUrl = getClass().getResource("/images/logotipo.png");
+            if (logoUrl != null) {
+                systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(logoUrl).getImage(), 70, 70));
+            } else {
+                // Fallback: tentar carregar como arquivo direto (para desenvolvimento no IDE)
+                systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/logotipo.png")), 70, 70));
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar logotipo do sistema: " + e.getMessage());
+            systemLogoIcon = new ImageIcon(new byte[0]); // Ícone vazio em caso de erro
+        }
+
+        systemLogoLabel = new JLabel(systemLogoIcon);
+        systemLogoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Cursor de mão para indicar clicável
+        // O ActionListener será definido externamente (VehicleListScreen)
+        leftPanel.add(systemLogoLabel, gbcLeft);
 
         // Centro: campo de busca (mantido como está)
         JPanel centerPanel = new JPanel(new GridBagLayout());
@@ -81,22 +102,55 @@ public class HeaderPanel extends JPanel {
         userLabel.setFont(userLabel.getFont().deriveFont(Font.BOLD, 18f));
 
         ImageIcon pfpIcon = null;
+        int pfpSize = 50; // O tamanho da imagem de perfil
+
         if (profileImagePath != null && !profileImagePath.isEmpty()) {
             try {
-                pfpIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(profileImagePath).getImage(), 50, 50));
-            } catch (Exception e) {
-                System.err.println("Erro ao carregar foto de perfil: " + e.getMessage());
-                pfpIcon = new ImageIcon(ImageScaler.scaleImage("src/images/pfp.png", 50, 50));
+                // Tenta carregar a imagem do caminho absoluto
+                // Ajustado para obter Image e depois criar ImageIcon escalonado
+                Image originalPfpImage = ImageIO.read(new File(profileImagePath));
+                if (originalPfpImage != null) {
+                    Image scaledPfpImage = ImageScaler.getScaledImage(originalPfpImage, pfpSize, pfpSize);
+                    pfpIcon = new ImageIcon(scaledPfpImage);
+                } else {
+                    System.err.println("Arquivo de foto de perfil não pôde ser lido: " + profileImagePath + ". Usando padrão.");
+                }
+            } catch (IOException e) {
+                System.err.println("Erro ao carregar foto de perfil do arquivo: " + e.getMessage());
+            } catch (Exception e) { // Captura outras exceções do ImageScaler.getScaledImage
+                System.err.println("Erro ao escalar foto de perfil: " + e.getMessage());
             }
-        } else {
-            pfpIcon = new ImageIcon(ImageScaler.scaleImage("src/images/pfp.png", 50, 50));
         }
 
-        profileIconLabel = new JLabel(pfpIcon);
+        // Se a imagem ainda for nula (não carregou ou erro), use a imagem padrão
+        if (pfpIcon == null || pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+            try {
+                // Tenta carregar pfp padrão como recurso
+                java.net.URL defaultPfpUrl = getClass().getResource("/images/pfp.png");
+                if (defaultPfpUrl != null) {
+                    Image defaultPfpImage = ImageIO.read(defaultPfpUrl);
+                    pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
+                } else {
+                    // Fallback para arquivo direto em tempo de desenvolvimento, se o recurso não for encontrado
+                    System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo.");
+                    Image defaultPfpImage = ImageIO.read(new File("src/images/pfp.png"));
+                    pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
+                }
+            } catch (IOException e) {
+                System.err.println("Erro ao carregar foto de perfil padrão: " + e.getMessage());
+                pfpIcon = new ImageIcon(new byte[0]); // ImageIcon vazio se tudo falhar
+            } catch (Exception e) {
+                System.err.println("Erro ao escalar foto de perfil padrão: " + e.getMessage());
+                pfpIcon = new ImageIcon(new byte[0]);
+            }
+        }
+
+        profileIconLabel = new JLabel(pfpIcon); // Voltou a ser um JLabel simples com o ImageIcon
+        profileIconLabel.setPreferredSize(new Dimension(pfpSize, pfpSize)); // Define o tamanho preferencial
 
         rightPanel.add(userLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        rightPanel.add(profileIconLabel);
+        rightPanel.add(profileIconLabel); // Adiciona o JLabel de volta
 
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
@@ -106,8 +160,22 @@ public class HeaderPanel extends JPanel {
     public String getSearchText() {
         return searchField.getText().trim();
     }
+
     public void setSearchAction(ActionListener actionListener) {
         searchButton.addActionListener(actionListener);
+    }
+
+    public void setLogoClickListener(ActionListener listener) {
+        systemLogoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                listener.actionPerformed(new ActionEvent(systemLogoLabel, ActionEvent.ACTION_PERFORMED, "logoClicked"));
+            }
+        });
+    }
+
+    public void setSearchText(String text) {
+        searchField.setText(text);
     }
 
     public HeaderPanel(String userName) {
