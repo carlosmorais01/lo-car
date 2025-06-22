@@ -108,13 +108,13 @@ public class DumpGenerator {
     private static void gerarClientes() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CLIENTES_FILE))) {
             Endereco endC1 = new Endereco("Goiânia", "GO", "Centro", "Rua A", 100, "74000-000");
-            Cliente cliente1 = new Cliente("João Silva", "123.456.789-00", "62998877665", "joao.silva@gmail.com", "55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251", endC1, LocalDateTime.of(1990, Month.JANUARY, 15, 0, 0), Sexo.MASCULINO, "src/images/pfp_dump/joao.png");
+            Cliente cliente1 = new Cliente("João Silva", "123.456.789-00", "62998877665", "joao.silva@gmail.com", "55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251", endC1, LocalDateTime.of(1990, Month.JANUARY, 15, 0, 0), Sexo.MASCULINO, "/images/pfp_dump/joao.png");
 
             Endereco endC2 = new Endereco("Goiânia", "GO", "Setor Marista", "Avenida B", 50, "74150-100");
-            Cliente cliente2 = new Cliente("Maria Oliveira", "987.654.321-99", "62991122334", "maria.oliveira@gmail.com", "6b08d780140e292a4af8ba3f2333fc1357091442d7e807c6cad92e8dcd0240b7", endC2, LocalDateTime.of(1985, Month.MARCH, 20, 0, 0), Sexo.FEMININO, "src/images/pfp_dump/maria.png");
+            Cliente cliente2 = new Cliente("Maria Oliveira", "987.654.321-99", "62991122334", "maria.oliveira@gmail.com", "6b08d780140e292a4af8ba3f2333fc1357091442d7e807c6cad92e8dcd0240b7", endC2, LocalDateTime.of(1985, Month.MARCH, 20, 0, 0), Sexo.FEMININO, "/images/pfp_dump/maria.png");
 
             Endereco endC3 = new Endereco("Anápolis", "GO", "Jardim das Américas", "Rua C", 20, "75000-000");
-            Cliente cliente3 = new Cliente("Pedro Souza", "111.222.333-44", "62995544332", "pedro.souza@gmail.com", "e5857b335afdf35ca81a110bc81f38682f8a89892cc597f5398dfef82d42b513", endC3, LocalDateTime.of(1995, Month.JULY, 1, 0, 0), Sexo.MASCULINO, "src/images/pfp_dump/pedro.png");
+            Cliente cliente3 = new Cliente("Pedro Souza", "111.222.333-44", "62995544332", "pedro.souza@gmail.com", "e5857b335afdf35ca81a110bc81f38682f8a89892cc597f5398dfef82d42b513", endC3, LocalDateTime.of(1995, Month.JULY, 1, 0, 0), Sexo.MASCULINO, "/images/pfp_dump/pedro.png");
 
             clientes.add(cliente1);
             clientes.add(cliente2);
@@ -130,7 +130,7 @@ public class DumpGenerator {
 
     private static void gerarCarros() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CARROS_FILE))) {
-            Carro carro1 = new Carro("O Toyota Supra 2022 combina design arrojado com performance de alto nível: sua carroceria coupé possui linhas musculosas, capô longo e proporções equilibradas.", "ABC1234", "Toyota", "Supra", "2022", 2022,
+            Carro carro1 = new Carro("O Toyota Supra 2022 combina design arrojado com performance de alto nível: sua carroceria coupé possui linhas musculosas.", "ABC1234", "Toyota", "Supra", "2022", 2022,
                     Cor.BRANCO, Funcao.PASSEIO, 500.0, 2, 8.5, 250, true,
                     Combustivel.GASOLINA, Tracao.TRASEIRA, 2, true, "/images/veiculos/ABC1234.jpeg",
                     350, true, true, true, true, true, 1500, false, true, 500.0, 4, true);
