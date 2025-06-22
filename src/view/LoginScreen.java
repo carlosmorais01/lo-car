@@ -4,7 +4,6 @@ import com.formdev.flatlaf.FlatClientProperties;
 import controller.AuthController;
 import entities.Cliente;
 import util.ImageScaler;
-import view.components.HeaderPanel;
 
 import javax.swing.*;
 import java.awt.*;
