@@ -1,6 +1,6 @@
 # LoCar!: Sistema de Locação de Veículos
 
-<img src="src/images/logo.png" width="100" alt="Logo" />
+<img src="src/images/icons/logo.png" width="100" alt="Logo" />
 
 ## 📝 Descrição
 O LoCar! é um sistema de gerenciamento de locação de veículos desenvolvido em Java. O sistema permite o gerenciamento de diferentes tipos de veículos (carros, motos e caminhões), clientes, funcionários e locações.
