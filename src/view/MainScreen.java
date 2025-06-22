@@ -45,7 +45,7 @@ public class MainScreen extends JFrame {
         });
         add(headerPanel, BorderLayout.NORTH);
 
-        // Painel de Conteúdo Principal (Carrossel + Carros Mais Alugados)
+        // Painel de  Conteúdo Principal (Carrossel + Carros Mais Alugados)
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(UIManager.getColor("Panel.background"));
