@@ -6,13 +6,9 @@ import entities.*;
 import enums.*;
 import util.ImageScaler;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class VehicleRegistrationScreen extends JFrame {
 
