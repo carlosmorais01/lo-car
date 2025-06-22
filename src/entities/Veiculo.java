@@ -41,7 +41,6 @@ public abstract class Veiculo implements java.io.Serializable {
     private boolean direcaoHidraulica;
     private double valorDiario;
     private int locacoes;
-    private boolean locado;
 
     public Veiculo(String descricao, String placa, String marca, String nome, String modelo, int ano, Cor cor, Funcao funcao, double quilometragem, int numeroPassageiros, double consumoCombustivelPLitro, double velocidadeMax, boolean automatico, Combustivel combustivel, Tracao tracao, int quantAssento, boolean airBag, String caminhoFoto, double potencia, boolean vidroEletrico, boolean arCondicionado, boolean multimidia, boolean entradaUSB, boolean vidroFume, double peso, boolean engate, boolean direcaoHidraulica, double valorDiario) {
         this.descricao = descricao;
@@ -73,40 +72,6 @@ public abstract class Veiculo implements java.io.Serializable {
         this.direcaoHidraulica = direcaoHidraulica;
         this.valorDiario = valorDiario;
         this.locacoes = 0;
-        this.locado = false;
-    }
-
-    public Veiculo(String descricao, String placa, String marca, String nome, String modelo, int ano, Cor cor, Funcao funcao, double quilometragem, int numeroPassageiros, double consumoCombustivelPLitro, double velocidadeMax, boolean automatico, Combustivel combustivel, Tracao tracao, int quantAssento, boolean airBag, String caminhoFoto, double potencia, boolean vidroEletrico, boolean arCondicionado, boolean multimidia, boolean entradaUSB, boolean vidroFume, double peso, boolean engate, boolean direcaoHidraulica, double valorDiario, int locacoes, boolean locado) {
-        this.descricao = descricao;
-        this.placa = placa;
-        this.marca = marca;
-        this.nome = nome;
-        this.modelo = modelo;
-        this.ano = ano;
-        this.cor = cor;
-        this.funcao = funcao;
-        this.quilometragem = quilometragem;
-        this.numeroPassageiros = numeroPassageiros;
-        this.consumoCombustivelPLitro = consumoCombustivelPLitro;
-        this.velocidadeMax = velocidadeMax;
-        this.automatico = automatico;
-        this.combustivel = combustivel;
-        this.tracao = tracao;
-        this.quantAssento = quantAssento;
-        this.airBag = airBag;
-        this.caminhoFoto = caminhoFoto;
-        this.potencia = potencia;
-        this.vidroEletrico = vidroEletrico;
-        this.arCondicionado = arCondicionado;
-        this.multimidia = multimidia;
-        this.entradaUSB = entradaUSB;
-        this.vidroFume = vidroFume;
-        this.peso = peso;
-        this.engate = engate;
-        this.direcaoHidraulica = direcaoHidraulica;
-        this.valorDiario = valorDiario;
-        this.locacoes = locacoes;
-        this.locado = locado;
     }
 
     public String getDescricao() {
@@ -339,13 +304,5 @@ public abstract class Veiculo implements java.io.Serializable {
 
     public void setLocacoes(int locacoes) {
         this.locacoes = locacoes;
-    }
-
-    public boolean isLocado() {
-        return locado;
-    }
-
-    public void setLocado(boolean locado) {
-        this.locado = locado;
     }
 }
