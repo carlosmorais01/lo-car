@@ -1,11 +1,7 @@
 package view;
 
 import controller.VeiculoController;
-import entities.Cliente;
-import entities.Veiculo;
-import entities.Carro;
-import entities.Moto;
-import entities.Caminhao;
+import entities.*;
 import enums.Cor;
 import view.components.HeaderPanel;
 import view.components.RoundedImageLabel;
@@ -35,18 +31,31 @@ public class VehicleListScreen extends JFrame {
     private JRadioButton todosModelosRadio;
     private ButtonGroup modeloButtonGroup;
 
-    public VehicleListScreen(Cliente client) {
+    public VehicleListScreen(Cliente client, String initialSearchText) {
         this.loggedInClient = client;
         setTitle("Tela de Pesquisa - LoCar!");
         setSize(1200, 800);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE); // Mantém EXIT_ON_CLOSE para fechar a aplicação
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
         veiculoController = new VeiculoController();
 
-        headerPanel = new HeaderPanel(loggedInClient.getNome(), null);
+        String userName = (loggedInClient != null) ? loggedInClient.getNome() : "Visitante";
+        String userProfilePic = (loggedInClient != null) ? loggedInClient.getCaminhoFoto() : null;
+
+        headerPanel = new HeaderPanel(userName, userProfilePic);
+        // Ação de busca para o HeaderPanel desta tela (se houver um campo de busca duplicado)
         headerPanel.setSearchAction(e -> aplicarFiltros());
+
+        // Ação para o clique no logotipo: voltar para MainScreen
+        headerPanel.setLogoClickListener(e -> { // NOVO MÉTODO no HeaderPanel
+            dispose(); // Fecha a VehicleListScreen
+            MainScreen mainScreen = new MainScreen(loggedInClient);
+            mainScreen.setVisible(true);
+        });
+
         add(headerPanel, BorderLayout.NORTH);
 
         JPanel mainContentPanel = new JPanel(new BorderLayout());
@@ -76,6 +85,14 @@ public class VehicleListScreen extends JFrame {
         mainContentPanel.add(scrollPane, BorderLayout.CENTER);
 
         add(mainContentPanel, BorderLayout.CENTER);
+
+        // Aplica o filtro inicial se houver um termo de busca
+        if (initialSearchText != null && !initialSearchText.isEmpty()) {
+            headerPanel.setSearchText(initialSearchText); // NOVO MÉTODO no HeaderPanel
+            aplicarFiltros(); // Aplica os filtros com o texto inicial
+        } else {
+            atualizarCards(veiculoController.listarTodos());
+        }
 
         SwingUtilities.invokeLater(() -> aplicarFiltros());
         setVisible(true);
