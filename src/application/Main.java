@@ -1,6 +1,7 @@
 package application;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import util.DumpGenerator;
 import view.LoginScreen;
 
 import javax.swing.*;
@@ -92,6 +93,8 @@ public class Main {
             UIManager.put("CheckBox.font", appFont);
             UIManager.put("RadioButton.font", appFont);
             UIManager.put("OptionPane.font", appFont);
+
+            DumpGenerator.rodarDump();
 
         } catch (Exception e) {
             System.err.println("Failed to initialize FlatLaf: " + e.getMessage());
