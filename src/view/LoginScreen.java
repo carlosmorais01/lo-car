@@ -5,6 +5,9 @@ import controller.AuthController;
 import entities.Cliente;
 import util.ImageScaler;
 
+import entities.Funcionario; // Importar Funcionario
+import entities.Pessoa;     // Importar Pessoa (se ainda não importado)
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -38,7 +41,7 @@ public class LoginScreen extends JFrame {
         // Adiciona um espaço superior
         mainPanel.add(Box.createVerticalStrut(20));
 
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/logo.png")));
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/logo.png")));
         Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 350, 350);
         logoIcon = new ImageIcon(scaledImage);
 
@@ -113,13 +116,23 @@ public class LoginScreen extends JFrame {
             return;
         }
 
-        Cliente authenticatedClient = authController.authenticate(email, password);
+        Pessoa authenticatedUser = authController.authenticate(email, password); // Retorna Pessoa
 
-        if (authenticatedClient != null) {
-            JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedClient.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        if (authenticatedUser != null) {
+            JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedUser.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             dispose();
-            MainScreen mainScreen = new MainScreen(authenticatedClient); // Passa o cliente autenticado
-            mainScreen.setVisible(true);
+
+            if (authenticatedUser instanceof Cliente) {
+                MainScreen mainScreen = new MainScreen((Cliente) authenticatedUser);
+                mainScreen.setVisible(true);
+            } else if (authenticatedUser instanceof Funcionario) {
+                // Se o funcionário for para a MainScreen também, passe-o
+                MainScreen mainScreen = new MainScreen((Funcionario) authenticatedUser); // Novo construtor em MainScreen
+                mainScreen.setVisible(true);
+                // Ou, se houver uma tela específica para funcionário:
+                // FuncionarioScreen funcionarioScreen = new FuncionarioScreen((Funcionario) authenticatedUser);
+                // funcionarioScreen.setVisible(true);
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
         }
