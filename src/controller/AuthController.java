@@ -2,6 +2,8 @@
 package controller;
 
 import entities.Cliente;
+import entities.Funcionario;
+import entities.Pessoa;
 import util.PasswordHasher;
 
 import java.io.*;
@@ -11,6 +13,7 @@ import java.util.Optional;
 
 public class AuthController {
     private static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
+    private static final String EMPLOYEES_FILE_PATH = "dump/funcionarios/funcionarios.dat"; // NOVO: Caminho para funcionários
     private static final String PROFILE_PICS_DIR = "dump/profile_pics/";
 
     public AuthController() {
@@ -22,28 +25,78 @@ public class AuthController {
         if (!profileDir.exists()) {
             profileDir.mkdirs();
         }
+        File employeeDir = new File("dump/funcionarios/");
+        if (!employeeDir.exists()) {
+            employeeDir.mkdirs();
+        }
     }
 
     /**
-     * Tenta autenticar um usuário com base no email e senha fornecidos.
-     * A senha é hashed antes da comparação.
+     * Tenta autenticar um usuário (Cliente ou Funcionario) com base no email e senha.
      *
      * @param email O email do usuário.
      * @param password A senha do usuário (texto simples).
-     * @return O objeto Cliente se a autenticação for bem-sucedida, caso contrário, null.
+     * @return O objeto Pessoa (Cliente ou Funcionario) se a autenticação for bem-sucedida, caso contrário, null.
      */
-    public Cliente authenticate(String email, String password) {
+    public Pessoa authenticate(String email, String password) { // Retorna Pessoa
         String hashedPassword = PasswordHasher.hashPassword(password);
         if (hashedPassword == null) {
-            return null; // Erro ao gerar o hash da senha
+            return null;
         }
 
+        // Tenta autenticar como Cliente
         List<Cliente> clients = loadClients();
         Optional<Cliente> authenticatedClient = clients.stream()
                 .filter(c -> c.getEmail().equals(email) && c.getSenha().equals(hashedPassword))
                 .findFirst();
+        if (authenticatedClient.isPresent()) {
+            return authenticatedClient.get();
+        }
 
-        return authenticatedClient.orElse(null);
+        List<Funcionario> employees = loadEmployees();
+        Optional<Funcionario> authenticatedEmployee = employees.stream()
+                .filter(f -> f.getEmail().equals(email) && f.getSenha().equals(hashedPassword))
+                .findFirst();
+        if (authenticatedEmployee.isPresent()) {
+            return authenticatedEmployee.get();
+        }
+
+        return null; // Nenhuma autenticação bem-sucedida
+    }
+
+    public List<Funcionario> loadEmployees() {
+        List<Funcionario> employees = new ArrayList<>();
+        File file = new File(EMPLOYEES_FILE_PATH);
+        if (file.exists() && file.length() > 0) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+                Object obj = ois.readObject(); // Tenta ler a lista inteira de uma vez
+                if (obj instanceof List) { // Se for uma lista
+                    List<?> rawList = (List<?>) obj;
+                    for (Object item : rawList) { // Itera sobre os elementos da lista
+                        if (item instanceof Funcionario) { // Verifica o tipo de cada elemento
+                            employees.add((Funcionario) item);
+                        }
+                    }
+                } else {
+                    System.err.println("Aviso: Arquivo de funcionários não contém uma lista serializada. Carregando objeto por objeto (formato antigo).");
+                    employees = new ArrayList<>(); // Reseta a lista
+                    try (ObjectInputStream ois2 = new ObjectInputStream(new FileInputStream(file))) {
+                        while (true) {
+                            Object singleObj = ois2.readObject();
+                            if (singleObj instanceof Funcionario) {
+                                employees.add((Funcionario) singleObj);
+                            }
+                        }
+                    } catch (java.io.EOFException eof2) { /* fim do arquivo */ }
+                    // NUNCA COPIE O FALLBACK PARA CÓDIGO FINAL SE NÃO FOR NECESSÁRIO COMPATIBILIDADE
+                }
+            } catch (IOException e) {
+                System.err.println("Erro ao ler funcionários do arquivo: " + e.getMessage());
+            } catch (ClassNotFoundException e) {
+                System.err.println("Classe Funcionario não encontrada durante a desserialização: " + e.getMessage());
+            }
+        }
+        return employees;
     }
 
     /**
