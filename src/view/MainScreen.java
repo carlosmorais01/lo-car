@@ -2,6 +2,8 @@ package view;
 
 import controller.VeiculoController;
 import entities.Cliente;
+import entities.Funcionario;
+import entities.Pessoa;
 import entities.Veiculo;
 import view.components.CarCardPanel;
 import view.components.CarrosselPanel;
@@ -13,13 +15,19 @@ import java.util.List;
 
 public class MainScreen extends JFrame {
     private VeiculoController veiculoController;
-    private Cliente loggedInClient;
+    private Pessoa loggedInUser;
     private HeaderPanel headerPanel;
     private CarrosselPanel carrosselPanel;
     private JPanel mostRentedCarsPanel;
 
     public MainScreen(Cliente client) {
-        this.loggedInClient = client;
+        this.loggedInUser = client;
+        this.veiculoController = new VeiculoController();
+        initializeUI();
+    }
+
+    public MainScreen(Funcionario funcionario) {
+        this.loggedInUser = funcionario;
         this.veiculoController = new VeiculoController();
         initializeUI();
     }
@@ -33,16 +41,33 @@ public class MainScreen extends JFrame {
         setLayout(new BorderLayout());
 
         // Header (Top Bar)
-        String userName = (loggedInClient != null) ? loggedInClient.getNome() : "Visitante";
-        String userProfilePic = (loggedInClient != null) ? loggedInClient.getCaminhoFoto() : null;
+        String userName = (loggedInUser != null) ? loggedInUser.getNome() : "Visitante";
+        String userProfilePic = (loggedInUser != null) ? loggedInUser.getCaminhoFoto() : null;
 
         headerPanel = new HeaderPanel(userName, userProfilePic);
+
+        // Ação de busca para o HeaderPanel desta tela
         headerPanel.setSearchAction(e -> {
             String searchText = headerPanel.getSearchText();
             dispose();
-            VehicleListScreen searchResultsScreen = new VehicleListScreen(loggedInClient, searchText);
+            // Passa o usuário logado para a VehicleListScreen
+            VehicleListScreen searchResultsScreen = new VehicleListScreen(loggedInUser, searchText);
             searchResultsScreen.setVisible(true);
         });
+
+        // NOVO: Exibir botão de engrenagem e configurar ação APENAS se for funcionário
+        if (loggedInUser instanceof Funcionario) {
+            headerPanel.showSettingsButton(true); // NOVO MÉTODO no HeaderPanel
+            headerPanel.setSettingsAction(e -> { // NOVO MÉTODO no HeaderPanel
+                // Abrir a tela de cadastro de veículos
+                dispose(); // Fecha MainScreen
+                VehicleRegistrationScreen regScreen = new VehicleRegistrationScreen((Funcionario) loggedInUser);
+                regScreen.setVisible(true);
+            });
+        } else {
+            headerPanel.showSettingsButton(false); // Esconde se não for funcionário
+        }
+
         add(headerPanel, BorderLayout.NORTH);
 
         // Painel de Conteúdo Principal (Carrossel + Carros Mais Alugados)
