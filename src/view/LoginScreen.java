@@ -29,6 +29,7 @@ public class LoginScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 800);
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -118,8 +119,8 @@ public class LoginScreen extends JFrame {
         if (authenticatedClient != null) {
             JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedClient.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             dispose();
-            VehicleListScreen vehicleListScreen = new VehicleListScreen(authenticatedClient); // NOVO: Construtor com Cliente
-            vehicleListScreen.setVisible(true);
+            MainScreen mainScreen = new MainScreen(authenticatedClient); // Passa o cliente autenticado
+            mainScreen.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
         }
