@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator; // Importar Comparator
 import java.util.Arrays; // Importar para usar Arrays.asList
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,6 +75,15 @@ public class VeiculoController {
         return new ArrayList<>(veiculos);
     }
 
+    public List<Veiculo> getVeiculosMaisAlugados(int limit) {
+        // Para carros "mais alugados", vamos usar o campo 'locacoes' na entidade Veiculo.
+        // Em um sistema real, você faria um sumário das locações no período.
+        return veiculos.stream()
+                .sorted(Comparator.comparingInt(Veiculo::getLocacoes).reversed()) // Ordena pelo maior número de locações
+                .limit(limit) // Limita a quantidade de veículos
+                .collect(Collectors.toList());
+    }
+
     public List<Veiculo> filtrarVeiculos(String termoBuscaGeral, Double precoMax, Cor cor, String statusDisponibilidade, Integer anoMin, Integer anoMax, String tipoVeiculo) {
         Stream<Veiculo> resultadoStream = veiculos.stream();
 
@@ -94,6 +104,7 @@ public class VeiculoController {
             });
         }
 
+        // Filtro por preço por dia (se houver)
         if (precoMax != null) {
             resultadoStream = resultadoStream.filter(v -> v.getValorDiario() <= precoMax);
         }
