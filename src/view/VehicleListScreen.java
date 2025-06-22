@@ -15,7 +15,7 @@ public class VehicleListScreen extends JFrame {
     private JPanel cardContainerPanel; // NOVO: Este painel conterá o cardPanel e usará FlowLayout
     private VeiculoController veiculoController;
     private HeaderPanel headerPanel;
-    private Cliente loggedInClient;
+    private Pessoa loggedInUser;
 
     private JTextField precoMaxField;
     private JComboBox<Cor> coresComboBox;
@@ -31,30 +31,46 @@ public class VehicleListScreen extends JFrame {
     private JRadioButton todosModelosRadio;
     private ButtonGroup modeloButtonGroup;
 
-    public VehicleListScreen(Cliente client, String initialSearchText) {
-        this.loggedInClient = client;
+    public VehicleListScreen(Pessoa user, String initialSearchText) {
+        this.loggedInUser = user; // Armazena o usuário (Cliente ou Funcionario)
         setTitle("Tela de Pesquisa - LoCar!");
         setSize(1200, 800);
-        setDefaultCloseOperation(EXIT_ON_CLOSE); // Mantém EXIT_ON_CLOSE para fechar a aplicação
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
         veiculoController = new VeiculoController();
 
-        String userName = (loggedInClient != null) ? loggedInClient.getNome() : "Visitante";
-        String userProfilePic = (loggedInClient != null) ? loggedInClient.getCaminhoFoto() : null;
+        String userName = (loggedInUser != null) ? loggedInUser.getNome() : "Visitante";
+        String userProfilePic = (loggedInUser != null) ? loggedInUser.getCaminhoFoto() : null;
 
         headerPanel = new HeaderPanel(userName, userProfilePic);
-        // Ação de busca para o HeaderPanel desta tela (se houver um campo de busca duplicado)
         headerPanel.setSearchAction(e -> aplicarFiltros());
 
         // Ação para o clique no logotipo: voltar para MainScreen
-        headerPanel.setLogoClickListener(e -> { // NOVO MÉTODO no HeaderPanel
-            dispose(); // Fecha a VehicleListScreen
-            MainScreen mainScreen = new MainScreen(loggedInClient);
-            mainScreen.setVisible(true);
+        headerPanel.setLogoClickListener(e -> {
+            dispose();
+            if (loggedInUser instanceof Cliente) {
+                MainScreen mainScreen = new MainScreen((Cliente) loggedInUser);
+                mainScreen.setVisible(true);
+            } else if (loggedInUser instanceof Funcionario) {
+                MainScreen mainScreen = new MainScreen((Funcionario) loggedInUser);
+                mainScreen.setVisible(true);
+            }
         });
+
+        // NOVO: Exibir botão de engrenagem e configurar ação APENAS se for funcionário
+        if (loggedInUser instanceof Funcionario) {
+            headerPanel.showSettingsButton(true);
+            headerPanel.setSettingsAction(e -> {
+                dispose();
+                VehicleRegistrationScreen regScreen = new VehicleRegistrationScreen((Funcionario) loggedInUser);
+                regScreen.setVisible(true);
+            });
+        } else {
+            headerPanel.showSettingsButton(false);
+        }
 
         add(headerPanel, BorderLayout.NORTH);
 
@@ -104,7 +120,7 @@ public class VehicleListScreen extends JFrame {
         filterPanel.add(titleLabel);
         filterPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        JLabel precoLabel = new JLabel("<html>Preço Máximo<br>por dia:</html>");
+        JLabel precoLabel = new JLabel("Preço máximo por dia:");
         precoLabel.setFont(precoLabel.getFont().deriveFont(Font.BOLD, 14f));
         precoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         filterPanel.add(precoLabel);
