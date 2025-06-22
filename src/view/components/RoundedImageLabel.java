@@ -13,6 +13,9 @@ public class RoundedImageLabel extends JLabel {
         this.cornerRadius = cornerRadius;
         setHorizontalAlignment(CENTER); // Centraliza a imagem no label
         setVerticalAlignment(CENTER);
+        // Não é necessário setOpaque(false) aqui se você remover o fillRect,
+        // mas é uma boa prática para indicar que o componente é transparente.
+        setOpaque(false); // Garante que o componente não pinte seu próprio fundo por padrão.
     }
 
     @Override
@@ -25,9 +28,9 @@ public class RoundedImageLabel extends JLabel {
         RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius);
         g2.setClip(roundedRectangle);
 
-        // Pinta o background antes de desenhar a imagem para preencher os cantos
-        g2.setColor(getBackground());
-        g2.fillRect(0, 0, getWidth(), getHeight());
+        // REMOVIDO: As linhas que pintavam o background explicitamente
+        // g2.setColor(getBackground());
+        // g2.fillRect(0, 0, getWidth(), getHeight());
 
         // Desenha a imagem (chama o método paintComponent original do JLabel)
         super.paintComponent(g2);
