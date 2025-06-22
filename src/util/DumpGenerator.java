@@ -71,13 +71,6 @@ public class DumpGenerator {
             System.out.println("Arquivo de caminhões já existe. Pulando geração.");
         }
 
-        if (!new File(LOCACOES_FILE).exists()) {
-            gerarLocacoes();
-            anyFileMissing = true;
-        } else {
-            System.out.println("Arquivo de locações já existe. Pulando geração.");
-        }
-
         if (anyFileMissing) {
             System.out.println("Dumps gerados/atualizados com sucesso!");
         } else {
@@ -221,56 +214,6 @@ public class DumpGenerator {
             System.out.println("Caminhões gerados: " + caminhoes.size());
         } catch (Exception e) {
             System.err.println("Erro ao gerar caminhões: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private static void gerarLocacoes() {
-
-        if (carros.isEmpty() || clientes.isEmpty() || motos.isEmpty() || caminhoes.isEmpty()) {
-            System.err.println("Não foi possível gerar locações: listas de veículos ou clientes estão vazias (verifique se os dumps foram gerados/lidos antes).");
-            return;
-        }
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(LOCACOES_FILE))) {
-
-            // Cenário 1: Carro 4 (Compacto Urbano) está ATUALMENTE LOCADO
-            Locacao locacaoAtivaCarro = new Locacao(
-                    LocalDateTime.now().minusDays(2),
-                    LocalDateTime.now().plusDays(3),
-                    null,
-                    carros.get(3), // Carro 4: Compacto Urbano (GHI0001)
-                    clientes.get(0) // João Silva
-            );
-
-            // Cenário 2: Moto 1 (Moto Urbana) JÁ FOI LOCADA e DEVOLVIDA
-            Locacao locacaoAntigaMoto = new Locacao(
-                    LocalDateTime.now().minusDays(10),
-                    LocalDateTime.now().minusDays(7),
-                    LocalDateTime.now().minusDays(7),
-                    motos.get(0), // Moto 1: Moto Urbana (MOT1234)
-                    clientes.get(1) // Maria Oliveira
-            );
-
-            // Cenário 3: Caminhão 1 (Caminhão Baú) está PRÓXIMO DE DEVOLUÇÃO
-            Locacao locacaoProximaDevolucaoCaminhao = new Locacao(
-                    LocalDateTime.now().minusDays(5),
-                    LocalDateTime.now().plusDays(1),
-                    null,
-                    caminhoes.get(0), // Caminhão 1: Caminhão Baú (CAM1234)
-                    clientes.get(2) // Pedro Souza
-            );
-
-            List<Locacao> todasAsLocacoes = new ArrayList<>();
-            todasAsLocacoes.add(locacaoAtivaCarro);
-            todasAsLocacoes.add(locacaoAntigaMoto);
-            todasAsLocacoes.add(locacaoProximaDevolucaoCaminhao);
-
-            oos.writeObject(todasAsLocacoes);
-            System.out.println("Locações geradas: " + todasAsLocacoes.size());
-
-        } catch (Exception e) {
-            System.err.println("Erro ao gerar locações: " + e.getMessage());
             e.printStackTrace();
         }
     }
