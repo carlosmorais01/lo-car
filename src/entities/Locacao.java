@@ -1,11 +1,11 @@
 package entities;
 
-import java.io.Serializable; // Importar Serializable
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-public class Locacao implements Serializable { // Implementar Serializable
-    private static final long serialVersionUID = 1L; // Adicionar serialVersionUID
+public class Locacao implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private double valorLocacao;
     private LocalDateTime dataLocacao;
@@ -14,32 +14,43 @@ public class Locacao implements Serializable { // Implementar Serializable
     private Veiculo veiculo;
     private Cliente cliente;
 
-    // Construtor completo
     public Locacao(LocalDateTime dataLocacao, LocalDateTime dataPrevistaDevolucao, LocalDateTime dataDevolucao, Veiculo veiculo, Cliente cliente) {
         this.dataLocacao = dataLocacao;
         this.dataPrevistaDevolucao = dataPrevistaDevolucao;
         this.dataDevolucao = dataDevolucao;
         this.veiculo = veiculo;
         this.cliente = cliente;
-        // O valor da locação só deve ser calculado quando a locação for finalizada ou se todas as datas estiverem presentes
-        // Ou, se for uma locação ativa, calcular o valor previsto
-        this.valorLocacao = calcularValorTotal(); // Considerar quando este valor é calculado.
+        this.valorLocacao = calcularValorTotal();
     }
 
-    // Sobrecarga de construtor para locações ativas (sem dataDevolucao inicial)
     public Locacao(LocalDateTime dataLocacao, LocalDateTime dataPrevistaDevolucao, Veiculo veiculo, Cliente cliente) {
         this.dataLocacao = dataLocacao;
         this.dataPrevistaDevolucao = dataPrevistaDevolucao;
-        this.dataDevolucao = null; // Inicializa como null para locações ativas
+        this.dataDevolucao = null;
         this.veiculo = veiculo;
         this.cliente = cliente;
-        this.valorLocacao = calcularValorPrevisto(); // Calcula o valor previsto para locações ativas
+        this.valorLocacao = calcularValorPrevisto();
     }
 
+    private long calcularNumeroDeDiasParaCobranca(LocalDateTime inicio, LocalDateTime fim) {
+        if (inicio == null || fim == null) {
+            return 0;
+        }
+
+        long diasCompletos = ChronoUnit.DAYS.between(inicio.toLocalDate(), fim.toLocalDate());
+
+        if (diasCompletos == 0 && inicio.isBefore(fim)) {
+            return 1; // Pelo menos 1 dia se houver algum tempo de locação no mesmo dia ou dia seguinte sem completar 24h
+        }
+
+        double horas = ChronoUnit.HOURS.between(inicio, fim);
+        long diasArredondadosParaCima = (long) Math.ceil(horas / 24.0);
+
+        return Math.max(1, diasArredondadosParaCima); // Garante que o mínimo seja 1 dia
+    }
+
+
     public double calcularValorTotal() {
-        // Se dataDevolucao for nula, significa que a locação ainda está ativa,
-        // então não podemos calcular o valor total definitivo ainda.
-        // Neste caso, calculamos o valor previsto.
         if (dataDevolucao == null) {
             return calcularValorPrevisto();
         }
@@ -52,53 +63,46 @@ public class Locacao implements Serializable { // Implementar Serializable
             throw new IllegalStateException("Data de devolução não pode ser anterior à data de locação.");
         }
 
-        long diasPrevistos = ChronoUnit.DAYS.between(dataLocacao, dataPrevistaDevolucao);
-        if (diasPrevistos == 0) {
-            diasPrevistos = 1; // Mínimo de 1 dia para cálculo da diária
-        }
-
-        double valorDiarias = veiculo.getValorDiario() * diasPrevistos;
+        long diasEfetivos = calcularNumeroDeDiasParaCobranca(dataLocacao, dataDevolucao);
+        double valorDiarias = veiculo.getValorDiario() * diasEfetivos;
 
         if (dataDevolucao.isAfter(dataPrevistaDevolucao)) {
-            // Calcula dias de atraso e multa
             return valorDiarias + calcularMulta();
         }
 
         return valorDiarias;
     }
 
-    // Novo método para calcular o valor previsto para locações ativas
     public double calcularValorPrevisto() {
         if (veiculo == null || dataLocacao == null || dataPrevistaDevolucao == null) {
             throw new IllegalStateException("Veículo ou datas não podem ser nulos para cálculo do valor previsto.");
         }
-        long dias = ChronoUnit.DAYS.between(dataLocacao, dataPrevistaDevolucao);
-        if (dias == 0) {
-            dias = 1; // Mínimo de 1 dia
-        }
-        return veiculo.getValorDiario() * (int) dias;
+
+        long diasPrevistos = calcularNumeroDeDiasParaCobranca(dataLocacao, dataPrevistaDevolucao);
+        return veiculo.getValorDiario() * diasPrevistos;
     }
 
 
     public double calcularMulta() {
         if (dataPrevistaDevolucao == null || dataDevolucao == null) {
-            return 0; // Não há multa se as datas não estiverem definidas
+            return 0;
         }
 
         if (dataDevolucao.isBefore(dataPrevistaDevolucao)) {
-            return 0; // Não há multa se a devolução foi antes ou na data prevista
+            return 0;
         }
 
         long horasAtraso = ChronoUnit.HOURS.between(dataPrevistaDevolucao, dataDevolucao);
+
         if (horasAtraso < 3) {
-            return 0; // Sem multa para menos de 3 horas de atraso
+            return 0;
         }
-        // Cada bloco de 3 horas de atraso custa uma diária completa
-        int blocosDeTresHoras = (int) Math.ceil((double) horasAtraso / 3);
+
+        int blocosDeTresHoras = (int) Math.ceil((double) horasAtraso / 3.0);
         return blocosDeTresHoras * veiculo.getValorDiario();
     }
 
-    // Getters e Setters (já existentes)
+    // Getters e Setters (já existentes, sem modificações)
     public double getValorLocacao() {
         return valorLocacao;
     }
@@ -129,8 +133,7 @@ public class Locacao implements Serializable { // Implementar Serializable
 
     public void setDataDevolucao(LocalDateTime dataDevolucao) {
         this.dataDevolucao = dataDevolucao;
-        // Recalcular o valor da locação quando a data de devolução for definida
-        this.valorLocacao = calcularValorTotal();
+        this.valorLocacao = calcularValorTotal(); // Recalcula ao definir a data de devolução
     }
 
     public Veiculo getVeiculo() {
