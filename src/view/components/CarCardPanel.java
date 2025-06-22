@@ -3,8 +3,11 @@ package view.components;
 import entities.Veiculo;
 import controller.VeiculoController; // Para verificar o status de locação
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 public class CarCardPanel extends JPanel {
@@ -22,23 +25,29 @@ public class CarCardPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        ImageIcon icon = null;
-        try {
-            // Tenta carregar como recurso do classpath (para imagens dentro do JAR)
-            URL imageUrl = getClass().getResource(veiculo.getCaminhoFoto());
-            if (imageUrl != null) {
-                icon = new ImageIcon(imageUrl);
-            } else {
-                // Se não for um recurso, tenta carregar como arquivo absoluto
-                icon = new ImageIcon(veiculo.getCaminhoFoto());
+        Image veiculoImage = null;
+        String imagePath = veiculo.getCaminhoFoto();
+
+        if (imagePath != null && !imagePath.isEmpty()) {
+            try {
+                File savedImageFile = new File(imagePath);
+                if (savedImageFile.exists()) {
+                    veiculoImage = ImageIO.read(savedImageFile);
+                } else {
+                    URL imageUrl = getClass().getResource(imagePath);
+                    if (imageUrl != null) {
+                        veiculoImage = ImageIO.read(imageUrl);
+                    } else {
+                        System.err.println("Imagem do veículo não encontrada: " + imagePath);
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Erro ao carregar imagem para " + veiculo.getPlaca() + ": " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar imagem para " + veiculo.getNome() + ": " + e.getMessage());
-            icon = new ImageIcon(new byte[0]); // ImageIcon vazio em caso de erro
         }
 
-        if (icon != null && icon.getImage() != null) {
-            Image img = icon.getImage().getScaledInstance(250, 150, Image.SCALE_SMOOTH); // Ajuste o tamanho da imagem no card
+        if (imagePath != null && veiculoImage != null) {
+            Image img = veiculoImage.getScaledInstance(250, 150, Image.SCALE_SMOOTH); // Ajuste o tamanho da imagem no card
             JLabel imgLabel = new JLabel(new ImageIcon(img));
             imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(imgLabel, BorderLayout.NORTH);
