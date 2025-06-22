@@ -20,7 +20,7 @@ public class Cliente extends Pessoa implements Serializable { // Adicionar imple
         this.saldo += valor;
     }
 
-    public void resgatarSaldo(double valor) {
+    public void debitarSaldo(double valor) {
         this.saldo -= valor;
     }
 
