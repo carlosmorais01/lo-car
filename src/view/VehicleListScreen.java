@@ -3,6 +3,7 @@ package view;
 import controller.VeiculoController;
 import entities.*;
 import enums.Cor;
+import view.components.CarCardPanel;
 import view.components.HeaderPanel;
 import view.components.RoundedImageLabel;
 
@@ -12,10 +13,10 @@ import java.util.List;
 
 public class VehicleListScreen extends JFrame {
     private JPanel cardPanel; // Este JPanel ainda conterá os cards em GridLayout
-    private JPanel cardContainerPanel; // NOVO: Este painel conterá o cardPanel e usará FlowLayout
+    private JPanel cardContainerPanel;
     private VeiculoController veiculoController;
     private HeaderPanel headerPanel;
-    private Pessoa loggedInUser;
+    private Pessoa loggedInUser; // Certifique-se de que loggedInUser está declarado aqui
 
     private JTextField precoMaxField;
     private JComboBox<Cor> coresComboBox;
@@ -32,7 +33,7 @@ public class VehicleListScreen extends JFrame {
     private ButtonGroup modeloButtonGroup;
 
     public VehicleListScreen(Pessoa user, String initialSearchText) {
-        this.loggedInUser = user; // Armazena o usuário (Cliente ou Funcionario)
+        this.loggedInUser = user;
         setTitle("Tela de Pesquisa - LoCar!");
         setSize(1200, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -48,7 +49,6 @@ public class VehicleListScreen extends JFrame {
         headerPanel = new HeaderPanel(userName, userProfilePic);
         headerPanel.setSearchAction(e -> aplicarFiltros());
 
-        // Ação para o clique no logotipo: voltar para MainScreen
         headerPanel.setLogoClickListener(e -> {
             dispose();
             if (loggedInUser instanceof Cliente) {
@@ -60,7 +60,6 @@ public class VehicleListScreen extends JFrame {
             }
         });
 
-        // NOVO: Exibir botão de engrenagem e configurar ação APENAS se for funcionário
         if (loggedInUser instanceof Funcionario) {
             headerPanel.showSettingsButton(true);
             headerPanel.setSettingsAction(e -> {
@@ -85,26 +84,24 @@ public class VehicleListScreen extends JFrame {
         addFiltersToPanel();
         mainContentPanel.add(filterPanel, BorderLayout.WEST);
 
-        // **ALTERADO AQUI**: cardContainerPanel para conter o cardPanel
         cardContainerPanel = new JPanel();
-        cardContainerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // Centraliza o cardPanel dentro dele
+        cardContainerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
 
         cardPanel = new JPanel();
-        cardPanel.setLayout(new GridLayout(0, 3, 20, 20)); // GridLayout para 3 colunas e espaçamento
-        cardPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); // Remover borda, já que o container tem padding
+        cardPanel.setLayout(new GridLayout(0, 3, 20, 20));
+        cardPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        cardContainerPanel.add(cardPanel); // Adiciona o cardPanel ao novo container
+        cardContainerPanel.add(cardPanel);
 
-        JScrollPane scrollPane = new JScrollPane(cardContainerPanel); // ScrollPane agora envolve o container
+        JScrollPane scrollPane = new JScrollPane(cardContainerPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         mainContentPanel.add(scrollPane, BorderLayout.CENTER);
 
         add(mainContentPanel, BorderLayout.CENTER);
 
-        // Aplica o filtro inicial se houver um termo de busca
         if (initialSearchText != null && !initialSearchText.isEmpty()) {
-            headerPanel.setSearchText(initialSearchText); // NOVO MÉTODO no HeaderPanel
-            aplicarFiltros(); // Aplica os filtros com o texto inicial
+            headerPanel.setSearchText(initialSearchText);
+            aplicarFiltros();
         } else {
             atualizarCards(veiculoController.listarTodos());
         }
@@ -273,108 +270,34 @@ public class VehicleListScreen extends JFrame {
     }
 
     private void atualizarCards(List<Veiculo> veiculos) {
-        cardPanel.removeAll(); // Limpa os cards existentes
+        cardPanel.removeAll();
 
-        // Definir um tamanho padrão para os cards.
-        // Estes são os valores que cada card individualmente tentará ter.
-        int fixedCardWidth = 300; // Largura do card (ajuste se necessário)
-        int fixedCardHeight = 300; // Altura do card (fixa em 300)
+        // Definir um tamanho padrão para os cards, que será o preferredSize do CarCardPanel
+        int fixedCardWidth = 300;
+        int fixedCardHeight = 300;
         Dimension fixedCardSize = new Dimension(fixedCardWidth, fixedCardHeight);
 
-        // Largura e altura para a imagem dentro do card
-        int imageWidth = fixedCardWidth - 20; // 10px de padding interno em cada lado
-        int imageHeight = 150; // Altura da imagem (ajustar se o card ficar muito apertado)
-
         if (veiculos.isEmpty()) {
-            // Se não há veículos, centraliza a mensagem.
-            // Para isso, o cardContainerPanel (que é um FlowLayout) pode ser ajustado
-            // ou o cardPanel pode mudar temporariamente seu layout.
-            // Aqui, vamos fazer o cardPanel mudar para GridBagLayout.
             cardPanel.setLayout(new GridBagLayout());
             JLabel noResultsLabel = new JLabel("Nenhum veículo encontrado com os filtros aplicados.", SwingConstants.CENTER);
             noResultsLabel.setFont(noResultsLabel.getFont().deriveFont(16f));
             cardPanel.add(noResultsLabel);
         } else {
-            // **ALTERADO AQUI:** Garante que o layout é GridLayout quando há cards.
-            // Isso fará com que os cards se organizem em 3 colunas e quebrem a linha.
-            // O FlowLayout do cardContainerPanel vai centralizar/alinhar esse GridLayout.
-            cardPanel.setLayout(new GridLayout(0, 3, 20, 20)); // 0 linhas (auto), 3 colunas, 20px de espaçamento
+            // Garante que o layout é GridLayout quando há cards.
+            cardPanel.setLayout(new GridLayout(0, 3, 20, 20));
 
             for (Veiculo veiculo : veiculos) {
-                JPanel card = new JPanel();
-                card.setLayout(new BorderLayout());
-                card.setBackground(Color.WHITE);
-
-                // Definir o tamanho preferencial e máximo para cada card.
-                // O GridLayout tentará usar essas dimensões.
-                card.setPreferredSize(fixedCardSize);
-                card.setMaximumSize(fixedCardSize);
-                card.setMinimumSize(fixedCardSize);
-
-                // --- Carregamento e Estilização da Imagem ---
-                ImageIcon icon = null;
-                try {
-                    java.net.URL imageUrl = getClass().getResource(veiculo.getCaminhoFoto());
-                    if (imageUrl != null) {
-                        icon = new ImageIcon(imageUrl);
-                    } else {
-                        System.err.println("Recurso de imagem não encontrado: " + veiculo.getCaminhoFoto() + ". Tentando carregar como arquivo.");
-                        icon = new ImageIcon(veiculo.getCaminhoFoto());
-                    }
-                } catch (Exception e) {
-                    System.err.println("Erro ao carregar imagem para " + veiculo.getNome() + ": " + e.getMessage());
-                    icon = new ImageIcon(new byte[0]);
-                }
-
-                if (icon != null && icon.getImage() != null) {
-                    Image img = icon.getImage().getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
-                    JLabel imgLabel = new RoundedImageLabel(new ImageIcon(img), 15);
-                    imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                    imgLabel.setVerticalAlignment(SwingConstants.CENTER);
-                    imgLabel.setPreferredSize(new Dimension(imageWidth, imageHeight));
-                    imgLabel.setMaximumSize(new Dimension(imageWidth, imageHeight));
-                    card.add(imgLabel, BorderLayout.NORTH);
-                } else {
-                    JLabel placeholder = new JLabel("Imagem Indisponível", SwingConstants.CENTER);
-                    placeholder.setPreferredSize(new Dimension(imageWidth, imageHeight));
-                    placeholder.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-                    placeholder.setBackground(Color.LIGHT_GRAY);
-                    placeholder.setOpaque(true);
-                    card.add(placeholder, BorderLayout.NORTH);
-                }
-
-                // Informações do veículo
-                JLabel nome = new JLabel(veiculo.getMarca() + " " + veiculo.getNome() + " " + veiculo.getAno(), SwingConstants.CENTER);
-                JLabel preco = new JLabel("R$ " + String.format("%.2f", veiculo.getValorDiario()) + " / dia", SwingConstants.CENTER);
-
-                nome.setFont(nome.getFont().deriveFont(Font.BOLD,16f));
-                preco.setFont(preco.getFont().deriveFont(Font.BOLD, 12f));
-                preco.setForeground(new Color(0, 100, 0));
-
-                JPanel info = new JPanel(new GridLayout(2, 1));
-                info.setBackground(Color.WHITE);
-                info.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                info.add(nome);
-                info.add(preco);
-                card.add(info, BorderLayout.CENTER);
-
-                // Status de disponibilidade
-                boolean isLocado = veiculoController.estaLocado(veiculo);
-                JLabel status = new JLabel(isLocado ? "Indisponível" : "Disponível", SwingConstants.CENTER);
-                status.setFont(status.getFont().deriveFont(Font.BOLD, 12f));
-                status.setOpaque(true);
-                status.setBackground(isLocado ? new Color(255, 230, 230) : new Color(230, 255, 230));
-                status.setForeground(isLocado ? Color.RED : new Color(0, 150, 0));
-                status.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-                card.add(status, BorderLayout.SOUTH);
-
+                // INSTANCIA E ADICIONA O CARCARDPANEL AQUI!
+                CarCardPanel card = new CarCardPanel(veiculo, veiculoController, loggedInUser); // <<<<<<< AQUI!
+                card.setPreferredSize(fixedCardSize); // Define o tamanho preferencial do CarCardPanel
+                card.setMaximumSize(fixedCardSize); // Opcional: Garante que não cresça muito
+                card.setMinimumSize(fixedCardSize); // Opcional: Garante que não encolha muito
                 cardPanel.add(card);
             }
         }
-        // É importante que o cardContainerPanel revalide seu tamanho se o cardPanel dentro dele mudar
         cardContainerPanel.revalidate();
         cardContainerPanel.repaint();
-        cardPanel.revalidate(); // Revalida o layout do painel (necessário após adicionar/remover componentes)
-        cardPanel.repaint(); // Redesenha o painel para refletir as mudanças
+        cardPanel.revalidate();
+        cardPanel.repaint();
     }
 }

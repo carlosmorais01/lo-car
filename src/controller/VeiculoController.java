@@ -32,6 +32,69 @@ public class VeiculoController {
         this.locacoes = carregarLocacoes();
     }
 
+    public boolean excluirVeiculo(Veiculo veiculoParaExcluir) {
+        // Remove da lista em memória
+        boolean removedFromMemory = veiculos.removeIf(v -> v.getPlaca().equals(veiculoParaExcluir.getPlaca()));
+
+        if (removedFromMemory) {
+            // Salva a lista atualizada de volta ao arquivo correspondente
+            if (veiculoParaExcluir instanceof Carro) {
+                List<Carro> carrosAtualizados = veiculos.stream()
+                        .filter(v -> v instanceof Carro)
+                        .map(v -> (Carro) v)
+                        .collect(Collectors.toList());
+                return salvarListaDeVeiculosEmArquivo(carrosAtualizados, "dump/carros/carros.dat");
+            } else if (veiculoParaExcluir instanceof Moto) {
+                List<Moto> motosAtualizadas = veiculos.stream()
+                        .filter(v -> v instanceof Moto)
+                        .map(v -> (Moto) v)
+                        .collect(Collectors.toList());
+                return salvarListaDeVeiculosEmArquivo(motosAtualizadas, "dump/moto/motos.dat");
+            } else if (veiculoParaExcluir instanceof Caminhao) {
+                List<Caminhao> caminhoesAtualizados = veiculos.stream()
+                        .filter(v -> v instanceof Caminhao)
+                        .map(v -> (Caminhao) v)
+                        .collect(Collectors.toList());
+                return salvarListaDeVeiculosEmArquivo(caminhoesAtualizados, "dump/caminhao/caminhoes.dat");
+            }
+        }
+        return false; // Veículo não encontrado ou não removido
+    }
+
+    public boolean atualizarVeiculo(Veiculo veiculoAtualizado) {
+        // Encontra e remove o veículo antigo da lista em memória
+        boolean removed = veiculos.removeIf(v -> v.getPlaca().equals(veiculoAtualizado.getPlaca()));
+        if (!removed) {
+            System.err.println("Erro ao atualizar: Veículo com placa '" + veiculoAtualizado.getPlaca() + "' não encontrado.");
+            return false; // Veículo não encontrado para atualização
+        }
+
+        // Adiciona o veículo atualizado à lista em memória
+        veiculos.add(veiculoAtualizado);
+
+        // Serializa a lista completa de volta para o arquivo correto
+        if (veiculoAtualizado instanceof Carro) {
+            List<Carro> carrosAtualizados = veiculos.stream()
+                    .filter(v -> v instanceof Carro)
+                    .map(v -> (Carro) v)
+                    .collect(Collectors.toList());
+            return salvarListaDeVeiculosEmArquivo(carrosAtualizados, "dump/carros/carros.dat");
+        } else if (veiculoAtualizado instanceof Moto) {
+            List<Moto> motosAtualizadas = veiculos.stream()
+                    .filter(v -> v instanceof Moto)
+                    .map(v -> (Moto) v)
+                    .collect(Collectors.toList());
+            return salvarListaDeVeiculosEmArquivo(motosAtualizadas, "dump/moto/motos.dat");
+        } else if (veiculoAtualizado instanceof Caminhao) {
+            List<Caminhao> caminhoesAtualizados = veiculos.stream()
+                    .filter(v -> v instanceof Caminhao)
+                    .map(v -> (Caminhao) v)
+                    .collect(Collectors.toList());
+            return salvarListaDeVeiculosEmArquivo(caminhoesAtualizados, "dump/caminhao/caminhoes.dat");
+        }
+        return false; // Tipo de veículo desconhecido
+    }
+
     public String saveVehiclePicture(String originalImagePath, String placaVeiculo) {
         if (originalImagePath == null || originalImagePath.isEmpty()) {
             return null; // Nenhuma imagem para salvar
@@ -249,6 +312,17 @@ public class VeiculoController {
         }
 
         return resultadoStream.collect(Collectors.toList());
+    }
+
+    private <T extends Veiculo> boolean salvarListaDeVeiculosEmArquivo(List<T> lista, String caminhoDoArquivo) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(caminhoDoArquivo))) {
+            oos.writeObject(lista);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar lista de veículos em " + caminhoDoArquivo + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean estaLocado(Veiculo veiculo) {

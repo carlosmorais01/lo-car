@@ -1,11 +1,15 @@
 package view.components;
 
+import entities.Pessoa;
 import entities.Veiculo;
 import util.ImageScaler;
+import view.VehicleDetailScreen;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -20,10 +24,12 @@ public class CarrosselPanel extends JPanel {
     private JLabel descriptionLabel;
     private Timer timer;
     private JPanel dotsPanel;
-    private JLayeredPane imageLayeredPane; // Campo da classe
+    private JLayeredPane imageLayeredPane;
+    private Pessoa loggedInUser;
 
-    public CarrosselPanel(List<Veiculo> veiculos) {
+    public CarrosselPanel(List<Veiculo> veiculos, Pessoa loggedInUser) {
         this.veiculos = veiculos;
+        this.loggedInUser = loggedInUser;
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(1200, 600));
         setMaximumSize(new Dimension(1200, 600));
@@ -34,9 +40,23 @@ public class CarrosselPanel extends JPanel {
     }
 
     private void setupCarrosselUI() {
-        // JLayeredPane para sobrepor a imagem e a descrição
         imageLayeredPane = new JLayeredPane();
         imageLayeredPane.setLayout(new OverlayLayout(imageLayeredPane));
+        imageLayeredPane.setPreferredSize(getPreferredSize());
+        imageLayeredPane.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Cursor de mão
+
+        // Adiciona MouseListener ao imageLayeredPane para cliques no carrossel
+        imageLayeredPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!veiculos.isEmpty()) {
+                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(CarrosselPanel.this);
+                    parentFrame.dispose();
+                    VehicleDetailScreen detailScreen = new VehicleDetailScreen(veiculos.get(currentIndex), loggedInUser);
+                    detailScreen.setVisible(true);
+                }
+            }
+        });
 
         // ImageLabel como a camada base
         imageLabel = new JLabel();

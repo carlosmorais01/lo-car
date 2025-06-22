@@ -242,8 +242,6 @@ public class DumpGenerator {
                     carros.get(3), // Carro 4: Compacto Urbano (GHI0001)
                     clientes.get(0) // João Silva
             );
-            oos.writeObject(locacaoAtivaCarro);
-            System.out.println("Locação ativa para: " + carros.get(3).getNome() + " (" + carros.get(3).getPlaca() + ")");
 
             // Cenário 2: Moto 1 (Moto Urbana) JÁ FOI LOCADA e DEVOLVIDA
             Locacao locacaoAntigaMoto = new Locacao(
@@ -253,8 +251,6 @@ public class DumpGenerator {
                     motos.get(0), // Moto 1: Moto Urbana (MOT1234)
                     clientes.get(1) // Maria Oliveira
             );
-            oos.writeObject(locacaoAntigaMoto);
-            System.out.println("Locação devolvida para: " + motos.get(0).getNome() + " (" + motos.get(0).getPlaca() + ")");
 
             // Cenário 3: Caminhão 1 (Caminhão Baú) está PRÓXIMO DE DEVOLUÇÃO
             Locacao locacaoProximaDevolucaoCaminhao = new Locacao(
@@ -264,8 +260,14 @@ public class DumpGenerator {
                     caminhoes.get(0), // Caminhão 1: Caminhão Baú (CAM1234)
                     clientes.get(2) // Pedro Souza
             );
-            oos.writeObject(locacaoProximaDevolucaoCaminhao);
-            System.out.println("Locação próxima de devolução para: " + caminhoes.get(0).getNome() + " (" + caminhoes.get(0).getPlaca() + ")");
+
+            List<Locacao> todasAsLocacoes = new ArrayList<>();
+            todasAsLocacoes.add(locacaoAtivaCarro);
+            todasAsLocacoes.add(locacaoAntigaMoto);
+            todasAsLocacoes.add(locacaoProximaDevolucaoCaminhao);
+
+            oos.writeObject(todasAsLocacoes);
+            System.out.println("Locações geradas: " + todasAsLocacoes.size());
 
         } catch (Exception e) {
             System.err.println("Erro ao gerar locações: " + e.getMessage());
