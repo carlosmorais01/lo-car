@@ -64,6 +64,18 @@ public class AuthController {
         return null; // Nenhuma autenticação bem-sucedida
     }
 
+    // NOVO MÉTODO: Salva a lista de funcionários em um arquivo serializado.
+    public boolean saveEmployees(List<Funcionario> employees) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(EMPLOYEES_FILE_PATH))) {
+            oos.writeObject(employees);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar funcionários no arquivo: ");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<Funcionario> loadEmployees() {
         List<Funcionario> employees = new ArrayList<>();
         File file = new File(EMPLOYEES_FILE_PATH);

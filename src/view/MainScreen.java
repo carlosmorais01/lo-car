@@ -78,7 +78,7 @@ public class MainScreen extends JFrame {
 
         // Carrossel de Veículos
         List<Veiculo> veiculosCarrossel = veiculoController.listarTodos();
-        carrosselPanel = new CarrosselPanel(veiculosCarrossel);
+        carrosselPanel = new CarrosselPanel(veiculosCarrossel, loggedInUser);
         carrosselPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         contentPanel.add(carrosselPanel);
         contentPanel.add(Box.createVerticalStrut(40));
@@ -129,7 +129,7 @@ public class MainScreen extends JFrame {
             mostRentedCarsPanel.add(noCarsLabel);
         } else {
             for (Veiculo veiculo : carrosMaisAlugados) {
-                CarCardPanel card = new CarCardPanel(veiculo, veiculoController);
+                CarCardPanel card = new CarCardPanel(veiculo, veiculoController, loggedInUser); // NOVO: Passar loggedInUser
                 card.setPreferredSize(new Dimension(280, 280));
                 mostRentedCarsPanel.add(card);
             }

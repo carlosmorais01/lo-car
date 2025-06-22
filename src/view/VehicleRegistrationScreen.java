@@ -6,14 +6,19 @@ import entities.*;
 import enums.*;
 import util.ImageScaler;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 public class VehicleRegistrationScreen extends JFrame {
 
     private Funcionario loggedInFuncionario;
     private VeiculoController veiculoController;
+    private Veiculo veiculoToEdit;
 
     // Campos de input para o Veículo (atributos gerais)
     private JTextField descricaoField;
@@ -76,6 +81,14 @@ public class VehicleRegistrationScreen extends JFrame {
         this.loggedInFuncionario = funcionario;
         this.veiculoController = new VeiculoController();
         initializeUI();
+    }
+
+    public VehicleRegistrationScreen(Funcionario funcionario, Veiculo veiculo) {
+        this.loggedInFuncionario = funcionario;
+        this.veiculoController = new VeiculoController();
+        this.veiculoToEdit = veiculo;
+        initializeUI();
+        populateFieldsForEdit();
     }
 
     private void initializeUI() {
@@ -328,6 +341,96 @@ public class VehicleRegistrationScreen extends JFrame {
         updateSpecificFieldsPanel();
     }
 
+    private void populateFieldsForEdit() {
+        if (veiculoToEdit == null) return;
+
+        // Campos gerais
+        descricaoField.setText(veiculoToEdit.getDescricao());
+        placaField.setText(veiculoToEdit.getPlaca());
+        placaField.setEditable(false); // Placa não pode ser editada (é um ID único)
+        marcaField.setText(veiculoToEdit.getMarca());
+        nomeModeloField.setText(veiculoToEdit.getNome()); // Nome ou Modelo comercial
+        modeloAnoField.setText(String.valueOf(veiculoToEdit.getAno()));
+        corComboBox.setSelectedItem(veiculoToEdit.getCor());
+        funcaoComboBox.setSelectedItem(veiculoToEdit.getFuncao());
+        quilometragemField.setText(String.valueOf(veiculoToEdit.getQuilometragem()));
+        numeroPassageirosField.setText(String.valueOf(veiculoToEdit.getNumeroPassageiros()));
+        consumoCombustivelField.setText(String.valueOf(veiculoToEdit.getConsumoCombustivelPLitro()));
+        velocidadeMaxField.setText(String.valueOf(veiculoToEdit.getVelocidadeMax()));
+        automaticoCheckBox.setSelected(veiculoToEdit.isAutomatico());
+        combustivelComboBox.setSelectedItem(veiculoToEdit.getCombustivel());
+        tracaoComboBox.setSelectedItem(veiculoToEdit.getTracao());
+        quantAssentoField.setText(String.valueOf(veiculoToEdit.getQuantAssento()));
+        airBagCheckBox.setSelected(veiculoToEdit.isAirBag());
+        potenciaField.setText(String.valueOf(veiculoToEdit.getPotencia()));
+        vidroEletricoCheckBox.setSelected(veiculoToEdit.isVidroEletrico());
+        arCondicionadoCheckBox.setSelected(veiculoToEdit.isArCondicionado());
+        multimidiaCheckBox.setSelected(veiculoToEdit.isMultimidia());
+        entradaUSBCheckBox.setSelected(veiculoToEdit.isEntradaUSB());
+        vidroFumeCheckBox.setSelected(veiculoToEdit.isVidroFume());
+        pesoField.setText(String.valueOf(veiculoToEdit.getPeso()));
+        engateCheckBox.setSelected(veiculoToEdit.isEngate());
+        direcaoHidraulicaCheckBox.setSelected(veiculoToEdit.isDirecaoHidraulica());
+        valorDiarioField.setText(String.valueOf(veiculoToEdit.getValorDiario()));
+
+        // Imagem do veículo
+        selectedImagePath = veiculoToEdit.getCaminhoFoto(); // Define o caminho atual
+        loadAndSetVehicleImage(selectedImagePath); // Carrega a prévia da imagem
+
+        // Seleciona o tipo de rádio button e mostra os campos específicos
+        if (veiculoToEdit instanceof Carro carro) {
+            carroRadio.setSelected(true);
+            portasField.setText(String.valueOf(carro.getPortas()));
+            aerofolioCheckBox.setSelected(carro.isAerofolio());
+        } else if (veiculoToEdit instanceof Moto moto) {
+            motoRadio.setSelected(true);
+            cilindradasField.setText(String.valueOf(moto.getCilindradas()));
+            portaCargaCheckBox.setSelected(moto.isPortaCarga());
+            raioPneuField.setText(String.valueOf(moto.getRaioPneu()));
+        } else if (veiculoToEdit instanceof Caminhao caminhao) {
+            caminhaoRadio.setSelected(true);
+            cargaMaximaField.setText(String.valueOf(caminhao.getCargaMaxima()));
+            alturaField.setText(String.valueOf(caminhao.getAltura()));
+            larguraField.setText(String.valueOf(caminhao.getLargura()));
+            comprimentoField.setText(String.valueOf(caminhao.getComprimento()));
+            tipoVagaoComboBox.setSelectedItem(caminhao.getTipoVagao());
+        }
+        // Chama para atualizar o painel de campos específicos após selecionar o rádio button
+        updateSpecificFieldsPanel();
+
+        // Altera o texto do botão de registro para "Salvar Alterações"
+        registerVehicleButton.setText("Salvar Alterações");
+    }
+
+    private void loadAndSetVehicleImage(String imagePath) {
+        Image vehicleImg = null;
+        if (imagePath != null && !imagePath.isEmpty()) {
+            try {
+                File fileImg = new File(imagePath);
+                if (fileImg.exists()) {
+                    vehicleImg = ImageIO.read(fileImg);
+                } else {
+                    URL resourceUrl = getClass().getResource(imagePath);
+                    if (resourceUrl != null) {
+                        vehicleImg = ImageIO.read(resourceUrl);
+                    } else {
+                        System.err.println("Imagem do veículo para prévia não encontrada: " + imagePath);
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Erro I/O ao carregar imagem para prévia: " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Erro inesperado ao carregar/escalar imagem para prévia: " + e.getMessage());
+            }
+        }
+        if (vehicleImg != null) {
+            vehicleImagePreview.setIcon(new ImageIcon(ImageScaler.getScaledImage(vehicleImg, 150, 100)));
+        } else {
+            vehicleImagePreview.setIcon(null);
+            vehicleImagePreview.setText("Sem Imagem");
+        }
+    }
+
     private void updateSpecificFieldsPanel() {
         CardLayout cl = (CardLayout) (specificFieldsPanel.getLayout());
         if (carroRadio.isSelected()) {
@@ -462,17 +565,20 @@ public class VehicleRegistrationScreen extends JFrame {
             }
 
             if (novoVeiculo != null) {
-                // Salvar o veículo
-                boolean success = veiculoController.cadastrarVeiculo(novoVeiculo); // NOVO MÉTODO NO CONTROLLER
+                boolean success;
+                if (veiculoToEdit == null) { // NOVO VEÍCULO
+                    success = veiculoController.cadastrarVeiculo(novoVeiculo);
+                } else { // EDIÇÃO DE VEÍCULO EXISTENTE
+                    success = veiculoController.atualizarVeiculo(novoVeiculo); // NOVO MÉTODO no Controller
+                }
 
                 if (success) {
-                    JOptionPane.showMessageDialog(this, "Veículo cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                    // Opcional: Limpar campos ou voltar para MainScreen
+                    JOptionPane.showMessageDialog(this, "Veículo " + (veiculoToEdit == null ? "cadastrado" : "atualizado") + " com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     dispose();
                     MainScreen mainScreen = new MainScreen(loggedInFuncionario);
                     mainScreen.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Erro ao cadastrar veículo. Verifique a placa ou outros dados.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Erro ao " + (veiculoToEdit == null ? "cadastrar" : "atualizar") + " veículo. Verifique a placa ou outros dados.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Tipo de veículo não selecionado ou dados inválidos.", "Erro", JOptionPane.WARNING_MESSAGE);
@@ -481,7 +587,7 @@ public class VehicleRegistrationScreen extends JFrame {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Por favor, insira valores numéricos válidos nos campos de números.", "Erro de Entrada", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro inesperado ao cadastrar veículo: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro inesperado ao cadastrar/atualizar veículo: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }

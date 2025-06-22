@@ -1,53 +1,78 @@
 package view.components;
 
 import entities.Veiculo;
-import controller.VeiculoController; // Para verificar o status de locação
+import controller.VeiculoController;
+import util.ImageScaler;
+import view.VehicleDetailScreen; // Importar VehicleDetailScreen
+import entities.Pessoa; // Importar Pessoa
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter; // Para MouseListener
+import java.awt.event.MouseEvent; // Para MouseEvent
+import java.net.URL;
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 public class CarCardPanel extends JPanel {
 
     private Veiculo veiculo;
-    private VeiculoController veiculoController; // Injetar o controller para verificar status
+    private VeiculoController veiculoController;
+    private Pessoa loggedInUser; // NOVO: Para passar para a VehicleDetailScreen
 
-    public CarCardPanel(Veiculo veiculo, VeiculoController veiculoController) {
+    public CarCardPanel(Veiculo veiculo, VeiculoController veiculoController, Pessoa loggedInUser) { // Construtor atualizado
         this.veiculo = veiculo;
         this.veiculoController = veiculoController;
+        this.loggedInUser = loggedInUser; // Atribui o usuário logado
         initializeCard();
     }
 
     private void initializeCard() {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
+        setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+        setCursor(new Cursor(Cursor.HAND_CURSOR)); // Cursor de mão para indicar clicável
 
-        Image veiculoImage = null;
+        // Adiciona MouseListener ao painel inteiro
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Abre a VehicleDetailScreen ao clicar no card
+                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(CarCardPanel.this);
+                parentFrame.dispose(); // Fecha a tela atual (MainScreen ou VehicleListScreen)
+                VehicleDetailScreen detailScreen = new VehicleDetailScreen(veiculo, loggedInUser);
+                detailScreen.setVisible(true);
+            }
+        });
+        setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
+
+        Image cardImage = null;
         String imagePath = veiculo.getCaminhoFoto();
 
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
                 File savedImageFile = new File(imagePath);
                 if (savedImageFile.exists()) {
-                    veiculoImage = ImageIO.read(savedImageFile);
+                    cardImage = ImageIO.read(savedImageFile);
                 } else {
                     URL imageUrl = getClass().getResource(imagePath);
                     if (imageUrl != null) {
-                        veiculoImage = ImageIO.read(imageUrl);
+                        cardImage = ImageIO.read(imageUrl);
                     } else {
                         System.err.println("Imagem do veículo não encontrada: " + imagePath);
                     }
                 }
             } catch (IOException e) {
-                System.err.println("Erro ao carregar imagem para " + veiculo.getPlaca() + ": " + e.getMessage());
+                System.err.println("Erro de I/O ao carregar imagem para " + veiculo.getPlaca() + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Erro inesperado ao carregar/escalar imagem do veículo: " + e.getMessage());
             }
         }
 
-        if (imagePath != null && veiculoImage != null) {
-            Image img = veiculoImage.getScaledInstance(250, 150, Image.SCALE_SMOOTH); // Ajuste o tamanho da imagem no card
+        if (cardImage != null) {
+            Image img = ImageScaler.getScaledImage(cardImage, 250, 150);
             JLabel imgLabel = new JLabel(new ImageIcon(img));
             imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
             add(imgLabel, BorderLayout.NORTH);
