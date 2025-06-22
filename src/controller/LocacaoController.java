@@ -120,7 +120,7 @@ public class LocacaoController {
         }
 
         // 4. Deduzir saldo do cliente e persistir o cliente atualizado
-        cliente.resgatarSaldo(valorTotal);
+        cliente.debitarSaldo(valorTotal);
         // O AuthController precisa de um método para atualizar um cliente existente
         // Você já tem uma lógica para isso em UserProfileScreen
         // Precisamos de um método mais genérico no AuthController para atualizar o cliente.
