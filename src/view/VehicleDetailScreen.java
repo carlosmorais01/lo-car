@@ -1,7 +1,7 @@
 package view;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import controller.LocacaoController; // NOVO: Controlador para Locações
+import controller.LocacaoController;
 import controller.VeiculoController;
 import entities.*;
 import enums.*;
@@ -10,54 +10,57 @@ import view.components.HeaderPanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit; // Para cálculo de dias
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.List; // Adicionado para simular a busca de veículos similares
 
 public class VehicleDetailScreen extends JFrame {
 
     private Veiculo selectedVeiculo;
     private Pessoa loggedInUser;
     private VeiculoController veiculoController;
-    private LocacaoController locacaoController; // Para gerenciar locações
+    private LocacaoController locacaoController;
 
     private JLabel vehicleImageLabel;
-    private JLabel vehicleNameLabel;
-    private JLabel vehiclePriceLabel;
-    private JLabel vehicleLocationLabel; // Localização (Setor Marista - Goiânia)
-    private JLabel vehicleStatusLabel;
-    private JButton actionButton; // Botão Alugar ou Editar
-    private JButton deleteButton; // Botão Excluir (apenas para funcionário)
-    private JTextField rentalDaysField; // Campo para número de dias de aluguel
-    private JLabel totalRentalValueLabel; // Label para mostrar o valor total
+    private JLabel statusLabel; // Alterado para corresponder ao estilo do VeiculoInfoScreen
+    private JButton actionButton;
+    private JButton deleteButton;
+    private JTextField rentalDaysField;
+    private JLabel totalRentalValueLabel;
 
     public VehicleDetailScreen(Veiculo veiculo, Pessoa user) {
         this.selectedVeiculo = veiculo;
         this.loggedInUser = user;
         this.veiculoController = new VeiculoController();
-        this.locacaoController = new LocacaoController(); // Inicializa o controlador de locação
+        this.locacaoController = new LocacaoController();
         initializeUI();
     }
 
     private void initializeUI() {
-        setTitle("Detalhes do Veículo - LoCar!");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Apenas fecha esta janela
+        setTitle(selectedVeiculo.getNome() + " " + selectedVeiculo.getModelo() + " - LoCar!"); // Título dinâmico
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1200, 800);
+        setMinimumSize(new Dimension(1000, 700)); // Adicionado tamanho mínimo
         setLocationRelativeTo(null);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
         // Header Panel
         String userName = (loggedInUser != null) ? loggedInUser.getNome() : "Visitante";
         String userProfilePic = (loggedInUser != null) ? loggedInUser.getCaminhoFoto() : null;
         HeaderPanel headerPanel = new HeaderPanel(userName, userProfilePic);
-        // Configurar ações do header aqui (busca, logo, configurações)
+
         headerPanel.setSearchAction(e -> {
             String searchText = headerPanel.getSearchText();
             dispose();
@@ -83,68 +86,80 @@ public class VehicleDetailScreen extends JFrame {
         }
         add(headerPanel, BorderLayout.NORTH);
 
-        // Painel de Conteúdo Principal
-        JPanel mainContentPanel = new JPanel();
-        mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
-        mainContentPanel.setBackground(UIManager.getColor("Panel.background"));
-        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
+        // Painel de Conteúdo Principal (scrollable)
+        JPanel scrollableContentPanel = new JPanel();
+        scrollableContentPanel.setLayout(new BoxLayout(scrollableContentPanel, BoxLayout.Y_AXIS));
+        scrollableContentPanel.setBackground(UIManager.getColor("Panel.background"));
+        scrollableContentPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
         // Seção Superior: Imagem, Info Principal, Botão
-        JPanel topSectionPanel = new JPanel(new GridBagLayout());
-        topSectionPanel.setBackground(UIManager.getColor("Panel.background"));
+        JPanel topDetailsPanel = new JPanel(new BorderLayout(30, 0)); // Usando BorderLayout
+        topDetailsPanel.setBackground(UIManager.getColor("Panel.background"));
+        topDetailsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.BOTH;
-
-        // Imagem do Veículo (lado esquerdo)
         vehicleImageLabel = new JLabel();
-        vehicleImageLabel.setPreferredSize(new Dimension(500, 300)); // Tamanho fixo para a imagem
-        vehicleImageLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+        vehicleImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        vehicleImageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        vehicleImageLabel.setPreferredSize(new Dimension(500, 350)); // Aumentado para corresponder
+        vehicleImageLabel.setOpaque(true);
+        vehicleImageLabel.setBackground(new Color(230, 230, 230));
+        vehicleImageLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         loadAndSetVehicleImage(selectedVeiculo.getCaminhoFoto()); // Carrega a imagem
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridheight = 4; // Ocupa 4 linhas
-        gbc.weightx = 0.5; // Ocupa metade da largura disponível
-        topSectionPanel.add(vehicleImageLabel, gbc);
+        JPanel imageWrapperPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        imageWrapperPanel.setBackground(UIManager.getColor("Panel.background"));
+        imageWrapperPanel.add(vehicleImageLabel);
+        topDetailsPanel.add(imageWrapperPanel, BorderLayout.WEST);
 
-        // Informações Principais do Veículo (lado direito)
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setOpaque(false); // Transparente para ver o fundo do topSectionPanel
-        infoPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinha o conteúdo à esquerda
+        // Informações e Botão de Ação (lado direito)
+        JPanel infoAndRentPanel = new JPanel();
+        infoAndRentPanel.setLayout(new BoxLayout(infoAndRentPanel, BoxLayout.Y_AXIS));
+        infoAndRentPanel.setBackground(UIManager.getColor("Panel.background"));
+        infoAndRentPanel.setBorder(new EmptyBorder(0, 20, 0, 0));
 
-        vehicleNameLabel = new JLabel(selectedVeiculo.getMarca() + " " + selectedVeiculo.getNome() + " " + selectedVeiculo.getAno());
-        vehicleNameLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 28f));
-        vehicleNameLabel.setForeground(new Color(10, 40, 61));
+        JLabel vehicleNameLabel = new JLabel(selectedVeiculo.getNome() + " " + selectedVeiculo.getModelo());
+        vehicleNameLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 30f));
+        vehicleNameLabel.setForeground(UIManager.getColor("Label.foreground"));
         vehicleNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        infoPanel.add(vehicleNameLabel);
+        infoAndRentPanel.add(vehicleNameLabel);
+        infoAndRentPanel.add(Box.createVerticalStrut(10));
 
-        vehiclePriceLabel = new JLabel("R$ " + String.format("%.2f", selectedVeiculo.getValorDiario()) + " / dia");
-        vehiclePriceLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 22f));
-        vehiclePriceLabel.setForeground(new Color(0, 128, 0)); // Verde para preço
-        vehiclePriceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        infoPanel.add(vehiclePriceLabel);
+        JLabel priceLabel = new JLabel(String.format("R$ %.2f / dia", selectedVeiculo.getValorDiario()));
+        priceLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 24f));
+        priceLabel.setForeground(new Color(0, 153, 0));
+        priceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoAndRentPanel.add(priceLabel);
+        infoAndRentPanel.add(Box.createVerticalStrut(5));
 
-        // Exemplo de localização fixa no dump
-        vehicleLocationLabel = new JLabel("Setor Marista - Goiânia");
+        JLabel paymentOptionsLabel = new JLabel("<html><u>Ver os meios de pagamento</u></html>");
+        paymentOptionsLabel.setForeground(Color.GRAY.darker());
+        paymentOptionsLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        paymentOptionsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        paymentOptionsLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(VehicleDetailScreen.this, "Meio de pagamento: PIX.", "Meio de Pagamento", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        infoAndRentPanel.add(paymentOptionsLabel);
+        infoAndRentPanel.add(Box.createVerticalStrut(15));
+
+        JLabel vehicleLocationLabel = new JLabel("Setor Marista - Goiânia"); // Mantido fixo
         vehicleLocationLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 16f));
-        vehicleLocationLabel.setForeground(Color.GRAY);
+        vehicleLocationLabel.setForeground(Color.GRAY.darker());
         vehicleLocationLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        infoPanel.add(vehicleLocationLabel);
+        infoAndRentPanel.add(vehicleLocationLabel);
+        infoAndRentPanel.add(Box.createVerticalStrut(15));
 
-        boolean isAvailable = !veiculoController.estaLocado(selectedVeiculo);
-        vehicleStatusLabel = new JLabel(isAvailable ? "Disponível" : "Indisponível");
-        vehicleStatusLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 18f));
-        vehicleStatusLabel.setForeground(isAvailable ? new Color(0, 150, 0) : Color.RED); // Verde para disponível, vermelho para indisponível
-        vehicleStatusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        infoPanel.add(vehicleStatusLabel);
-
-        infoPanel.add(Box.createVerticalStrut(20)); // Espaço antes do botão
+        statusLabel = new JLabel(); // Usando o novo statusLabel
+        statusLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20f));
+        statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoAndRentPanel.add(statusLabel);
+        infoAndRentPanel.add(Box.createVerticalStrut(25));
 
         // Campo de dias de aluguel e valor total (APENAS PARA CLIENTES E SE DISPONÍVEL)
-        if (loggedInUser instanceof Cliente && isAvailable) {
+        // Isso será controlado pela lógica de habilitação do botão e updateStatusLabel
+        if (loggedInUser instanceof Cliente) { // Simplificado, a visibilidade será gerenciada pelo status
             JPanel rentalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
             rentalPanel.setOpaque(false);
             rentalPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -153,10 +168,11 @@ public class VehicleDetailScreen extends JFrame {
             daysLabel.setFont(UIManager.getFont("Label.font").deriveFont(16f));
             rentalPanel.add(daysLabel);
 
-            rentalDaysField = new JTextField("1", 5); // Default 1 dia
+            rentalDaysField = new JTextField("1", 5);
             rentalDaysField.setFont(UIManager.getFont("TextField.font").deriveFont(16f));
             rentalDaysField.setPreferredSize(new Dimension(80, 30));
             rentalDaysField.setMaximumSize(new Dimension(80, 30));
+            rentalDaysField.setBackground(Color.WHITE);
             rentalDaysField.addActionListener(e -> calculateRentalValue());
             rentalDaysField.addKeyListener(new java.awt.event.KeyAdapter() {
                 public void keyReleased(java.awt.event.KeyEvent e) {
@@ -170,101 +186,84 @@ public class VehicleDetailScreen extends JFrame {
             totalRentalValueLabel.setForeground(new Color(10, 40, 61));
             rentalPanel.add(totalRentalValueLabel);
 
-            infoPanel.add(rentalPanel);
-            infoPanel.add(Box.createVerticalStrut(10)); // Espaço
+            infoAndRentPanel.add(rentalPanel);
+            infoAndRentPanel.add(Box.createVerticalStrut(10));
         }
 
-        // Botão de Ação (Alugar / Editar)
         actionButton = new JButton();
-        actionButton.setPreferredSize(new Dimension(180, 50));
-        actionButton.setAlignmentX(Component.LEFT_ALIGNMENT); // Alinhar à esquerda com o infoPanel
+        actionButton.setPreferredSize(new Dimension(250, 60)); // Aumentado para corresponder
+        actionButton.setFont(UIManager.getFont("Button.font").deriveFont(Font.BOLD, 20f)); // Adicionado fonte
+        actionButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         if (loggedInUser instanceof Cliente) {
-            if (isAvailable) {
-                actionButton.setText("Alugar");
-                actionButton.setBackground(new Color(0, 128, 0)); // Verde
-                actionButton.setForeground(Color.WHITE);
-                actionButton.addActionListener(e -> handleRentVehicle());
-            } else {
-                actionButton.setText("Indisponível");
-                actionButton.setBackground(Color.GRAY);
-                actionButton.setEnabled(false);
-            }
+            actionButton.setText("Alugar");
+            actionButton.setBackground(new Color(0, 128, 0)); // Verde
+            actionButton.setForeground(Color.WHITE);
+            actionButton.addActionListener(e -> handleRentVehicle());
         } else if (loggedInUser instanceof Funcionario) {
             actionButton.setText("Editar Veículo");
             actionButton.setBackground(new Color(10, 40, 61)); // Azul principal
             actionButton.setForeground(Color.WHITE);
             actionButton.addActionListener(e -> handleEditVehicle());
 
-            // Botão de Excluir (apenas para funcionário)
             deleteButton = new JButton("Excluir Veículo");
-            deleteButton.setPreferredSize(new Dimension(180, 50));
+            deleteButton.setPreferredSize(new Dimension(250, 60)); // Aumentado
+            deleteButton.setFont(UIManager.getFont("Button.font").deriveFont(Font.BOLD, 20f)); // Adicionado fonte
             deleteButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-            deleteButton.setBackground(new Color(200, 0, 0)); // Vermelho para exclusão
+            deleteButton.setBackground(new Color(200, 0, 0));
             deleteButton.setForeground(Color.WHITE);
             deleteButton.addActionListener(e -> handleDeleteVehicle());
         }
 
-        infoPanel.add(actionButton);
-        if (deleteButton != null) { // Adiciona o botão de exclusão se existir
-            infoPanel.add(Box.createVerticalStrut(10)); // Espaço
-            infoPanel.add(deleteButton);
+        infoAndRentPanel.add(actionButton);
+        if (deleteButton != null) {
+            infoAndRentPanel.add(Box.createVerticalStrut(10));
+            infoAndRentPanel.add(deleteButton);
         }
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.gridheight = 1; // Ocupa uma linha
-        gbc.weightx = 0.5; // Ocupa metade da largura disponível
-        gbc.fill = GridBagConstraints.HORIZONTAL; // Preenche a largura
-        gbc.anchor = GridBagConstraints.NORTHWEST; // Alinha ao topo-esquerda
-        topSectionPanel.add(infoPanel, gbc);
+        infoAndRentPanel.add(Box.createVerticalGlue()); // Para empurrar o conteúdo para cima
 
-        mainContentPanel.add(topSectionPanel);
-        mainContentPanel.add(Box.createVerticalStrut(30)); // Espaçamento
+        topDetailsPanel.add(infoAndRentPanel, BorderLayout.CENTER);
 
-        // Seção Inferior: Ficha Técnica
-        JLabel fichaTecnicaTitle = new JLabel("Ficha Técnica:");
-        fichaTecnicaTitle.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 24f));
-        fichaTecnicaTitle.setForeground(new Color(10, 40, 61));
-        fichaTecnicaTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        mainContentPanel.add(fichaTecnicaTitle);
-        mainContentPanel.add(Box.createVerticalStrut(15));
+        scrollableContentPanel.add(topDetailsPanel);
+        scrollableContentPanel.add(Box.createVerticalStrut(30));
 
-        JTextArea fichaTecnicaArea = new JTextArea();
-        fichaTecnicaArea.setEditable(false);
-        fichaTecnicaArea.setFont(UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 14f));
-        fichaTecnicaArea.setForeground(new Color(43, 43, 43));
-        fichaTecnicaArea.setBackground(UIManager.getColor("Panel.background"));
-        fichaTecnicaArea.setLineWrap(true);
-        fichaTecnicaArea.setWrapStyleWord(true);
-        fichaTecnicaArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Padding
+        // Seção Inferior: Ficha Técnica (usando createFichaTecnicaPanel)
+        JPanel fichaTecnicaPanel = createFichaTecnicaPanel();
+        fichaTecnicaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        fichaTecnicaPanel.setPreferredSize(new Dimension(800, 450)); // Altura fixa, largura flexível
+        fichaTecnicaPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 600)); // Altura máxima
 
-        buildFichaTecnica(fichaTecnicaArea); // Preenche a ficha técnica
-
-        JScrollPane fichaTecnicaScrollPane = new JScrollPane(fichaTecnicaArea);
-        fichaTecnicaScrollPane.setPreferredSize(new Dimension(mainContentPanel.getWidth(), 300)); // Altura fixa, largura flexível
+        JScrollPane fichaTecnicaScrollPane = new JScrollPane(fichaTecnicaPanel);
+        fichaTecnicaScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        fichaTecnicaScrollPane.getViewport().setBackground(UIManager.getColor("Panel.background"));
+        fichaTecnicaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        fichaTecnicaScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        fichaTecnicaScrollPane.getVerticalScrollBar().setUnitIncrement(16);
         fichaTecnicaScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-        fichaTecnicaScrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1)); // Borda sutil
-        mainContentPanel.add(fichaTecnicaScrollPane);
 
-        JScrollPane mainScrollPane = new JScrollPane(mainContentPanel);
+        scrollableContentPanel.add(fichaTecnicaScrollPane);
+        scrollableContentPanel.add(Box.createVerticalGlue()); // Para empurrar o conteúdo para cima
+
+        JScrollPane mainScrollPane = new JScrollPane(scrollableContentPanel);
         mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
         mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         mainScrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(mainScrollPane, BorderLayout.CENTER);
+
+        updateStatusLabel(); // Inicializa o status e o botão de aluguel
+        calculateRentalValue(); // Calcula o valor inicial
     }
 
     private void loadAndSetVehicleImage(String imagePath) {
         Image veiculoImage = null;
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
-                // Tenta carregar do caminho absoluto (dump/profile_pics ou dump/vehicle_pics)
                 File savedImageFile = new File(imagePath);
                 if (savedImageFile.exists()) {
                     veiculoImage = ImageIO.read(savedImageFile);
                 } else {
-                    // Fallback para recurso do classpath (para imagens do dump original como /images/carrossel/...)
                     URL imageUrl = getClass().getResource(imagePath);
                     if (imageUrl != null) {
                         veiculoImage = ImageIO.read(imageUrl);
@@ -285,81 +284,198 @@ public class VehicleDetailScreen extends JFrame {
         } else {
             vehicleImageLabel.setIcon(null);
             vehicleImageLabel.setText("Imagem Indisponível");
+            vehicleImageLabel.setForeground(Color.RED);
+            vehicleImageLabel.setFont(UIManager.getFont("Label.font").deriveFont(Font.BOLD, 16f));
         }
     }
 
-    private void buildFichaTecnica(JTextArea area) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Placa: ").append(selectedVeiculo.getPlaca()).append("\n");
-        sb.append("Marca: ").append(selectedVeiculo.getMarca()).append("\n");
-        sb.append("Modelo: ").append(selectedVeiculo.getModelo()).append("\n");
-        sb.append("Nome Comercial: ").append(selectedVeiculo.getNome()).append("\n");
-        sb.append("Ano: ").append(selectedVeiculo.getAno()).append("\n");
-        sb.append("Cor: ").append(selectedVeiculo.getCor()).append("\n");
-        sb.append("Função: ").append(selectedVeiculo.getFuncao()).append("\n");
-        sb.append("Quilometragem: ").append(String.format("%.1f", selectedVeiculo.getQuilometragem())).append(" km\n");
-        sb.append("Número de Passageiros: ").append(selectedVeiculo.getNumeroPassageiros()).append("\n");
-        sb.append("Consumo (Km/L): ").append(String.format("%.1f", selectedVeiculo.getConsumoCombustivelPLitro())).append("\n");
-        sb.append("Velocidade Máxima: ").append(String.format("%.1f", selectedVeiculo.getVelocidadeMax())).append(" km/h\n");
-        sb.append("Automático: ").append(selectedVeiculo.isAutomatico() ? "Sim" : "Não").append("\n");
-        sb.append("Combustível: ").append(selectedVeiculo.getCombustivel()).append("\n");
-        sb.append("Tração: ").append(selectedVeiculo.getTracao()).append("\n");
-        sb.append("Quantidade de Assentos: ").append(selectedVeiculo.getQuantAssento()).append("\n");
-        sb.append("AirBag: ").append(selectedVeiculo.isAirBag() ? "Sim" : "Não").append("\n");
-        sb.append("Potência: ").append(String.format("%.1f", selectedVeiculo.getPotencia())).append(" cv\n");
-        sb.append("Vidro Elétrico: ").append(selectedVeiculo.isVidroEletrico() ? "Sim" : "Não").append("\n");
-        sb.append("Ar Condicionado: ").append(selectedVeiculo.isArCondicionado() ? "Sim" : "Não").append("\n");
-        sb.append("Multimídia: ").append(selectedVeiculo.isMultimidia() ? "Sim" : "Não").append("\n");
-        sb.append("Entrada USB: ").append(selectedVeiculo.isEntradaUSB() ? "Sim" : "Não").append("\n");
-        sb.append("Vidro Fumê: ").append(selectedVeiculo.isVidroFume() ? "Sim" : "Não").append("\n");
-        sb.append("Peso: ").append(String.format("%.1f", selectedVeiculo.getPeso())).append(" kg\n");
-        sb.append("Engate: ").append(selectedVeiculo.isEngate() ? "Sim" : "Não").append("\n");
-        sb.append("Direção Hidráulica: ").append(selectedVeiculo.isDirecaoHidraulica() ? "Sim" : "Não").append("\n");
-        sb.append("Valor Diário: R$ ").append(String.format("%.2f", selectedVeiculo.getValorDiario())).append("\n");
-        sb.append("Número de Locações: ").append(selectedVeiculo.getLocacoes()).append("\n");
+    // Adaptado de createFichaTecnicaPanel do VeiculoInfoScreen
+    private JPanel createFichaTecnicaPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(UIManager.getColor("Panel.background"));
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
+                "Ficha Técnica",
+                TitledBorder.LEADING,
+                TitledBorder.TOP,
+                UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20f),
+                UIManager.getColor("Label.foreground")
+        ));
+
+        JPanel columnsPanel = new JPanel(new GridLayout(1, 2, 40, 5));
+        columnsPanel.setBackground(UIManager.getColor("Panel.background"));
+        columnsPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
+
+        JPanel colEsquerda = new JPanel(new GridBagLayout());
+        colEsquerda.setBackground(UIManager.getColor("Panel.background"));
+        JPanel colDireita = new JPanel(new GridBagLayout());
+        colDireita.setBackground(UIManager.getColor("Panel.background"));
+
+        GridBagConstraints gbcEsquerda = new GridBagConstraints();
+        gbcEsquerda.insets = new Insets(4, 0, 4, 0);
+        gbcEsquerda.fill = GridBagConstraints.HORIZONTAL;
+        gbcEsquerda.anchor = GridBagConstraints.WEST;
+        gbcEsquerda.weightx = 0.5;
+
+        GridBagConstraints gbcDireita = new GridBagConstraints();
+        gbcDireita.insets = new Insets(4, 0, 4, 0);
+        gbcDireita.fill = GridBagConstraints.HORIZONTAL;
+        gbcDireita.anchor = GridBagConstraints.WEST;
+        gbcDireita.weightx = 0.5;
+
+        int rowEsquerda = 0;
+        int rowDireita = 0;
+
+        Font labelFont = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 15f);
+        Font valueFont = UIManager.getFont("Label.font").deriveFont(Font.PLAIN, 15f);
+
+        addRowToGridBagPanel(colDireita, gbcDireita, "Marca:", selectedVeiculo.getMarca(), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Modelo:", selectedVeiculo.getModelo(), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Nome Comercial:", selectedVeiculo.getNome(), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Ano:", String.valueOf(selectedVeiculo.getAno()), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Cor:", selectedVeiculo.getCor().name(), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Função:", selectedVeiculo.getFuncao().name(), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Quilometragem:", String.format("%.1f km", selectedVeiculo.getQuilometragem()), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Nº Passageiros:", String.valueOf(selectedVeiculo.getNumeroPassageiros()), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Consumo:", String.format("%.1f Km/L", selectedVeiculo.getConsumoCombustivelPLitro()), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Velocidade Máxima:", String.format("%.1f km/h", selectedVeiculo.getVelocidadeMax()), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Transmissão:", (selectedVeiculo.isAutomatico() ? "Automática" : "Manual"), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Combustível:", selectedVeiculo.getCombustivel().name(), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Tração:", selectedVeiculo.getTracao().name(), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Assentos:", String.valueOf(selectedVeiculo.getQuantAssento()), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Airbag:", (selectedVeiculo.isAirBag() ? "Sim" : "Não"), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Potência:", String.format("%.1f cv", selectedVeiculo.getPotencia()), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Vidros elétricos:", (selectedVeiculo.isVidroEletrico() ? "Sim" : "Não"), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Ar-condicionado:", (selectedVeiculo.isArCondicionado() ? "Sim" : "Não"), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Multimídia:", (selectedVeiculo.isMultimidia() ? "Sim" : "Não"), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Entrada USB:", (selectedVeiculo.isEntradaUSB() ? "Sim" : "Não"), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Vidro fumê:", (selectedVeiculo.isVidroFume() ? "Sim" : "Não"), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Peso:", String.format("%.1f kg", selectedVeiculo.getPeso()), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Engate:", (selectedVeiculo.isEngate() ? "Sim" : "Não"), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Direção Hidráulica:", (selectedVeiculo.isDirecaoHidraulica() ? "Sim" : "Não"), labelFont, valueFont, rowEsquerda++);
+        addRowToGridBagPanel(colDireita, gbcDireita, "Valor Diário:", String.format("R$ %.2f", selectedVeiculo.getValorDiario()), labelFont, valueFont, rowDireita++);
+        addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Nº Locações:", String.valueOf(selectedVeiculo.getLocacoes()), labelFont, valueFont, rowEsquerda++);
+
 
         if (selectedVeiculo instanceof Carro carro) {
-            sb.append("\n--- Detalhes do Carro ---\n");
-            sb.append("Portas: ").append(carro.getPortas()).append("\n");
-            sb.append("Aerofólio: ").append(carro.isAerofolio() ? "Sim" : "Não").append("\n");
+            addRowToGridBagPanel(colDireita, gbcDireita, "Portas:", String.valueOf(carro.getPortas()), labelFont, valueFont, rowDireita++);
+            addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Aerofólio:", (carro.isAerofolio() ? "Sim" : "Não"), labelFont, valueFont, rowEsquerda++);
         } else if (selectedVeiculo instanceof Moto moto) {
-            sb.append("\n--- Detalhes da Moto ---\n");
-            sb.append("Cilindradas: ").append(moto.getCilindradas()).append("\n");
-            sb.append("Porta Carga: ").append(moto.isPortaCarga() ? "Sim" : "Não").append("\n");
-            sb.append("Raio do Pneu: ").append(moto.getRaioPneu()).append("\n");
+            addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Cilindradas:", String.valueOf(moto.getCilindradas()) + " cc", labelFont, valueFont, rowEsquerda++);
+            addRowToGridBagPanel(colDireita, gbcDireita, "Porta Carga:", (moto.isPortaCarga() ? "Sim" : "Não"), labelFont, valueFont, rowDireita++);
+            addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Raio Pneu:", String.valueOf(moto.getRaioPneu()) + "\"", labelFont, valueFont, rowEsquerda++);
         } else if (selectedVeiculo instanceof Caminhao caminhao) {
-            sb.append("\n--- Detalhes do Caminhão ---\n");
-            sb.append("Carga Máxima: ").append(String.format("%.1f", caminhao.getCargaMaxima())).append(" kg\n");
-            sb.append("Altura: ").append(String.format("%.1f", caminhao.getAltura())).append(" m\n");
-            sb.append("Largura: ").append(String.format("%.1f", caminhao.getLargura())).append(" m\n");
-            sb.append("Comprimento: ").append(String.format("%.1f", caminhao.getComprimento())).append(" m\n");
-            sb.append("Tipo de Vagão: ").append(caminhao.getTipoVagao()).append("\n");
+            addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Carga Máxima:", String.format("%.1f kg", caminhao.getCargaMaxima()), labelFont, valueFont, rowEsquerda++);
+            addRowToGridBagPanel(colDireita, gbcDireita, "Altura:", String.format("%.1f m", caminhao.getAltura()), labelFont, valueFont, rowDireita++);
+            addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Largura:", String.format("%.1f m", caminhao.getLargura()), labelFont, valueFont, rowEsquerda++);
+            addRowToGridBagPanel(colDireita, gbcDireita, "Comprimento:", String.format("%.1f m", caminhao.getComprimento()), labelFont, valueFont, rowDireita++);
+            addRowToGridBagPanel(colEsquerda, gbcEsquerda, "Tipo de Vagão:", caminhao.getTipoVagao().name(), labelFont, valueFont, rowEsquerda++);
         }
 
-        area.setText(sb.toString());
-        area.setCaretPosition(0); // Rola para o topo
+        // Add glue to push content to the top
+        gbcEsquerda.gridx = 0; gbcEsquerda.gridy = rowEsquerda;
+        gbcEsquerda.weighty = 1.0; gbcEsquerda.gridwidth = 2; gbcEsquerda.fill = GridBagConstraints.BOTH;
+        colEsquerda.add(Box.createGlue(), gbcEsquerda);
+
+        gbcDireita.gridx = 0; gbcDireita.gridy = rowDireita;
+        gbcDireita.weighty = 1.0; gbcDireita.gridwidth = 2; gbcDireita.fill = GridBagConstraints.BOTH;
+        colDireita.add(Box.createGlue(), gbcDireita);
+
+
+        columnsPanel.add(colEsquerda);
+        columnsPanel.add(colDireita);
+
+        panel.add(columnsPanel, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private void addRowToGridBagPanel(JPanel panel, GridBagConstraints gbc, String labelText, String valueText, Font labelFont, Font valueFont, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        label.setForeground(UIManager.getColor("Label.foreground"));
+        panel.add(label, gbc);
+
+        gbc.gridx = 1;
+        JLabel value = new JLabel(valueText);
+        value.setFont(valueFont);
+        value.setForeground(UIManager.getColor("TextField.foreground"));
+        panel.add(value, gbc);
     }
 
     private void calculateRentalValue() {
-        String daysText = rentalDaysField.getText();
+        String daysText = rentalDaysField != null ? rentalDaysField.getText() : "";
         if (daysText.isEmpty()) {
-            totalRentalValueLabel.setText("Total: R$ 0.00");
+            if (totalRentalValueLabel != null) {
+                totalRentalValueLabel.setText("Total: R$ 0.00");
+            }
             return;
         }
         try {
             int days = Integer.parseInt(daysText);
             if (days <= 0) {
-                totalRentalValueLabel.setText("Total: R$ 0.00");
+                if (totalRentalValueLabel != null) {
+                    totalRentalValueLabel.setText("Total: R$ 0.00");
+                }
                 return;
             }
             double total = selectedVeiculo.getValorDiario() * days;
-            totalRentalValueLabel.setText("Total: R$ " + String.format("%.2f", total));
+            if (totalRentalValueLabel != null) {
+                totalRentalValueLabel.setText("Total: R$ " + String.format("%.2f", total));
+            }
         } catch (NumberFormatException ex) {
-            totalRentalValueLabel.setText("Total: Inválido");
+            if (totalRentalValueLabel != null) {
+                totalRentalValueLabel.setText("Total: Inválido");
+            }
         }
     }
 
-    // TODO: Implementar lógica de aluguel real
+    private void updateStatusLabel() {
+        boolean isAvailable = !veiculoController.estaLocado(selectedVeiculo);
+        statusLabel.setText(isAvailable ? "Disponível" : "Indisponível");
+        statusLabel.setForeground(isAvailable ? new Color(0, 150, 0) : Color.RED.darker());
+
+        if (loggedInUser instanceof Cliente) {
+            actionButton.setEnabled(isAvailable);
+            actionButton.setText(isAvailable ? "Alugar" : "Indisponível");
+            actionButton.setBackground(isAvailable ? new Color(0, 128, 0) : Color.GRAY);
+
+            // Controla a visibilidade do campo de dias e valor total
+            if (rentalDaysField != null) {
+                rentalDaysField.setEnabled(isAvailable);
+                rentalDaysField.setVisible(isAvailable); // Esconde se indisponível
+            }
+            if (totalRentalValueLabel != null) {
+                totalRentalValueLabel.setVisible(isAvailable); // Esconde se indisponível
+            }
+            // Garante que o painel pai se reajuste
+            if (rentalDaysField != null && rentalDaysField.getParent() != null) {
+                rentalDaysField.getParent().setVisible(isAvailable);
+                rentalDaysField.getParent().revalidate();
+                rentalDaysField.getParent().repaint();
+            }
+
+        } else if (loggedInUser instanceof Funcionario) {
+            actionButton.setText("Editar Veículo"); // Botão sempre ativo para funcionário
+            actionButton.setEnabled(true);
+            actionButton.setBackground(new Color(10, 40, 61));
+            // Garante que os campos de aluguel não apareçam para funcionário
+            if (rentalDaysField != null) {
+                rentalDaysField.setVisible(false);
+            }
+            if (totalRentalValueLabel != null) {
+                totalRentalValueLabel.setVisible(false);
+            }
+            if (rentalDaysField != null && rentalDaysField.getParent() != null) {
+                rentalDaysField.getParent().setVisible(false);
+            }
+        }
+        // Force repaint no pai se necessário, para garantir que as cores atualizem
+        statusLabel.getParent().revalidate();
+        statusLabel.getParent().repaint();
+    }
+
     private void handleRentVehicle() {
         if (!(loggedInUser instanceof Cliente)) {
             JOptionPane.showMessageDialog(this, "Apenas clientes podem alugar veículos.", "Permissão Negada", JOptionPane.ERROR_MESSAGE);
@@ -386,29 +502,33 @@ public class VehicleDetailScreen extends JFrame {
             return;
         }
 
-        double valorTotal = selectedVeiculo.getValorDiario() * days;
+        LocalDateTime dataPrevistaDevolucao = LocalDateTime.now().plusDays(days);
+        // Criamos uma Locacao temporária APENAS para calcular o valor previsto.
+        // Ela não é persistida ainda.
+        Locacao locacaoTemporaria = new Locacao(LocalDateTime.now(), dataPrevistaDevolucao, selectedVeiculo, (Cliente) loggedInUser); // Passa loggedInUser
+        double valorTotal = locacaoTemporaria.calcularValorPrevisto();
+
 
         // Verifica disponibilidade novamente
         if (veiculoController.estaLocado(selectedVeiculo)) {
             JOptionPane.showMessageDialog(this, "Este veículo já está locado no momento.", "Veículo Indisponível", JOptionPane.WARNING_MESSAGE);
+            updateStatusLabel(); // Atualiza o status caso tenha mudado
             return;
         }
 
-        // Simulação de pagamento com saldo
         int confirm = JOptionPane.showConfirmDialog(this,
                 String.format("Confirmar aluguel de %s por %d dias?\nValor Total: R$ %.2f\nSeu saldo atual: R$ %.2f",
-                        selectedVeiculo.getNome(), days, valorTotal, ((Cliente) loggedInUser).getSaldo()),
+                        selectedVeiculo.getNome(), days, valorTotal, cliente.getSaldo()), // Usar cliente.getSaldo()
                 "Confirmar Aluguel", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
             if (cliente.getSaldo() >= valorTotal) {
-                // CHAMA O LOCACAOCONTROLLER PARA REALIZAR A OPERAÇÃO COMPLETA
                 boolean aluguelSucesso = locacaoController.realizarLocacao(cliente, selectedVeiculo, days, valorTotal);
 
                 if (aluguelSucesso) {
                     JOptionPane.showMessageDialog(this, "Veículo alugado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
-                    new MainScreen(cliente).setVisible(true); // Retorna à tela principal (e recarrega dados)
+                    updateStatusLabel(); // Atualiza o status e o botão
+                    // Não fecha a tela, apenas atualiza o status
                 } else {
                     JOptionPane.showMessageDialog(this, "Falha ao registrar aluguel. Saldo, disponibilidade ou erro interno.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
@@ -418,34 +538,34 @@ public class VehicleDetailScreen extends JFrame {
         }
     }
 
-    // TODO: Implementar lógica de edição e exclusão
     private void handleEditVehicle() {
-        JOptionPane.showMessageDialog(this, "Funcionalidade de edição de veículo a ser implementada.", "Em Desenvolvimento", JOptionPane.INFORMATION_MESSAGE);
-        // Aqui você abriria a VehicleRegistrationScreen, passando o veículo para edição
-        // dispose();
-        // VehicleRegistrationScreen editScreen = new VehicleRegistrationScreen((Funcionario) loggedInUser, selectedVeiculo);
-        // editScreen.setVisible(true);
+        if (loggedInUser instanceof Funcionario) {
+            dispose();
+            new VehicleRegistrationScreen((Funcionario) loggedInUser, selectedVeiculo).setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Apenas funcionários podem editar veículos.", "Permissão Negada", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void handleDeleteVehicle() {
+        if (!(loggedInUser instanceof Funcionario)) {
+            JOptionPane.showMessageDialog(this, "Apenas funcionários podem excluir veículos.", "Permissão Negada", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Tem certeza que deseja excluir o veículo " + selectedVeiculo.getNome() + " (" + selectedVeiculo.getPlaca() + ")?",
                 "Confirmar Exclusão", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            // TODO: Chamar o VeiculoController para excluir o veículo
-            // boolean exclusaoSucesso = veiculoController.excluirVeiculo(selectedVeiculo);
-            // if (exclusaoSucesso) {
-            //      JOptionPane.showMessageDialog(this, "Veículo excluído com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            //      dispose();
-            //      new MainScreen((Funcionario) loggedInUser).setVisible(true); // Volta à tela principal
-            // } else {
-            //      JOptionPane.showMessageDialog(this, "Falha ao excluir veículo.", "Erro", JOptionPane.ERROR_MESSAGE);
-            // }
-            JOptionPane.showMessageDialog(this, "Simulação de exclusão concluída! (Veículo removido)", "Sucesso (Simulado)", JOptionPane.INFORMATION_MESSAGE);
-            // Para a simulação, apenas volta à tela principal
-            dispose();
-            new MainScreen((Funcionario) loggedInUser).setVisible(true); // Retorna à tela principal
+            boolean exclusaoSucesso = veiculoController.excluirVeiculo(selectedVeiculo);
+            if (exclusaoSucesso) {
+                JOptionPane.showMessageDialog(this, "Veículo excluído com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+                new MainScreen((Funcionario) loggedInUser).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Falha ao excluir veículo. Verifique se não há locações ativas para este veículo.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }

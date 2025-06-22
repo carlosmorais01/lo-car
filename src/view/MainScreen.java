@@ -68,6 +68,12 @@ public class MainScreen extends JFrame {
             headerPanel.showSettingsButton(false); // Esconde se não for funcionário
         }
 
+        headerPanel.setProfileIconClickListener(e -> {
+            dispose(); // Fecha a MainScreen
+            UserProfileScreen profileScreen = new UserProfileScreen(loggedInUser); // Passa o usuário logado
+            profileScreen.setVisible(true);
+        });
+
         add(headerPanel, BorderLayout.NORTH);
 
         // Painel de Conteúdo Principal (Carrossel + Carros Mais Alugados)
