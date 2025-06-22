@@ -20,6 +20,7 @@ public class HeaderPanel extends JPanel {
     private JLabel userLabel;
     private JLabel profileIconLabel;
     private JLabel systemLogoLabel;
+    private JButton settingsButton;
 
     public HeaderPanel(String userName, String profileImagePath) {
         setLayout(new BorderLayout());
@@ -28,16 +29,17 @@ public class HeaderPanel extends JPanel {
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Esquerda: logotipo do sistema (clicável) e botão de engrenagem (se funcionário)
         JPanel leftPanel = new JPanel(new GridBagLayout());
         leftPanel.setOpaque(false);
 
         GridBagConstraints gbcLeft = new GridBagConstraints();
-        gbcLeft.insets = new Insets(0, 0, 0, 0);
+        gbcLeft.insets = new Insets(0, 5, 0, 15);
         gbcLeft.anchor = GridBagConstraints.CENTER;
 
         ImageIcon systemLogoIcon = null;
         try {
-            URL logoUrl = getClass().getResource("/images/logotipo.png");
+            URL logoUrl = getClass().getResource("/icons/logotipo.png");
             if (logoUrl != null) {
                 systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(logoUrl).getImage(), 70, 70));
             } else {
@@ -50,9 +52,31 @@ public class HeaderPanel extends JPanel {
         }
 
         systemLogoLabel = new JLabel(systemLogoIcon);
-        systemLogoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Cursor de mão para indicar clicável
-        // O ActionListener será definido externamente (VehicleListScreen)
+        systemLogoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         leftPanel.add(systemLogoLabel, gbcLeft);
+
+        ImageIcon gearIcon = null;
+        try {
+            URL gearUrl = getClass().getResource("/icons/gear-icon.png"); // Caminho do ícone da engrenagem
+            if (gearUrl != null) {
+                gearIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(gearUrl).getImage(), 25, 25)); // Tamanho do ícone
+            } else {
+                System.err.println("Ícone de engrenagem não encontrado como recurso. Tentando carregar de arquivo.");
+                gearIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/gear-icon.png")), 25, 25));
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar ícone de engrenagem: " + e.getMessage());
+            gearIcon = new ImageIcon(new byte[0]);
+        }
+        settingsButton = new JButton(gearIcon);
+        settingsButton.setContentAreaFilled(false);
+        settingsButton.setBorderPainted(false);
+        settingsButton.setFocusPainted(false);
+        settingsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        settingsButton.setVisible(false); // Inicia invisível
+        gbcLeft.gridx = 1; // Coloca ao lado do logotipo
+        gbcLeft.insets = new Insets(0, 0, 0, 0); // Ajusta margem
+        leftPanel.add(settingsButton, gbcLeft);
 
         // Centro: campo de busca (mantido como está)
         JPanel centerPanel = new JPanel(new GridBagLayout());
@@ -76,7 +100,7 @@ public class HeaderPanel extends JPanel {
             }
         });
 
-        ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/lupa-icon.png")));
+        ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/lupa-icon.png")));
         Image scaledLupa = ImageScaler.getScaledImage(lupaIcon.getImage(), 20, 20);
         searchButton = new JButton(new ImageIcon(scaledLupa));
         searchButton.setContentAreaFilled(false);
@@ -126,14 +150,14 @@ public class HeaderPanel extends JPanel {
         if (pfpIcon == null || pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE) {
             try {
                 // Tenta carregar pfp padrão como recurso
-                java.net.URL defaultPfpUrl = getClass().getResource("/images/pfp.png");
+                java.net.URL defaultPfpUrl = getClass().getResource("/icons/default_pfp.png");
                 if (defaultPfpUrl != null) {
                     Image defaultPfpImage = ImageIO.read(defaultPfpUrl);
                     pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
                 } else {
                     // Fallback para arquivo direto em tempo de desenvolvimento, se o recurso não for encontrado
                     System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo.");
-                    Image defaultPfpImage = ImageIO.read(new File("src/images/pfp.png"));
+                    Image defaultPfpImage = ImageIO.read(new File("src/images/default_pfp.png"));
                     pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
                 }
             } catch (IOException e) {
@@ -159,6 +183,14 @@ public class HeaderPanel extends JPanel {
 
     public String getSearchText() {
         return searchField.getText().trim();
+    }
+
+    public void showSettingsButton(boolean visible) {
+        settingsButton.setVisible(visible);
+    }
+
+    public void setSettingsAction(ActionListener actionListener) {
+        settingsButton.addActionListener(actionListener);
     }
 
     public void setSearchAction(ActionListener actionListener) {
