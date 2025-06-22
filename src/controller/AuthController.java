@@ -1,4 +1,4 @@
-// src/controller/AuthController.java
+// AuthController.java
 package controller;
 
 import entities.Cliente;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class AuthController {
     private static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
-    private static final String EMPLOYEES_FILE_PATH = "dump/funcionarios/funcionarios.dat"; // NOVO: Caminho para funcionários
+    private static final String EMPLOYEES_FILE_PATH = "dump/funcionarios/funcionarios.dat";
     private static final String PROFILE_PICS_DIR = "dump/profile_pics/";
 
     public AuthController() {
@@ -31,20 +31,12 @@ public class AuthController {
         }
     }
 
-    /**
-     * Tenta autenticar um usuário (Cliente ou Funcionario) com base no email e senha.
-     *
-     * @param email O email do usuário.
-     * @param password A senha do usuário (texto simples).
-     * @return O objeto Pessoa (Cliente ou Funcionario) se a autenticação for bem-sucedida, caso contrário, null.
-     */
-    public Pessoa authenticate(String email, String password) { // Retorna Pessoa
+    public Pessoa authenticate(String email, String password) {
         String hashedPassword = PasswordHasher.hashPassword(password);
         if (hashedPassword == null) {
             return null;
         }
 
-        // Tenta autenticar como Cliente
         List<Cliente> clients = loadClients();
         Optional<Cliente> authenticatedClient = clients.stream()
                 .filter(c -> c.getEmail().equals(email) && c.getSenha().equals(hashedPassword))
@@ -61,10 +53,9 @@ public class AuthController {
             return authenticatedEmployee.get();
         }
 
-        return null; // Nenhuma autenticação bem-sucedida
+        return null;
     }
 
-    // NOVO MÉTODO: Salva a lista de funcionários em um arquivo serializado.
     public boolean saveEmployees(List<Funcionario> employees) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(EMPLOYEES_FILE_PATH))) {
             oos.writeObject(employees);
@@ -81,17 +72,17 @@ public class AuthController {
         File file = new File(EMPLOYEES_FILE_PATH);
         if (file.exists() && file.length() > 0) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                Object obj = ois.readObject(); // Tenta ler a lista inteira de uma vez
-                if (obj instanceof List) { // Se for uma lista
+                Object obj = ois.readObject();
+                if (obj instanceof List) {
                     List<?> rawList = (List<?>) obj;
-                    for (Object item : rawList) { // Itera sobre os elementos da lista
-                        if (item instanceof Funcionario) { // Verifica o tipo de cada elemento
+                    for (Object item : rawList) {
+                        if (item instanceof Funcionario) {
                             employees.add((Funcionario) item);
                         }
                     }
                 } else {
                     System.err.println("Aviso: Arquivo de funcionários não contém uma lista serializada. Carregando objeto por objeto (formato antigo).");
-                    employees = new ArrayList<>(); // Reseta a lista
+                    employees = new ArrayList<>();
                     try (ObjectInputStream ois2 = new ObjectInputStream(new FileInputStream(file))) {
                         while (true) {
                             Object singleObj = ois2.readObject();
@@ -100,7 +91,6 @@ public class AuthController {
                             }
                         }
                     } catch (java.io.EOFException eof2) { /* fim do arquivo */ }
-                    // NUNCA COPIE O FALLBACK PARA CÓDIGO FINAL SE NÃO FOR NECESSÁRIO COMPATIBILIDADE
                 }
             } catch (IOException e) {
                 System.err.println("Erro ao ler funcionários do arquivo: " + e.getMessage());
@@ -111,11 +101,6 @@ public class AuthController {
         return employees;
     }
 
-    /**
-     * Carrega a lista de clientes de um arquivo serializado.
-     *
-     * @return Uma lista de objetos Cliente. Retorna uma lista vazia se o arquivo não existir ou houver erro.
-     */
     public List<Cliente> loadClients() {
         List<Cliente> clients = new ArrayList<>();
         File file = new File(CLIENTS_FILE_PATH);
@@ -128,7 +113,6 @@ public class AuthController {
                 }
             } catch (IOException e) {
                 System.err.println("Erro ao ler clientes do arquivo: " + e.getMessage());
-                // Pode ser útil para depuração, mas não queremos lançar exceção para o usuário final
             } catch (ClassNotFoundException e) {
                 System.err.println("Classe Cliente não encontrada durante a desserialização: " + e.getMessage());
             }
@@ -136,12 +120,6 @@ public class AuthController {
         return clients;
     }
 
-    /**
-     * Salva a lista de clientes em um arquivo serializado.
-     *
-     * @param clients A lista de clientes a ser salva.
-     * @return true se a operação for bem-sucedida, false caso contrário.
-     */
     public boolean saveClients(List<Cliente> clients) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CLIENTS_FILE_PATH))) {
             oos.writeObject(clients);
@@ -154,12 +132,25 @@ public class AuthController {
     }
 
     /**
-     * Adiciona um novo cliente à lista e o salva no arquivo.
-     * Antes de adicionar, a senha do cliente é hashed.
-     *
-     * @param newClient O novo cliente a ser adicionado.
-     * @return true se o cliente foi adicionado e salvo com sucesso, false caso contrário (ex: email já existe).
+     * NOVO MÉTODO: Atualiza um cliente na lista e salva no arquivo.
+     * Encontra o cliente pelo CPF, remove o antigo e adiciona o atualizado.
+     * @param clienteAtualizado O cliente com os dados atualizados.
+     * @return true se o cliente foi atualizado e salvo com sucesso, false caso contrário.
      */
+    public boolean updateCliente(Cliente clienteAtualizado) {
+        List<Cliente> clients = loadClients();
+        // Remove o cliente antigo (pelo CPF)
+        boolean removed = clients.removeIf(c -> c.getCpf().equals(clienteAtualizado.getCpf()));
+        if (!removed) {
+            System.err.println("Erro: Cliente com CPF '" + clienteAtualizado.getCpf() + "' não encontrado para atualização.");
+            return false; // Cliente não encontrado para atualização
+        }
+        // Adiciona o cliente atualizado
+        clients.add(clienteAtualizado);
+        // Salva a lista completa de volta
+        return saveClients(clients);
+    }
+
     public boolean registerClient(Cliente newClient) {
         List<Cliente> clients = loadClients();
 
@@ -184,22 +175,22 @@ public class AuthController {
 
     public String saveProfilePicture(String originalImagePath, String cpf) {
         if (originalImagePath == null || originalImagePath.isEmpty()) {
-            return null; // Nenhuma imagem para salvar
+            return null;
         }
 
         File originalFile = new File(originalImagePath);
         String fileExtension = "";
         int i = originalImagePath.lastIndexOf('.');
         if (i > 0) {
-            fileExtension = originalImagePath.substring(i); // Ex: .png
+            fileExtension = originalImagePath.substring(i);
         }
 
-        String newFileName = cpf + fileExtension; // Nomeia a imagem com o CPF do cliente
+        String newFileName = cpf + fileExtension;
         File newFile = new File(PROFILE_PICS_DIR + newFileName);
 
         try {
             java.nio.file.Files.copy(originalFile.toPath(), newFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return newFile.getAbsolutePath(); // Retorna o caminho absoluto do arquivo salvo
+            return newFile.getAbsolutePath();
         } catch (IOException e) {
             System.err.println("Erro ao salvar imagem de perfil para " + cpf + ": " + e.getMessage());
             e.printStackTrace();
