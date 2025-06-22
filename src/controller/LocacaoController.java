@@ -1,9 +1,9 @@
-// src/controller/LocacaoController.java
+// LocacaoController.java
 package controller;
 
 import entities.Cliente;
-import entities.Locacao; // Importar a classe Locacao
-import entities.Veiculo; // Importar a classe Veiculo
+import entities.Locacao;
+import entities.Veiculo;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -15,19 +15,21 @@ public class LocacaoController {
     private static final String LOCACOES_FILE_PATH = "dump/locacoes/locacoes.dat";
     private List<Locacao> locacoes;
 
+    // Adicionar instâncias dos outros controllers
+    private AuthController authController;
+    private VeiculoController veiculoController;
+
     public LocacaoController() {
         File dir = new File("dump/locacoes/");
         if (!dir.exists()) {
             dir.mkdirs();
         }
         this.locacoes = loadLocacoes();
+        // Inicializar os controllers dependentes
+        this.authController = new AuthController();
+        this.veiculoController = new VeiculoController();
     }
 
-    /**
-     * Carrega a lista de locações de um arquivo serializado.
-     *
-     * @return Uma lista de objetos Locacao. Retorna uma lista vazia se o arquivo não existir ou houver erro.
-     */
     public List<Locacao> loadLocacoes() {
         List<Locacao> loadedLocacoes = new ArrayList<>();
         File file = new File(LOCACOES_FILE_PATH);
@@ -54,7 +56,7 @@ public class LocacaoController {
 
     public boolean saveAllLocacoes() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(LOCACOES_FILE_PATH))) {
-            oos.writeObject(locacoes); // Salva a lista completa
+            oos.writeObject(locacoes);
             return true;
         } catch (IOException e) {
             System.err.println("Erro ao salvar locações no arquivo: " + e.getMessage());
@@ -63,7 +65,6 @@ public class LocacaoController {
         }
     }
 
-    // NOVO MÉTODO AUXILIAR para escrever em arquivo serializado sem cabeçalho (para append)
     private static class AppendingObjectOutputStream extends ObjectOutputStream {
         public AppendingObjectOutputStream(OutputStream out) throws IOException {
             super(out);
@@ -71,32 +72,20 @@ public class LocacaoController {
 
         @Override
         protected void writeStreamHeader() throws IOException {
-            // Não escreve o cabeçalho do stream se o arquivo já existir
-            reset(); // Necessário para garantir que o stream está pronto para escrever
+            reset();
         }
     }
 
-
-    /**
-     * Realiza a operação de aluguel de um veículo.
-     * Isso envolveria: registrar a locação, deduzir saldo, atualizar status do veículo.
-     *
-     * @param cliente O cliente que está alugando.
-     * @param veiculo O veículo a ser alugado.
-     * @param dias Quantidade de dias de aluguel.
-     * @param valorTotal Valor total do aluguel.
-     * @return true se o aluguel foi bem-sucedido, false caso contrário.
-     */
     public boolean realizarLocacao(Cliente cliente, Veiculo veiculo, int dias, double valorTotal) {
-        // 1. Validação de disponibilidade (já feita na UI, mas pode ser repetida aqui para segurança)
-        if (veiculo.getLocacoes() > 0) { // Simplificação: se locacoes > 0, considero ocupado
-            // Em um sistema real, você verificaria na lista de locações se há uma locação ativa para este veículo
-            // veiculoController.estaLocado(veiculo)
-            return false; // Veículo já locado
+        // 1. Validação de disponibilidade usando o VeiculoController
+        if (veiculoController.estaLocado(veiculo)) { //
+            System.err.println("Veículo já locado.");
+            return false;
         }
 
         if (cliente.getSaldo() < valorTotal) {
-            return false; // Saldo insuficiente
+            System.err.println("Saldo insuficiente.");
+            return false;
         }
 
         // 2. Criar a Locação
@@ -112,45 +101,31 @@ public class LocacaoController {
         this.locacoes.add(novaLocacao);
 
         // Persiste a lista completa de locações
-        boolean locacaoSalva = saveAllLocacoes();
+        boolean locacaoSalva = saveAllLocacoes(); //
         if (!locacaoSalva) {
-            // Se a locação não pôde ser salva, remova da memória e retorne false
             this.locacoes.remove(novaLocacao);
+            System.err.println("Falha ao salvar locação.");
             return false;
         }
 
-        // 4. Deduzir saldo do cliente e persistir o cliente atualizado
-        cliente.debitarSaldo(valorTotal);
-        // O AuthController precisa de um método para atualizar um cliente existente
-        // Você já tem uma lógica para isso em UserProfileScreen
-        // Precisamos de um método mais genérico no AuthController para atualizar o cliente.
-        // Por simplicidade aqui, vamos apenas "simular" salvando o cliente com saldo deduzido.
-        // O AuthController.saveClients já sobrescreve a lista completa.
-        // Então, é preciso: 1. Carregar todos os clientes, 2. Remover o cliente antigo, 3. Adicionar o cliente atualizado, 4. Salvar a lista.
-        // Para isso, criar um método no AuthController: public boolean updateCliente(Cliente cliente)
-        // Por enquanto, faremos a simulação local.
+        // 3. Debitar saldo do cliente e persistir o cliente atualizado
+        cliente.debitarSaldo(valorTotal); //
+        boolean clienteAtualizado = authController.updateCliente(cliente); //
+        if (!clienteAtualizado) {
+            System.err.println("Erro ao atualizar saldo do cliente após locação.");
+            // Idealmente, aqui você reverteria a locação ou marcaria como erro no sistema de logs.
+            return false;
+        }
 
-        // TODO: Chamar AuthController.updateCliente(cliente) aqui para persistir o novo saldo
-        // boolean clienteAtualizado = authController.updateCliente(cliente);
-        // if (!clienteAtualizado) {
-        //     System.err.println("Erro ao atualizar saldo do cliente após locação.");
-        //     // Idealmente, reverter a locação ou marcar como erro.
-        //     return false;
-        // }
-
-        // 5. Atualizar o número de locações do veículo (para a lista de "mais alugados") e persistir o veículo
-        veiculo.setLocacoes(veiculo.getLocacoes() + 1);
-        // O VeiculoController.atualizarVeiculo(veiculo) já faz isso.
-        // boolean veiculoAtualizado = veiculoController.atualizarVeiculo(veiculo);
-        // if (!veiculoAtualizado) {
-        //    System.err.println("Erro ao atualizar veículo após locação.");
-        //    return false;
-        // }
+        // 4. Atualizar o número de locações do veículo e persistir o veículo
+        veiculo.setLocacoes(veiculo.getLocacoes() + 1); //
+        boolean veiculoAtualizado = veiculoController.atualizarVeiculo(veiculo); //
+        if (!veiculoAtualizado) {
+            System.err.println("Erro ao atualizar veículo após locação.");
+            return false;
+        }
 
         System.out.println("Locação realizada para " + veiculo.getNome() + " por " + cliente.getNome());
         return true;
     }
-
-    // Você também pode adicionar um método para registrar devoluções aqui.
-    // public boolean registrarDevolucao(Locacao locacao, LocalDateTime dataDevolucaoReal) { ... }
 }
