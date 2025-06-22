@@ -25,8 +25,6 @@ public class VeiculoController {
     public VeiculoController() {
         this.veiculos = carregarTodosVeiculos();
         this.locacoes = carregarLocacoes();
-        System.out.println("Veículos carregados: " + veiculos.size());
-        System.out.println("Locações carregadas: " + locacoes.size());
     }
 
     private List<Veiculo> carregarTodosVeiculos() {
@@ -109,7 +107,7 @@ public class VeiculoController {
             resultadoStream = resultadoStream.filter(v -> v.getValorDiario() <= precoMax);
         }
 
-        if (cor != null ) {
+        if (cor != null && cor != Cor.TODAS) {
             resultadoStream = resultadoStream.filter(v -> v.getCor() == cor);
         }
 
