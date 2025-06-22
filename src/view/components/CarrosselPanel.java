@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
@@ -68,8 +69,8 @@ public class CarrosselPanel extends JPanel {
         add(imageLayeredPane, BorderLayout.CENTER);
 
         // Botões de navegação (setas) nas laterais do CarrosselPanel
-        JButton prevButton = createArrowButton("botao_esquerdo.png", -1);
-        JButton nextButton = createArrowButton("botao_direito.png", 1);
+        JButton prevButton = createArrowButton("icons/botao_esquerdo.png", -1);
+        JButton nextButton = createArrowButton("icons/botao_direito.png", 1);
 
         add(prevButton, BorderLayout.WEST);
         add(nextButton, BorderLayout.EAST);
@@ -142,36 +143,36 @@ public class CarrosselPanel extends JPanel {
 
         Veiculo currentVeiculo = veiculos.get(currentIndex);
         Image carImage = null;
-        try {
-            // Tenta carregar como recurso do classpath (preferencial)
-            URL imageUrl = getClass().getResource(currentVeiculo.getCaminhoFoto());
-            if (imageUrl != null) {
-                carImage = ImageIO.read(imageUrl);
-            } else {
-                // Fallback para carregamento direto do arquivo (para desenvolvimento)
-                System.err.println("Recurso de imagem não encontrado: " + currentVeiculo.getCaminhoFoto() + ". Tentando carregar como arquivo direto.");
-                File projectRoot = new File(System.getProperty("user.dir"));
-                File resolvedFile = new File(projectRoot, currentVeiculo.getCaminhoFoto().startsWith("/") ? currentVeiculo.getCaminhoFoto().substring(1) : currentVeiculo.getCaminhoFoto());
-                if (resolvedFile.exists()) {
-                    carImage = ImageIO.read(resolvedFile);
+        String imagePath = currentVeiculo.getCaminhoFoto();
+
+        if (imagePath != null && !imagePath.isEmpty()) {
+            try {
+                File savedImageFile = new File(imagePath);
+                if (savedImageFile.exists()) {
+                    carImage = ImageIO.read(savedImageFile);
                 } else {
-                    System.err.println("Fallback para arquivo local também falhou: " + resolvedFile.getAbsolutePath());
+                    URL imageUrl = getClass().getResource(imagePath);
+                    if (imageUrl != null) {
+                        carImage = ImageIO.read(imageUrl);
+                    } else {
+                        System.err.println("Imagem do veículo não encontrada: " + imagePath);
+                    }
                 }
+            } catch (IOException e) {
+                System.err.println("Erro de I/O ao carregar imagem para " + currentVeiculo.getPlaca() + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Erro inesperado ao carregar imagem para " + currentVeiculo.getPlaca() + ": " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar imagem do carrossel para " + currentVeiculo.getNome() + ": " + e.getMessage());
-            e.printStackTrace();
         }
 
         if (carImage != null) {
-            // Define o ícone com a imagem carregada. O redimensionamento será feito em updateImageSize().
             imageLabel.setIcon(new ImageIcon(carImage));
-            // Atualiza o tamanho da imagem imediatamente após a mudança de imagem
             updateImageSize();
         } else {
             imageLabel.setIcon(null);
             imageLabel.setText("Imagem Indisponível");
         }
+
         descriptionLabel.setText(currentVeiculo.getDescricao());
 
         // Atualiza as bolinhas
