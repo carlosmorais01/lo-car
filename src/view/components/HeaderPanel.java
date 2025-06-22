@@ -126,55 +126,78 @@ public class HeaderPanel extends JPanel {
         userLabel.setFont(userLabel.getFont().deriveFont(Font.BOLD, 18f));
 
         ImageIcon pfpIcon = null;
-        int pfpSize = 50; // O tamanho da imagem de perfil
+        int pfpSize = 50;
 
+        // Tenta carregar a PFP do cliente/funcionário
         if (profileImagePath != null && !profileImagePath.isEmpty()) {
             try {
-                // Tenta carregar a imagem do caminho absoluto
-                // Ajustado para obter Image e depois criar ImageIcon escalonado
-                Image originalPfpImage = ImageIO.read(new File(profileImagePath));
-                if (originalPfpImage != null) {
-                    Image scaledPfpImage = ImageScaler.getScaledImage(originalPfpImage, pfpSize, pfpSize);
+                Image loadedPfpImage = null;
+                // Tentativa 1: Carregar como arquivo absoluto (para imagens salvas em dump/profile_pics)
+                File filePfp = new File(profileImagePath);
+                if (filePfp.exists()) {
+                    loadedPfpImage = ImageIO.read(filePfp);
+                }
+
+                // Tentativa 2: Se não carregou como arquivo, tenta como recurso do classpath (para imagens do dump)
+                if (loadedPfpImage == null) {
+                    URL resourcePfpUrl = getClass().getResource(profileImagePath);
+                    if (resourcePfpUrl != null) {
+                        loadedPfpImage = ImageIO.read(resourcePfpUrl);
+                    }
+                }
+
+                if (loadedPfpImage != null) {
+                    Image scaledPfpImage = ImageScaler.getScaledImage(loadedPfpImage, pfpSize, pfpSize);
                     pfpIcon = new ImageIcon(scaledPfpImage);
                 } else {
-                    System.err.println("Arquivo de foto de perfil não pôde ser lido: " + profileImagePath + ". Usando padrão.");
+                    System.err.println("PFP do usuário não encontrada em nenhum caminho: " + profileImagePath);
                 }
             } catch (IOException e) {
-                System.err.println("Erro ao carregar foto de perfil do arquivo: " + e.getMessage());
-            } catch (Exception e) { // Captura outras exceções do ImageScaler.getScaledImage
-                System.err.println("Erro ao escalar foto de perfil: " + e.getMessage());
+                System.err.println("Erro de I/O ao carregar PFP: " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Erro inesperado ao carregar/escalar PFP: " + e.getMessage());
             }
         }
 
-        // Se a imagem ainda for nula (não carregou ou erro), use a imagem padrão
+        // Fallback para PFP padrão se nenhuma imagem foi carregada com sucesso
         if (pfpIcon == null || pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE) {
             try {
-                // Tenta carregar pfp padrão como recurso
-                java.net.URL defaultPfpUrl = getClass().getResource("/icons/default_pfp.png");
+                Image defaultPfpImage = null;
+                URL defaultPfpUrl = getClass().getResource("/images/default_pfp.png"); // Caminho para PFP padrão do projeto
                 if (defaultPfpUrl != null) {
-                    Image defaultPfpImage = ImageIO.read(defaultPfpUrl);
+                    defaultPfpImage = ImageIO.read(defaultPfpUrl);
+                } else {
+                    // Fallback para arquivo local em desenvolvimento (se o recurso não for encontrado)
+                    System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo local.");
+                    File defaultPfpFile = new File("src/images/default_pfp.png");
+                    if (defaultPfpFile.exists()) {
+                        defaultPfpImage = ImageIO.read(defaultPfpFile);
+                    } else {
+                        System.err.println("Fallback de PFP padrão local também falhou.");
+                    }
+                }
+
+                if (defaultPfpImage != null) {
                     pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
                 } else {
-                    // Fallback para arquivo direto em tempo de desenvolvimento, se o recurso não for encontrado
-                    System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo.");
-                    Image defaultPfpImage = ImageIO.read(new File("src/images/default_pfp.png"));
-                    pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
+                    System.err.println("Nenhuma PFP padrão carregada.");
+                    pfpIcon = new ImageIcon(new byte[0]); // Ícone vazio final
                 }
             } catch (IOException e) {
-                System.err.println("Erro ao carregar foto de perfil padrão: " + e.getMessage());
-                pfpIcon = new ImageIcon(new byte[0]); // ImageIcon vazio se tudo falhar
+                System.err.println("Erro de I/O ao carregar PFP padrão: " + e.getMessage());
+                pfpIcon = new ImageIcon(new byte[0]);
             } catch (Exception e) {
-                System.err.println("Erro ao escalar foto de perfil padrão: " + e.getMessage());
+                System.err.println("Erro inesperado ao escalar PFP padrão: " + e.getMessage());
                 pfpIcon = new ImageIcon(new byte[0]);
             }
         }
 
-        profileIconLabel = new JLabel(pfpIcon); // Voltou a ser um JLabel simples com o ImageIcon
-        profileIconLabel.setPreferredSize(new Dimension(pfpSize, pfpSize)); // Define o tamanho preferencial
+        profileIconLabel = new JLabel(pfpIcon);
+        profileIconLabel.setPreferredSize(new Dimension(pfpSize, pfpSize));
 
         rightPanel.add(userLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        rightPanel.add(profileIconLabel); // Adiciona o JLabel de volta
+        rightPanel.add(profileIconLabel);
 
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
