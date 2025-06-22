@@ -1,10 +1,8 @@
 package view;
 
-import com.formdev.flatlaf.FlatClientProperties;
 import controller.LocacaoController;
 import controller.VeiculoController;
 import entities.*;
-import enums.*;
 import util.ImageScaler;
 import view.components.HeaderPanel;
 
@@ -18,13 +16,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
-import java.util.List; // Adicionado para simular a busca de veículos similares
 
 public class VehicleDetailScreen extends JFrame {
 
@@ -49,11 +41,12 @@ public class VehicleDetailScreen extends JFrame {
     }
 
     private void initializeUI() {
-        setTitle(selectedVeiculo.getNome() + " " + selectedVeiculo.getModelo() + " - LoCar!"); // Título dinâmico
+        setTitle(selectedVeiculo.getNome() + " " + selectedVeiculo.getModelo() + " - LoCar!");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1200, 800);
-        setMinimumSize(new Dimension(1000, 700)); // Adicionado tamanho mínimo
+        setMinimumSize(new Dimension(1000, 700));
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
         // Header Panel
@@ -84,6 +77,13 @@ public class VehicleDetailScreen extends JFrame {
         } else {
             headerPanel.showSettingsButton(false);
         }
+
+        headerPanel.setProfileIconClickListener(e -> {
+            dispose(); // Fecha a VehicleDetailScreen
+            UserProfileScreen profileScreen = new UserProfileScreen(loggedInUser); // Passa o usuário logado
+            profileScreen.setVisible(true);
+        });
+
         add(headerPanel, BorderLayout.NORTH);
 
         // Painel de Conteúdo Principal (scrollable)
