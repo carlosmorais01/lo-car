@@ -41,6 +41,7 @@ public class Main {
             UIManager.put("Label.foreground", new Color(43, 43, 43));
             UIManager.put("TextField.foreground", new Color(10, 40, 61));
             UIManager.put("PasswordField.foreground", new Color(10, 40, 61));
+            UIManager.put("RadioButton.borderColor", new Color(200, 0, 0));
 
             UIManager.put("OptionPane.background", new Color(243, 243, 243));
             UIManager.put("OptionPane.messageForeground", new Color(43, 43, 43));
