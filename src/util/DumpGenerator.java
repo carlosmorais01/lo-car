@@ -28,17 +28,17 @@ public class DumpGenerator {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("dump/carros/carros.dat"))) {
             Carro carro1 = new Carro("Carro esportivo", "ABC1234", "Toyota", "Supra", "2022", 2022,
                     Cor.VERMELHO, Funcao.PASSEIO, 15000, 2, 8.5, 250, true,
-                    Combustivel.GASOLINA, Tracao.TRASEIRA, 2, true, "/images/carrossel/carrossel1.jpg",
+                    Combustivel.GASOLINA, Tracao.TRASEIRA, 2, true, "/images/veiculos/supramk4.jpg",
                     350, true, true, true, true, true, 1500, false, true, 500.0, 2, false);
 
             Carro carro2 = new Carro("SUV familiar", "XYZ9876", "Hyundai", "Creta", "2021", 2021,
                     Cor.BRANCO, Funcao.PASSEIO, 40000, 5, 10.0, 190, false,
-                    Combustivel.FLEX, Tracao.DIANTEIRA, 5, true, "/images/carrossel/carrossel3.png",
+                    Combustivel.FLEX, Tracao.DIANTEIRA, 5, true, "/images/veiculos/creta.jpg",
                     130, true, true, true, true, false, 1600, false, true, 300.0, 5, true);
 
             Carro carro3 = new Carro("Sedan de luxo", "DEF5678", "BMW", "Série 3", "2023", 2023,
                     Cor.AZUL, Funcao.PASSEIO, 8000, 5, 9.0, 220, true,
-                    Combustivel.GASOLINA, Tracao.TRASEIRA, 5, true, "/images/carrossel/carrossel1.jpg",
+                    Combustivel.GASOLINA, Tracao.TRASEIRA, 5, true, "/images/veiculos/bmwserie3.jpg",
                     250, true, true, true, true, true, 1700, false, true, 450.0, 4, false);
 
             oos.writeObject(carro1);
@@ -54,19 +54,19 @@ public class DumpGenerator {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("dump/moto/motos.dat"))) {
             Moto moto1 = new Moto("Moto urbana", "MOT1234", "Honda", "CG 160", "Fan", 2023,
                     Cor.PRETO, Funcao.PASSEIO, 5000, 2, 40.0, 120, false,
-                    Combustivel.GASOLINA, Tracao.DIANTEIRA, 2, false, "/images/carrossel/carrossel2.jpg",
+                    Combustivel.GASOLINA, Tracao.DIANTEIRA, 2, false, "/images/veiculos/CG160.jpg",
                     15.0, false, false, false, true, false, 120, false, false, 80.0,
                     160, false, 17, 1, false);
 
             Moto moto2 = new Moto("Moto esportiva", "ESP5678", "Yamaha", "R3", "R3", 2022,
                     Cor.AZUL, Funcao.PASSEIO, 8000, 2, 25.0, 180, true,
-                    Combustivel.GASOLINA, Tracao.TRASEIRA, 2, true, "/images/carrossel/carrossel2.jpg",
+                    Combustivel.GASOLINA, Tracao.TRASEIRA, 2, true, "/images/veiculos/YamahaR3.jpg",
                     42.0, true, true, true, true, false, 170, false, true, 200.0,
                     321, false, 17, 3, true);
 
             Moto moto3 = new Moto("Scooter", "SCO9999", "Honda", "PCX 150", "DLX", 2024,
                     Cor.CINZA, Funcao.PASSEIO, 1200, 2, 35.0, 100, true,
-                    Combustivel.GASOLINA, Tracao.DIANTEIRA, 2, false, "/images/carrossel/carrossel2.jpg",
+                    Combustivel.GASOLINA, Tracao.DIANTEIRA, 2, false, "/images/veiculos/hondaPCX.jpeg",
                     13.0, false, false, false, true, false, 130, false, false, 90.0,
                     150, true, 14, 0, false);
 
@@ -82,13 +82,13 @@ public class DumpGenerator {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("dump/caminhao/caminhoes.dat"))) {
             Caminhao caminhao1 = new Caminhao("Caminhão baú", "CAM1234", "Mercedes", "Axor", "2644", 2021,
                     Cor.VERMELHO, Funcao.VIAGEM, 60000, 3, 5.5, 110, true,
-                    Combustivel.DIESEL, Tracao.TRASEIRA, 2, true, "/images/carrossel/carrossel2.jpg",
+                    Combustivel.DIESEL, Tracao.TRASEIRA, 2, true, "/images/veiculos/mercedesAxor.png",
                     440, true, true, false, true, false, 8000, true, true, 700.0,
                     18000, 3.8, 2.5, 8.0, Vagao.BAU_SECO, 2, false);
 
             Caminhao caminhao2 = new Caminhao("Caminhão graneleiro", "CAM5678", "Volvo", "FH", "540", 2020,
                     Cor.BRANCO, Funcao.VIAGEM, 120000, 2, 4.5, 100, true,
-                    Combustivel.DIESEL, Tracao.INTEGRAL, 2, true, "/images/carrossel/carrossel2.jpg",
+                    Combustivel.DIESEL, Tracao.INTEGRAL, 2, true, "/images/veiculos/VolvoFH.jpg",
                     540, true, true, false, true, false, 10000, true, true, 800.0,
                     25000, 4.0, 2.6, 9.0, Vagao.GRANELEIRO, 4, true);
 
