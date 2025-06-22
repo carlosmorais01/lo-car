@@ -72,7 +72,6 @@ public class VehicleListScreen extends JFrame {
         // **ALTERADO AQUI**: cardContainerPanel para conter o cardPanel
         cardContainerPanel = new JPanel();
         cardContainerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // Centraliza o cardPanel dentro dele
-        cardContainerPanel.setBackground(Color.WHITE); // Cor de fundo para o container dos cards
 
         cardPanel = new JPanel();
         cardPanel.setLayout(new GridLayout(0, 3, 20, 20)); // GridLayout para 3 colunas e espaçamento
@@ -331,8 +330,8 @@ public class VehicleListScreen extends JFrame {
                 JLabel nome = new JLabel(veiculo.getMarca() + " " + veiculo.getNome() + " " + veiculo.getAno(), SwingConstants.CENTER);
                 JLabel preco = new JLabel("R$ " + String.format("%.2f", veiculo.getValorDiario()) + " / dia", SwingConstants.CENTER);
 
-                nome.setFont(new Font("SansSerif", Font.BOLD, 14));
-                preco.setFont(new Font("SansSerif", Font.BOLD, 14));
+                nome.setFont(nome.getFont().deriveFont(Font.BOLD,16f));
+                preco.setFont(preco.getFont().deriveFont(Font.BOLD, 12f));
                 preco.setForeground(new Color(0, 100, 0));
 
                 JPanel info = new JPanel(new GridLayout(2, 1));
@@ -345,7 +344,7 @@ public class VehicleListScreen extends JFrame {
                 // Status de disponibilidade
                 boolean isLocado = veiculoController.estaLocado(veiculo);
                 JLabel status = new JLabel(isLocado ? "Indisponível" : "Disponível", SwingConstants.CENTER);
-                status.setFont(new Font("SansSerif", Font.BOLD, 12));
+                status.setFont(status.getFont().deriveFont(Font.BOLD, 12f));
                 status.setOpaque(true);
                 status.setBackground(isLocado ? new Color(255, 230, 230) : new Color(230, 255, 230));
                 status.setForeground(isLocado ? Color.RED : new Color(0, 150, 0));
