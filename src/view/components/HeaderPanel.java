@@ -181,7 +181,7 @@ public class HeaderPanel extends JPanel {
                     pfpIcon = new ImageIcon(ImageScaler.getScaledImage(defaultPfpImage, pfpSize, pfpSize));
                 } else {
                     System.err.println("Nenhuma PFP padrão carregada.");
-                    pfpIcon = new ImageIcon(new byte[0]); // Ícone vazio final
+                    pfpIcon = new ImageIcon(new byte[0]);
                 }
             } catch (IOException e) {
                 System.err.println("Erro de I/O ao carregar PFP padrão: " + e.getMessage());
@@ -194,6 +194,23 @@ public class HeaderPanel extends JPanel {
 
         profileIconLabel = new JLabel(pfpIcon);
         profileIconLabel.setPreferredSize(new Dimension(pfpSize, pfpSize));
+        profileIconLabel.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Adicionar cursor de mão
+        // NOVO: Adicionar MouseListener para cliques
+        profileIconLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            private ActionListener clickListener;
+
+            // Este método será chamado para definir o ActionListener de clique
+            public void setClickListener(ActionListener listener) {
+                this.clickListener = listener;
+            }
+
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (clickListener != null) {
+                    clickListener.actionPerformed(new ActionEvent(profileIconLabel, ActionEvent.ACTION_PERFORMED, "profileIconClicked"));
+                }
+            }
+        });
 
         rightPanel.add(userLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -202,6 +219,32 @@ public class HeaderPanel extends JPanel {
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
         add(rightPanel, BorderLayout.EAST);
+    }
+
+    public void setProfileIconClickListener(ActionListener listener) {
+        for (java.awt.event.MouseListener ml : profileIconLabel.getMouseListeners()) {
+            if (ml instanceof ProfileIconMouseListener) {
+                profileIconLabel.removeMouseListener(ml);
+            }
+        }
+        profileIconLabel.addMouseListener(new ProfileIconMouseListener(profileIconLabel, listener));
+    }
+
+    private static class ProfileIconMouseListener extends java.awt.event.MouseAdapter {
+        private final JLabel label;
+        private final ActionListener listener;
+
+        public ProfileIconMouseListener(JLabel label, ActionListener listener) {
+            this.label = label;
+            this.listener = listener;
+        }
+
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent e) {
+            if (listener != null) {
+                listener.actionPerformed(new ActionEvent(label, ActionEvent.ACTION_PERFORMED, "profileIconClicked"));
+            }
+        }
     }
 
     public String getSearchText() {

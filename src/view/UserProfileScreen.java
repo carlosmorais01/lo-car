@@ -109,15 +109,14 @@ public class UserProfileScreen extends JFrame {
         JPanel profileImagePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         profileImagePanel.setOpaque(false);
         profileImageLabel = new JLabel();
-        profileImageLabel.setPreferredSize(new Dimension(150, 150)); // Tamanho da imagem de perfil
-        profileImageLabel.setBorder(BorderFactory.createLineBorder(new Color(10, 40, 61), 2));
+        profileImageLabel.setPreferredSize(new Dimension(350, 350)); // Tamanho da imagem de perfil
         profileImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         profileImageLabel.setVerticalAlignment(SwingConstants.CENTER);
         profileImagePanel.add(profileImageLabel);
 
         changePhotoButton = new JButton("Trocar Foto");
-        changePhotoButton.setFont(UIManager.getFont("Button.font").deriveFont(12f));
-        changePhotoButton.setPreferredSize(new Dimension(120, 30));
+        changePhotoButton.setFont(UIManager.getFont("Button.font").deriveFont(15f));
+        changePhotoButton.setPreferredSize(new Dimension(150, 50));
         changePhotoButton.setVisible(false); // Inicia invisível
         changePhotoButton.addActionListener(e -> selectProfileImage());
         profileImagePanel.add(changePhotoButton);
@@ -190,50 +189,49 @@ public class UserProfileScreen extends JFrame {
         genderComboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, genderComboBox.getPreferredSize().height));
         formPanel.add(genderComboBox);
 
+        mainContentPanel.add(formPanel);
+        mainContentPanel.add(Box.createVerticalStrut(20));
 
-        // SALDO (APENAS PARA CLIENTES)
+        // Painel de Botões de Ação (Editar, Salvar, Cancelar, e Adicionar Saldo)
+        JPanel actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        actionButtonsPanel.setOpaque(false);
+        actionButtonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT); // Centraliza horizontalmente
+
+        editButton = new JButton("Editar Perfil");
+        editButton.setPreferredSize(new Dimension(180, 50));
+        editButton.addActionListener(e -> setEditMode(true));
+        editButton.setFont(editButton.getFont().deriveFont(Font.BOLD, 14f));
+        actionButtonsPanel.add(editButton);
+
+        saveButton = new JButton("Salvar Alterações");
+        saveButton.setPreferredSize(new Dimension(180, 50));
+        saveButton.addActionListener(e -> handleSaveChanges());
+        saveButton.setFont(editButton.getFont().deriveFont(Font.BOLD, 14f));
+        actionButtonsPanel.add(saveButton);
+
+        cancelEditButton = new JButton("Cancelar");
+        cancelEditButton.setPreferredSize(new Dimension(180, 50));
+        cancelEditButton.setFont(editButton.getFont().deriveFont(Font.BOLD, 14f));
+        cancelEditButton.addActionListener(e -> {
+            displayUserData();
+            setEditMode(false);
+        });
+        actionButtonsPanel.add(cancelEditButton);
+
+        // Botão Adicionar Saldo (apenas para clientes)
         if (loggedInUser instanceof Cliente cliente) {
             formPanel.add(createLabel("Saldo Atual:"));
             currentBalanceLabel = createLabel("R$ " + String.format("%.2f", cliente.getSaldo())); // Será atualizado
             formPanel.add(currentBalanceLabel);
 
-            // Botão Adicionar Saldo
             addBalanceButton = new JButton("Adicionar Saldo");
-            addBalanceButton.setPreferredSize(new Dimension(150, 40));
+            addBalanceButton.setPreferredSize(new Dimension(200, 50)); // Tamanho ajustado para o texto
+            addBalanceButton.setFont(UIManager.getFont("Button.font").deriveFont(Font.BOLD, 16f)); // Fonte ajustada
+            addBalanceButton.setBackground(new Color(0, 150, 0)); // Cor de fundo verde
+            addBalanceButton.setForeground(Color.WHITE); // Cor do texto branca
             addBalanceButton.addActionListener(e -> handleAddBalance());
-            // Adicionado a um painel para controle de layout, ou diretamente ao formPanel se o GridLayout aceitar
-            JPanel balanceButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            balanceButtonPanel.setOpaque(false);
-            balanceButtonPanel.add(addBalanceButton);
-            formPanel.add(balanceButtonPanel);
-            formPanel.add(new JPanel()); // Espaço vazio para alinhar no GridLayout
+            actionButtonsPanel.add(addBalanceButton); // Adicionado ao mesmo painel dos outros botões
         }
-
-
-        mainContentPanel.add(formPanel);
-        mainContentPanel.add(Box.createVerticalStrut(20));
-
-        // Painel de Botões de Ação (Editar, Salvar, Cancelar)
-        JPanel actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        actionButtonsPanel.setOpaque(false);
-
-        editButton = new JButton("Editar Perfil");
-        editButton.setPreferredSize(new Dimension(150, 40));
-        editButton.addActionListener(e -> setEditMode(true));
-        actionButtonsPanel.add(editButton);
-
-        saveButton = new JButton("Salvar Alterações");
-        saveButton.setPreferredSize(new Dimension(150, 40));
-        saveButton.addActionListener(e -> handleSaveChanges());
-        actionButtonsPanel.add(saveButton);
-
-        cancelEditButton = new JButton("Cancelar");
-        cancelEditButton.setPreferredSize(new Dimension(150, 40));
-        cancelEditButton.addActionListener(e -> {
-            displayUserData(); // Recarrega dados originais
-            setEditMode(false); // Volta ao modo de visualização
-        });
-        actionButtonsPanel.add(cancelEditButton);
 
         mainContentPanel.add(actionButtonsPanel);
 
@@ -286,7 +284,7 @@ public class UserProfileScreen extends JFrame {
             }
         }
         if (profileImage != null) {
-            profileImageLabel.setIcon(new ImageIcon(ImageScaler.getScaledImage(profileImage, 150, 150)));
+            profileImageLabel.setIcon(new ImageIcon(ImageScaler.getScaledImage(profileImage, 350, 350)));
         } else {
             profileImageLabel.setIcon(null);
             profileImageLabel.setText("Sem Foto");
@@ -441,7 +439,7 @@ public class UserProfileScreen extends JFrame {
 
         String amountStr = JOptionPane.showInputDialog(this, "Quanto você deseja adicionar ao saldo?", "Adicionar Saldo", JOptionPane.QUESTION_MESSAGE);
         if (amountStr == null || amountStr.trim().isEmpty()) {
-            return; // Usuário cancelou ou digitou vazio
+            return;
         }
 
         try {
@@ -451,14 +449,46 @@ public class UserProfileScreen extends JFrame {
                 return;
             }
 
-            // Simulação de QR Code PIX (JOptionPane simples)
-            JOptionPane.showMessageDialog(this,
-                    "Simulando pagamento PIX de R$ " + String.format("%.2f", amount) + "...\n\n" +
-                            "Escaneie o QR Code (simulado):\n" +
-                            "[--- QR CODE ---]\n" +
-                            "Aguarde alguns segundos...",
-                    "Pagamento PIX", JOptionPane.INFORMATION_MESSAGE);
+            ImageIcon qrCodeIcon = null;
+            try {
+                URL imageUrl = getClass().getResource("/images/icons/qr-code.jpg");
+                if (imageUrl != null) {
+                    Image originalImage = ImageIO.read(imageUrl);
+                    Image scaledImage = ImageScaler.getScaledImage(originalImage, 200, 200);
+                    qrCodeIcon = new ImageIcon(scaledImage);
+                } else {
+                    System.err.println("Imagem do QR Code estático não encontrada em: /images/icons/qr-code.jpg");
+                    qrCodeIcon = new ImageIcon(new byte[0]);
+                }
+            } catch (IOException e) {
+                System.err.println("Erro de I/O ao carregar QR Code estático: " + e.getMessage());
+                qrCodeIcon = new ImageIcon(new byte[0]);
+            } catch (Exception e) {
+                System.err.println("Erro inesperado ao carregar/escalar QR Code estático: " + e.getMessage());
+                qrCodeIcon = new ImageIcon(new byte[0]);
+            }
 
+            JLabel qrCodeLabel = new JLabel();
+            if (qrCodeIcon != null && qrCodeIcon.getImageLoadStatus() == MediaTracker.COMPLETE) {
+                qrCodeLabel.setIcon(qrCodeIcon);
+                qrCodeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                qrCodeLabel.setVerticalAlignment(SwingConstants.CENTER);
+            } else {
+                qrCodeLabel.setText("Imagem do QR Code indisponível");
+                qrCodeLabel.setForeground(Color.RED);
+            }
+
+            JPanel pixPanel = new JPanel(new BorderLayout(10, 10));
+            pixPanel.setBackground(UIManager.getColor("OptionPane.background"));
+            pixPanel.add(new JLabel("<html><p style='text-align: center;'>Escaneie o QR Code para pagar <b>R$ " + String.format("%.2f", amount) + "</b></p></html>"), BorderLayout.NORTH);
+            pixPanel.add(qrCodeLabel, BorderLayout.CENTER);
+            pixPanel.add(new JLabel("<html><p style='text-align: center;'>Aguarde alguns segundos pela confirmação...</p></html>"), BorderLayout.SOUTH);
+            // --- FIM DA MODIFICAÇÃO ---
+
+            JOptionPane.showMessageDialog(this,
+                    pixPanel,
+                    "Pagamento PIX",
+                    JOptionPane.INFORMATION_MESSAGE);
             // Simular atraso do pagamento
             Timer timer = new Timer(3000, new ActionListener() { // 3 segundos
                 @Override

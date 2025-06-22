@@ -71,6 +71,12 @@ public class VehicleListScreen extends JFrame {
             headerPanel.showSettingsButton(false);
         }
 
+        headerPanel.setProfileIconClickListener(e -> {
+            dispose(); // Fecha a VehicleListScreen
+            UserProfileScreen profileScreen = new UserProfileScreen(loggedInUser); // Passa o usuário logado
+            profileScreen.setVisible(true);
+        });
+
         add(headerPanel, BorderLayout.NORTH);
 
         JPanel mainContentPanel = new JPanel(new BorderLayout());
