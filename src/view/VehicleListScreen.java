@@ -1,7 +1,10 @@
 package view;
 
 import controller.VeiculoController;
-import entities.*;
+import entities.Cliente;
+import entities.Funcionario;
+import entities.Pessoa;
+import entities.Veiculo;
 import enums.Cor;
 import view.components.CarCardPanel;
 import view.components.HeaderPanel;
@@ -11,12 +14,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * A classe `VehicleListScreen` representa a tela de listagem e filtragem de veículos na aplicação LoCar!.
+ * Ela permite que os usuários busquem veículos por texto, filtrem por preço, cor, status de disponibilidade e tipo de veículo.
+ * Os resultados são exibidos em um formato de cartão.
+ */
 public class VehicleListScreen extends JFrame {
-    private JPanel cardPanel; // Este JPanel ainda conterá os cards em GridLayout
+    private JPanel cardPanel;
     private JPanel cardContainerPanel;
     private VeiculoController veiculoController;
     private HeaderPanel headerPanel;
-    private Pessoa loggedInUser; // Certifique-se de que loggedInUser está declarado aqui
+    private Pessoa loggedInUser;
 
     private JTextField precoMaxField;
     private JComboBox<Cor> coresComboBox;
@@ -32,6 +40,12 @@ public class VehicleListScreen extends JFrame {
     private JRadioButton todosModelosRadio;
     private ButtonGroup modeloButtonGroup;
 
+    /**
+     * Construtor para `VehicleListScreen`.
+     *
+     * @param user              O objeto {@link Pessoa} representando o usuário atualmente logado.
+     * @param initialSearchText Um texto de busca inicial a ser aplicado automaticamente ao carregar a tela. Pode ser nulo.
+     */
     public VehicleListScreen(Pessoa user, String initialSearchText) {
         this.loggedInUser = user;
         setTitle("Tela de Pesquisa - LoCar!");
@@ -72,8 +86,8 @@ public class VehicleListScreen extends JFrame {
         }
 
         headerPanel.setProfileIconClickListener(e -> {
-            dispose(); // Fecha a VehicleListScreen
-            UserProfileScreen profileScreen = new UserProfileScreen(loggedInUser); // Passa o usuário logado
+            dispose();
+            UserProfileScreen profileScreen = new UserProfileScreen(loggedInUser);
             profileScreen.setVisible(true);
         });
 
@@ -111,11 +125,14 @@ public class VehicleListScreen extends JFrame {
         } else {
             atualizarCards(veiculoController.listarTodos());
         }
-
         SwingUtilities.invokeLater(() -> aplicarFiltros());
         setVisible(true);
     }
 
+    /**
+     * Adiciona os componentes de filtro (preço máximo, cor, disponibilidade e tipo de veículo)
+     * ao painel lateral de filtros.
+     */
     private void addFiltersToPanel() {
         JLabel titleLabel = new JLabel("Filtros");
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 18f));
@@ -232,6 +249,11 @@ public class VehicleListScreen extends JFrame {
         filterPanel.add(Box.createVerticalGlue());
     }
 
+    /**
+     * Aplica os filtros selecionados na interface e atualiza a lista de veículos exibida.
+     * Coleta os valores dos campos de busca e filtros (preço, cor, status, tipo),
+     * e então chama o `VeiculoController` para obter a lista filtrada de veículos.
+     */
     private void aplicarFiltros() {
         String termoBuscaGeral = headerPanel.getSearchText().toLowerCase();
 
@@ -256,7 +278,6 @@ public class VehicleListScreen extends JFrame {
         } else if (todosStatusRadio.isSelected()) {
             statusSelecionado = "Todos";
         }
-
         Integer anoMin = null;
         Integer anoMax = null;
 
@@ -275,10 +296,15 @@ public class VehicleListScreen extends JFrame {
         atualizarCards(veiculosFiltrados);
     }
 
+    /**
+     * Atualiza o painel de exibição de veículos com a lista de veículos fornecida.
+     * Remove todos os cartões existentes e adiciona novos {@link CarCardPanel} para cada veículo na lista.
+     * Se a lista estiver vazia, uma mensagem indicando nenhum resultado é exibida.
+     *
+     * @param veiculos A lista de objetos {@link Veiculo} a serem exibidos.
+     */
     private void atualizarCards(List<Veiculo> veiculos) {
         cardPanel.removeAll();
-
-        // Definir um tamanho padrão para os cards, que será o preferredSize do CarCardPanel
         int fixedCardWidth = 300;
         int fixedCardHeight = 300;
         Dimension fixedCardSize = new Dimension(fixedCardWidth, fixedCardHeight);
@@ -289,15 +315,12 @@ public class VehicleListScreen extends JFrame {
             noResultsLabel.setFont(noResultsLabel.getFont().deriveFont(16f));
             cardPanel.add(noResultsLabel);
         } else {
-            // Garante que o layout é GridLayout quando há cards.
             cardPanel.setLayout(new GridLayout(0, 3, 20, 20));
-
             for (Veiculo veiculo : veiculos) {
-                // INSTANCIA E ADICIONA O CARCARDPANEL AQUI!
-                CarCardPanel card = new CarCardPanel(veiculo, veiculoController, loggedInUser); // <<<<<<< AQUI!
-                card.setPreferredSize(fixedCardSize); // Define o tamanho preferencial do CarCardPanel
-                card.setMaximumSize(fixedCardSize); // Opcional: Garante que não cresça muito
-                card.setMinimumSize(fixedCardSize); // Opcional: Garante que não encolha muito
+                CarCardPanel card = new CarCardPanel(veiculo, veiculoController, loggedInUser);
+                card.setPreferredSize(fixedCardSize);
+                card.setMaximumSize(fixedCardSize);
+                card.setMinimumSize(fixedCardSize);
                 cardPanel.add(card);
             }
         }
