@@ -3,44 +3,68 @@ package view.components;
 import entities.Veiculo;
 import controller.VeiculoController;
 import util.ImageScaler;
-import view.VehicleDetailScreen; // Importar VehicleDetailScreen
-import entities.Pessoa; // Importar Pessoa
+import view.VehicleDetailScreen;
+import entities.Pessoa;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter; // Para MouseListener
-import java.awt.event.MouseEvent; // Para MouseEvent
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * `CarCardPanel` é um componente Swing que exibe informações resumidas de um veículo
+ * em um formato de cartão. Ele mostra a imagem do veículo, nome completo, preço diário
+ * e status de disponibilidade (disponível/indisponível). Clicar no cartão abre a
+ * tela de detalhes do veículo (`VehicleDetailScreen`).
+ */
 public class CarCardPanel extends JPanel {
 
     private Veiculo veiculo;
     private VeiculoController veiculoController;
-    private Pessoa loggedInUser; // NOVO: Para passar para a VehicleDetailScreen
+    private Pessoa loggedInUser;
 
-    public CarCardPanel(Veiculo veiculo, VeiculoController veiculoController, Pessoa loggedInUser) { // Construtor atualizado
+    /**
+     * Construtor para `CarCardPanel`.
+     *
+     * @param veiculo O objeto {@link Veiculo} cujas informações serão exibidas no cartão.
+     * @param veiculoController A instância de {@link VeiculoController} para verificar o status de locação do veículo.
+     * @param loggedInUser O objeto {@link Pessoa} representando o usuário atualmente logado,
+     * necessário para passar para a tela de detalhes do veículo.
+     */
+    public CarCardPanel(Veiculo veiculo, VeiculoController veiculoController, Pessoa loggedInUser) {
         this.veiculo = veiculo;
         this.veiculoController = veiculoController;
-        this.loggedInUser = loggedInUser; // Atribui o usuário logado
+        this.loggedInUser = loggedInUser;
         initializeCard();
     }
 
+    /**
+     * Inicializa a interface gráfica do componente de cartão do veículo.
+     * Configura o layout, estilo, carrega e exibe a imagem do veículo,
+     * e adiciona informações como nome, preço e status de disponibilidade.
+     * Também configura um listener de clique para abrir a tela de detalhes do veículo.
+     */
     private void initializeCard() {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        setCursor(new Cursor(Cursor.HAND_CURSOR)); // Cursor de mão para indicar clicável
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Adiciona MouseListener ao painel inteiro
         addMouseListener(new MouseAdapter() {
+            /**
+             * Manipula o evento de clique do mouse no cartão.
+             * Ao clicar, a janela pai é fechada e uma nova {@link VehicleDetailScreen}
+             * é aberta com os detalhes do veículo selecionado e o usuário logado.
+             * @param e O evento de mouse.
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Abre a VehicleDetailScreen ao clicar no card
                 JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(CarCardPanel.this);
-                parentFrame.dispose(); // Fecha a tela atual (MainScreen ou VehicleListScreen)
+                parentFrame.dispose();
                 VehicleDetailScreen detailScreen = new VehicleDetailScreen(veiculo, loggedInUser);
                 detailScreen.setVisible(true);
             }
@@ -82,14 +106,13 @@ public class CarCardPanel extends JPanel {
             add(placeholder, BorderLayout.NORTH);
         }
 
-        // Informações do veículo
         JLabel nomeCompleto = new JLabel(veiculo.getMarca() + " " + veiculo.getNome() + " " + veiculo.getAno(), SwingConstants.CENTER);
         JLabel preco = new JLabel("R$ " + String.format("%.2f", veiculo.getValorDiario()) + " / dia", SwingConstants.CENTER);
 
         nomeCompleto.setFont(nomeCompleto.getFont().deriveFont(Font.BOLD, 16f));
-        nomeCompleto.setForeground(new Color(10, 40, 61)); // Cor do texto principal
+        nomeCompleto.setForeground(new Color(10, 40, 61));
         preco.setFont(preco.getFont().deriveFont(Font.BOLD, 14f));
-        preco.setForeground(new Color(0, 128, 0)); // Um verde para o preço
+        preco.setForeground(new Color(0, 128, 0));
 
         JPanel infoPanel = new JPanel(new GridLayout(2, 1));
         infoPanel.setBackground(Color.WHITE);
@@ -98,13 +121,12 @@ public class CarCardPanel extends JPanel {
         infoPanel.add(preco);
         add(infoPanel, BorderLayout.CENTER);
 
-        // Status de disponibilidade
         boolean isLocado = veiculoController.estaLocado(veiculo);
         JLabel statusLabel = new JLabel(isLocado ? "Indisponível" : "Disponível", SwingConstants.CENTER);
         statusLabel.setFont(statusLabel.getFont().deriveFont(Font.BOLD, 12f));
         statusLabel.setOpaque(true);
-        statusLabel.setBackground(isLocado ? new Color(255, 230, 230) : new Color(230, 255, 230)); // Fundo claro vermelho/verde
-        statusLabel.setForeground(isLocado ? Color.RED : new Color(0, 150, 0)); // Texto vermelho/verde escuro
+        statusLabel.setBackground(isLocado ? new Color(255, 230, 230) : new Color(230, 255, 230));
+        statusLabel.setForeground(isLocado ? Color.RED : new Color(0, 150, 0));
         statusLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         add(statusLabel, BorderLayout.SOUTH);
     }
