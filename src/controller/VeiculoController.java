@@ -10,8 +10,8 @@ import enums.Cor;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator; // Importar Comparator
-import java.util.Arrays; // Importar para usar Arrays.asList
+import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,71 +32,51 @@ public class VeiculoController {
     }
 
     public boolean excluirVeiculo(Veiculo veiculoParaExcluir) {
-        // Remove da lista em memória
+
         boolean removedFromMemory = veiculos.removeIf(v -> v.getPlaca().equals(veiculoParaExcluir.getPlaca()));
 
         if (removedFromMemory) {
-            // Salva a lista atualizada de volta ao arquivo correspondente
+
             if (veiculoParaExcluir instanceof Carro) {
-                List<Carro> carrosAtualizados = veiculos.stream()
-                        .filter(v -> v instanceof Carro)
-                        .map(v -> (Carro) v)
-                        .collect(Collectors.toList());
+                List<Carro> carrosAtualizados = veiculos.stream().filter(v -> v instanceof Carro).map(v -> (Carro) v).collect(Collectors.toList());
                 return salvarListaDeVeiculosEmArquivo(carrosAtualizados, "dump/carros/carros.dat");
             } else if (veiculoParaExcluir instanceof Moto) {
-                List<Moto> motosAtualizadas = veiculos.stream()
-                        .filter(v -> v instanceof Moto)
-                        .map(v -> (Moto) v)
-                        .collect(Collectors.toList());
+                List<Moto> motosAtualizadas = veiculos.stream().filter(v -> v instanceof Moto).map(v -> (Moto) v).collect(Collectors.toList());
                 return salvarListaDeVeiculosEmArquivo(motosAtualizadas, "dump/moto/motos.dat");
             } else if (veiculoParaExcluir instanceof Caminhao) {
-                List<Caminhao> caminhoesAtualizados = veiculos.stream()
-                        .filter(v -> v instanceof Caminhao)
-                        .map(v -> (Caminhao) v)
-                        .collect(Collectors.toList());
+                List<Caminhao> caminhoesAtualizados = veiculos.stream().filter(v -> v instanceof Caminhao).map(v -> (Caminhao) v).collect(Collectors.toList());
                 return salvarListaDeVeiculosEmArquivo(caminhoesAtualizados, "dump/caminhao/caminhoes.dat");
             }
         }
-        return false; // Veículo não encontrado ou não removido
+        return false;
     }
 
     public boolean atualizarVeiculo(Veiculo veiculoAtualizado) {
-        // Encontra e remove o veículo antigo da lista em memória
+
         boolean removed = veiculos.removeIf(v -> v.getPlaca().equals(veiculoAtualizado.getPlaca()));
         if (!removed) {
             System.err.println("Erro ao atualizar: Veículo com placa '" + veiculoAtualizado.getPlaca() + "' não encontrado.");
-            return false; // Veículo não encontrado para atualização
+            return false;
         }
 
-        // Adiciona o veículo atualizado à lista em memória
         veiculos.add(veiculoAtualizado);
 
-        // Serializa a lista completa de volta para o arquivo correto
         if (veiculoAtualizado instanceof Carro) {
-            List<Carro> carrosAtualizados = veiculos.stream()
-                    .filter(v -> v instanceof Carro)
-                    .map(v -> (Carro) v)
-                    .collect(Collectors.toList());
+            List<Carro> carrosAtualizados = veiculos.stream().filter(v -> v instanceof Carro).map(v -> (Carro) v).collect(Collectors.toList());
             return salvarListaDeVeiculosEmArquivo(carrosAtualizados, "dump/carros/carros.dat");
         } else if (veiculoAtualizado instanceof Moto) {
-            List<Moto> motosAtualizadas = veiculos.stream()
-                    .filter(v -> v instanceof Moto)
-                    .map(v -> (Moto) v)
-                    .collect(Collectors.toList());
+            List<Moto> motosAtualizadas = veiculos.stream().filter(v -> v instanceof Moto).map(v -> (Moto) v).collect(Collectors.toList());
             return salvarListaDeVeiculosEmArquivo(motosAtualizadas, "dump/moto/motos.dat");
         } else if (veiculoAtualizado instanceof Caminhao) {
-            List<Caminhao> caminhoesAtualizados = veiculos.stream()
-                    .filter(v -> v instanceof Caminhao)
-                    .map(v -> (Caminhao) v)
-                    .collect(Collectors.toList());
+            List<Caminhao> caminhoesAtualizados = veiculos.stream().filter(v -> v instanceof Caminhao).map(v -> (Caminhao) v).collect(Collectors.toList());
             return salvarListaDeVeiculosEmArquivo(caminhoesAtualizados, "dump/caminhao/caminhoes.dat");
         }
-        return false; // Tipo de veículo desconhecido
+        return false;
     }
 
     public String saveVehiclePicture(String originalImagePath, String placaVeiculo) {
         if (originalImagePath == null || originalImagePath.isEmpty()) {
-            return null; // Nenhuma imagem para salvar
+            return null;
         }
 
         File originalFile = new File(originalImagePath);
@@ -106,14 +86,13 @@ public class VeiculoController {
             fileExtension = originalImagePath.substring(i);
         }
 
-        // Nomeia a imagem com a placa do veículo (e remove caracteres inválidos, se houver)
-        String cleanedPlate = placaVeiculo.replaceAll("[^a-zA-Z0-9.-]", "_"); // Mantém letras, números, ponto e traço
+        String cleanedPlate = placaVeiculo.replaceAll("[^a-zA-Z0-9.-]", "_");
         String newFileName = cleanedPlate + fileExtension;
         File newFile = new File(VEHICLE_PICS_DIR + newFileName);
 
         try {
             java.nio.file.Files.copy(originalFile.toPath(), newFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return newFile.getAbsolutePath(); // Retorna o caminho absoluto do arquivo salvo
+            return newFile.getAbsolutePath();
         } catch (IOException e) {
             System.err.println("Erro ao salvar imagem do veículo '" + placaVeiculo + "': " + e.getMessage());
             e.printStackTrace();
@@ -130,27 +109,23 @@ public class VeiculoController {
     }
 
     public boolean cadastrarVeiculo(Veiculo novoVeiculo) {
-        // Primeiro, verifica se a placa já existe para evitar duplicatas
-        boolean placaExiste = veiculos.stream()
-                .anyMatch(v -> v.getPlaca().equalsIgnoreCase(novoVeiculo.getPlaca()));
+
+        boolean placaExiste = veiculos.stream().anyMatch(v -> v.getPlaca().equalsIgnoreCase(novoVeiculo.getPlaca()));
         if (placaExiste) {
             System.err.println("Erro: Veículo com a placa '" + novoVeiculo.getPlaca() + "' já existe.");
             return false;
         }
 
-        // NOVO: Salvar a imagem do veículo e atualizar o caminho no objeto Veiculo
         String savedPhotoPath = saveVehiclePicture(novoVeiculo.getCaminhoFoto(), novoVeiculo.getPlaca());
         if (savedPhotoPath == null && novoVeiculo.getCaminhoFoto() != null && !novoVeiculo.getCaminhoFoto().isEmpty()) {
-            // Se a imagem deveria existir mas não pôde ser salva, considere falha no cadastro
+
             System.err.println("Falha ao salvar a imagem do veículo. Cadastro abortado.");
             return false;
         }
-        novoVeiculo.setCaminhoFoto(savedPhotoPath); // Atualiza o objeto Veiculo com o novo caminho da imagem
+        novoVeiculo.setCaminhoFoto(savedPhotoPath);
 
-        // Adiciona o novo veículo à lista em memória
         veiculos.add(novoVeiculo);
 
-        // Salva o veículo no arquivo de dados serializado específico do seu tipo
         if (novoVeiculo instanceof Carro) {
             return salvarVeiculoEmArquivo((Carro) novoVeiculo, "dump/carros/carros.dat");
         } else if (novoVeiculo instanceof Moto) {
@@ -189,12 +164,12 @@ public class VeiculoController {
 
     private <T extends Veiculo> List<T> carregarVeiculosDeArquivo(String caminho, Class<T> tipo) {
         List<T> lista = new ArrayList<>();
-        File file = new File(caminho); // Crie um objeto File
+        File file = new File(caminho);
 
-        if (file.exists() && file.length() > 0) { // Garante que o arquivo existe e não está vazio
+        if (file.exists() && file.length() > 0) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 Object obj = ois.readObject();
-                if (obj instanceof List) { // Espera que o objeto lido seja uma List
+                if (obj instanceof List) {
                     List<?> l = (List<?>) obj;
                     for (Object item : l) {
                         if (tipo.isInstance(item)) {
@@ -240,28 +215,20 @@ public class VeiculoController {
     }
 
     public List<Veiculo> getVeiculosMaisAlugados(int limit) {
-        return veiculos.stream()
-                .sorted(Comparator.comparingInt(Veiculo::getLocacoes).reversed())
-                .limit(limit)
-                .collect(Collectors.toList());
+        return veiculos.stream().sorted(Comparator.comparingInt(Veiculo::getLocacoes).reversed()).limit(limit).collect(Collectors.toList());
     }
 
     public List<Veiculo> filtrarVeiculos(String termoBuscaGeral, Double precoMax, Cor cor, String statusDisponibilidade, Integer anoMin, Integer anoMax, String tipoVeiculo) {
         Stream<Veiculo> resultadoStream = veiculos.stream();
 
-        // Recarrega as locações para ter o status de disponibilidade mais recente para o filtro
-        List<Locacao> locacoesAtuais = carregarLocacoes(); // Chama o método aqui
+        List<Locacao> locacoesAtuais = carregarLocacoes();
 
         if (termoBuscaGeral != null && !termoBuscaGeral.trim().isEmpty()) {
             String[] termosIndividuais = termoBuscaGeral.toLowerCase().split("\\s+");
 
             resultadoStream = resultadoStream.filter(veiculo -> {
-                String infoVeiculo = (veiculo.getNome() + " " +
-                        veiculo.getMarca() + " " +
-                        veiculo.getModelo() + " " +
-                        veiculo.getAno()).toLowerCase();
-                return Arrays.stream(termosIndividuais)
-                        .allMatch(termo -> infoVeiculo.contains(termo));
+                String infoVeiculo = (veiculo.getNome() + " " + veiculo.getMarca() + " " + veiculo.getModelo() + " " + veiculo.getAno()).toLowerCase();
+                return Arrays.stream(termosIndividuais).allMatch(termo -> infoVeiculo.contains(termo));
             });
         }
 
@@ -276,24 +243,14 @@ public class VeiculoController {
         if (statusDisponibilidade != null) {
             switch (statusDisponibilidade) {
                 case "Disponíveis":
-                    resultadoStream = resultadoStream.filter(v -> {
-                        // Usa a lista de locações recarregada
-                        return locacoesAtuais.stream()
-                                .noneMatch(loc -> loc.getVeiculo().getPlaca().equals(v.getPlaca()) && loc.getDataDevolucao() == null);
-                    });
+                    resultadoStream = resultadoStream.filter(v -> locacoesAtuais.stream().noneMatch(loc -> loc.getVeiculo().getPlaca().equals(v.getPlaca()) && loc.getDataDevolucao() == null));
                     break;
                 case "Próximos de Devolução":
                     resultadoStream = resultadoStream.filter(v -> {
                         LocalDateTime agora = LocalDateTime.now();
                         LocalDateTime limiteSuperior = agora.plusDays(3);
 
-                        // Usa a lista de locações recarregada
-                        return locacoesAtuais.stream()
-                                .anyMatch(loc -> loc.getVeiculo().getPlaca().equals(v.getPlaca())
-                                        && loc.getDataDevolucao() == null
-                                        && loc.getDataPrevistaDevolucao() != null
-                                        && !loc.getDataPrevistaDevolucao().isBefore(agora.toLocalDate().atStartOfDay())
-                                        && loc.getDataPrevistaDevolucao().isBefore(limiteSuperior));
+                        return locacoesAtuais.stream().anyMatch(loc -> loc.getVeiculo().getPlaca().equals(v.getPlaca()) && loc.getDataDevolucao() == null && loc.getDataPrevistaDevolucao() != null && !loc.getDataPrevistaDevolucao().isBefore(agora.toLocalDate().atStartOfDay()) && loc.getDataPrevistaDevolucao().isBefore(limiteSuperior));
                     });
                     break;
                 case "Todos":
@@ -330,8 +287,7 @@ public class VeiculoController {
     }
 
     public boolean estaLocado(Veiculo veiculo) {
-        List<Locacao> locacoesAtuais = carregarLocacoes(); // Recarrega a lista de locações
-        return locacoesAtuais.stream()
-                .anyMatch(loc -> loc.getVeiculo().getPlaca().equals(veiculo.getPlaca()) && loc.getDataDevolucao() == null);
+        List<Locacao> locacoesAtuais = carregarLocacoes();
+        return locacoesAtuais.stream().anyMatch(loc -> loc.getVeiculo().getPlaca().equals(veiculo.getPlaca()) && loc.getDataDevolucao() == null);
     }
 }
