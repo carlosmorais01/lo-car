@@ -4,9 +4,9 @@ import enums.Sexo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach; // Adicionado para resetar ultimoId
+import org.junit.jupiter.api.AfterEach;
 
-import java.lang.reflect.Field; // Necessário para acessar campo static
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,17 +22,16 @@ class FuncionarioTest {
         enderecoTeste = new Endereco("Cidade Func", "Estado Func", "Bairro Func", "Rua Func", 789, "98765-432");
         dataNascimentoTeste = LocalDateTime.of(1988, 1, 1, 0, 0);
 
-        // IMPORTANTE: Resetar o ultimoId estático antes de cada teste
-        // Isso evita que testes anteriores afetem os IDs dos testes subsequentes
+
         Field ultimoIdField = Funcionario.class.getDeclaredField("ultimoId");
-        ultimoIdField.setAccessible(true); // Permite acesso a campo private
-        ultimoIdField.set(null, 0); // Define ultimoId de volta para 0
+        ultimoIdField.setAccessible(true);
+        ultimoIdField.set(null, 0);
     }
 
     @AfterEach
     void tearDown() throws NoSuchFieldException, IllegalAccessException {
-        // Opcional: Resetar novamente após cada teste, embora BeforeEach já faça.
-        // Útil para garantir que o estado estático seja limpo.
+
+
         Field ultimoIdField = Funcionario.class.getDeclaredField("ultimoId");
         ultimoIdField.setAccessible(true);
         ultimoIdField.set(null, 0);
@@ -74,7 +73,6 @@ class FuncionarioTest {
         assertEquals("Funcionario Dois", func2.getNome(), "O nome herdado deve ser inicializado corretamente.");
         assertEquals(2, func2.getId(), "O ID do segundo funcionário deve ser 2.");
 
-        // Testar se os IDs são únicos
         assertNotEquals(func1.getId(), func2.getId(), "Os IDs dos funcionários devem ser únicos.");
     }
 
@@ -93,7 +91,6 @@ class FuncionarioTest {
                 "/caminho/foto_funcTeste.png"
         );
 
-        // O ID inicial será 1 devido ao @BeforeEach
         assertEquals(1, func.getId(), "O ID inicial deve ser 1.");
 
         func.setId(99);
@@ -111,15 +108,14 @@ class FuncionarioTest {
                 "senhaHerdeiro",
                 enderecoTeste,
                 dataNascimentoTeste,
-                Sexo.MASCULINO, // Assumindo que Sexo tem mais opções ou use uma existente
+                Sexo.MASCULINO,
                 "/caminho/foto_herdeiro.png"
         );
 
-        // Testar um getter e setter herdado para garantir a funcionalidade da herança
         assertEquals("Herdeiro Pessoa", func.getNome(), "O nome herdado deve ser correto.");
         String novoTelefone = "11111-1111";
         func.setTelefone(novoTelefone);
         assertEquals(novoTelefone, func.getTelefone(), "O telefone herdado deve ser atualizado corretamente.");
-        assertEquals(Sexo.MASCULINO, func.getSexo(), "O sexo herdado deve ser correto."); // Use um valor válido para Sexo
+        assertEquals(Sexo.MASCULINO, func.getSexo(), "O sexo herdado deve ser correto.");
     }
 }

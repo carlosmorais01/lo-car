@@ -2,7 +2,7 @@ package entities;
 
 
 
-import enums.*; // Importar todos os enums necessários
+import enums.*;
 
 import org.junit.jupiter.api.BeforeEach;
 
@@ -29,8 +29,6 @@ class VeiculoTest {
     @BeforeEach
 
     void setUp() {
-
-// Inicializa um objeto VeiculoImpl antes de cada teste
 
         veiculo = new VeiculoImpl(
 

@@ -13,7 +13,6 @@ class EnderecoTest {
 
     @BeforeEach
     void setUp() {
-        // Inicializa um objeto Endereco antes de cada teste
         endereco = new Endereco(
                 "Goiânia",
                 "GO",

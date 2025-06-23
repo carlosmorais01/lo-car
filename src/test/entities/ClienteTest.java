@@ -20,8 +20,6 @@ class ClienteTest {
     void setUp() {
         enderecoTeste = new Endereco("Cidade Cliente", "Estado Cliente", "Bairro Cliente", "Rua Cliente", 456, "87654-321");
         dataNascimentoTeste = LocalDateTime.of(1995, 8, 20, 0, 0);
-
-        // Inicializa um objeto Cliente antes de cada teste
         cliente = new Cliente(
                 "Cliente Teste",
                 "111.222.333-44",
@@ -57,7 +55,7 @@ class ClienteTest {
     @Test
     @DisplayName("Deve debitar saldo corretamente")
     void testDebitarSaldo() {
-        cliente.adicionarSaldo(200.0); // Garante que há saldo para debitar
+        cliente.adicionarSaldo(200.0);
         cliente.debitarSaldo(75.0);
         assertEquals(125.0, cliente.getSaldo(), "O saldo deve ser decrementado corretamente.");
 
@@ -68,9 +66,7 @@ class ClienteTest {
     @Test
     @DisplayName("Deve permitir saldo negativo ao debitar se não houver validação de negócio na classe")
     void testDebitarSaldoPodeFicarNegativo() {
-        // Se a regra de negócio permitir saldo negativo, este teste é válido.
-        // Caso contrário, a classe Cliente precisaria de validação para impedir saldo negativo.
-        cliente.debitarSaldo(50.0); // Saldo inicial 0.0, então ficará -50.0
+        cliente.debitarSaldo(50.0);
         assertEquals(-50.0, cliente.getSaldo(), "O saldo deve permitir valores negativos se não houver validação.");
     }
 
