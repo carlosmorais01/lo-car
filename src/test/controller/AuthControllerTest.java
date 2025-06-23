@@ -1,6 +1,5 @@
 package controller;
 
-import controller.AuthController;
 import entities.Cliente;
 import entities.Endereco;
 import entities.Funcionario;

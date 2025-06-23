@@ -3,7 +3,6 @@ package controller;
 import entities.Cliente;
 import entities.Endereco;
 import entities.Locacao;
-import entities.Pessoa;
 import entities.TestVehicle;
 import entities.Veiculo;
 import enums.Sexo;
