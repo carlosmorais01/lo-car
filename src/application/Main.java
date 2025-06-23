@@ -121,7 +121,6 @@ public class Main {
             UIManager.put("OptionPane.font", appFont);
 
             DumpGenerator.rodarDump();
-
         } catch (Exception e) {
             System.err.println("Failed to initialize FlatLaf: " + e.getMessage());
             e.printStackTrace();
