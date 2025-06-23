@@ -11,6 +11,11 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A classe `DumpGenerator` é responsável por gerar dados iniciais (dump) para a aplicação LoCar!.
+ * Isso inclui a criação de arquivos de dados serializados para clientes, funcionários, carros, motos e caminhões,
+ * garantindo que o sistema tenha um conjunto básico de informações para operar.
+ */
 public class DumpGenerator {
 
     private static List<Carro> carros = new ArrayList<>();
@@ -24,8 +29,16 @@ public class DumpGenerator {
     private static final String CARROS_FILE = "dump/carros/carros.dat";
     private static final String MOTOS_FILE = "dump/moto/motos.dat";
     private static final String CAMINHOES_FILE = "dump/caminhao/caminhoes.dat";
-    private static final String LOCACOES_FILE = "dump/locacoes/locacoes.dat";
 
+    /**
+     * O método principal para executar a geração de dados iniciais (dump).
+     * <p>
+     * Este método verifica a existência dos arquivos de dados para clientes, funcionários,
+     * carros, motos e caminhões. Se um arquivo não existir, o método correspondente para
+     * gerar os dados é invocado. Ele também garante que os diretórios necessários
+     * para a persistência dos dados sejam criados.
+     * </p>
+     */
     public static void rodarDump() {
         new File("dump/carros").mkdirs();
         new File("dump/moto").mkdirs();
@@ -78,7 +91,10 @@ public class DumpGenerator {
         }
     }
 
-
+    /**
+     * Gera uma lista de funcionários de exemplo e a serializa para o arquivo {@code FUNCIONARIOS_FILE}.
+     * As senhas dos funcionários são fornecidas já em formato hashed para simular o armazenamento seguro.
+     */
     private static void gerarFuncionarios() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FUNCIONARIOS_FILE))) {
             Endereco endF1 = new Endereco("Goiânia", "GO", "Vila Nova", "Rua D", 300, "74640-000");
@@ -98,6 +114,10 @@ public class DumpGenerator {
         }
     }
 
+    /**
+     * Gera uma lista de clientes de exemplo e a serializa para o arquivo {@code CLIENTES_FILE}.
+     * As senhas dos clientes são fornecidas já em formato hashed para simular o armazenamento seguro.
+     */
     private static void gerarClientes() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CLIENTES_FILE))) {
             Endereco endC1 = new Endereco("Goiânia", "GO", "Centro", "Rua A", 100, "74000-000");
@@ -121,6 +141,10 @@ public class DumpGenerator {
         }
     }
 
+    /**
+     * Gera uma lista de carros de exemplo e a serializa para o arquivo {@code CARROS_FILE}.
+     * Define também um número de locações simulado para cada carro.
+     */
     private static void gerarCarros() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CARROS_FILE))) {
             Carro carro1 = new Carro("O Toyota Supra 2022 combina design arrojado com performance de alto nível: sua carroceria coupé possui linhas musculosas.", "ABC1234", "Toyota", "Supra", "2022", 2022,
@@ -161,6 +185,9 @@ public class DumpGenerator {
         }
     }
 
+    /**
+     * Gera uma lista de motos de exemplo e a serializa para o arquivo {@code MOTOS_FILE}.
+     */
     private static void gerarMotos() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(MOTOS_FILE))) {
             Moto moto1 = new Moto("A Honda CG 160 Fan combina economia, robustez e conforto, sendo ideal para o uso diário com baixo custo de manutenção.", "MOT1234", "Honda", "CG 160", "Fan", 2023,
@@ -193,6 +220,9 @@ public class DumpGenerator {
         }
     }
 
+    /**
+     * Gera uma lista de caminhões de exemplo e a serializa para o arquivo {@code CAMINHOES_FILE}.
+     */
     private static void gerarCaminhoes() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CAMINHOES_FILE))) {
             Caminhao caminhao1 = new Caminhao("A Mercedes-Benz Axor 2644 2021 é um caminhão potente, confortável e ideal para o transporte pesado em longas distâncias.", "CAM1234", "Mercedes", "Axor", "2644", 2021,
