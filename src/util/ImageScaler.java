@@ -1,10 +1,25 @@
 package util;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * A classe `ImageScaler` fornece métodos utilitários para reescalar imagens.
+ * Ela inclui funcionalidades para reescalar uma imagem diretamente para um {@code BufferedImage}
+ * com alta qualidade de renderização, bem como métodos para reescalar a partir de um objeto {@code Image}
+ * ou diretamente de um caminho de arquivo.
+ */
 public class ImageScaler {
+    /**
+     * Reescalona uma imagem de origem para as dimensões especificadas,
+     * utilizando renderização de alta qualidade para um {@code BufferedImage}.
+     * Este método é útil para obter um controle mais fino sobre a qualidade do reescalonamento.
+     *
+     * @param srcImg A imagem de origem a ser reescalada.
+     * @param w A largura desejada para a imagem reescalada.
+     * @param h A altura desejada para a imagem reescalada.
+     * @return Um {@code BufferedImage} contendo a imagem reescalada com as dimensões e qualidade especificadas.
+     */
     public static BufferedImage getScaledImage(Image srcImg, int w, int h) {
         BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = resizedImg.createGraphics();
@@ -17,33 +32,5 @@ public class ImageScaler {
         g2.dispose();
 
         return resizedImg;
-    }
-
-    /**
-     * Reescalona uma imagem para as dimensões especificadas.
-     * @param originalImage A imagem original a ser reescalada.
-     * @param targetWidth A largura desejada.
-     * @param targetHeight A altura desejada.
-     * @return A imagem reescalada.
-     */
-    public static Image scaleImage(Image originalImage, int targetWidth, int targetHeight) {
-        if (originalImage == null) {
-            return null;
-        }
-        // Usamos Image.SCALE_SMOOTH para uma melhor qualidade de reescalonamento
-        return originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
-    }
-
-    /**
-     * Reescalona uma imagem carregada de um caminho de arquivo.
-     * Este método é útil se você quiser carregar e escalar em uma única etapa.
-     * @param imagePath O caminho do arquivo da imagem.
-     * @param targetWidth A largura desejada.
-     * @param targetHeight A altura desejada.
-     * @return A imagem reescalada.
-     */
-    public static Image scaleImage(String imagePath, int targetWidth, int targetHeight) {
-        ImageIcon originalIcon = new ImageIcon(imagePath);
-        return scaleImage(originalIcon.getImage(), targetWidth, targetHeight);
     }
 }
