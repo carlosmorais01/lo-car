@@ -600,7 +600,6 @@ public class VehicleDetailScreen extends JFrame {
         Locacao locacaoTemporaria = new Locacao(LocalDateTime.now(), dataPrevistaDevolucao, selectedVeiculo, (Cliente) loggedInUser);
         double valorTotal = locacaoTemporaria.calcularValorPrevisto();
 
-
         if (veiculoController.estaLocado(selectedVeiculo)) {
             JOptionPane.showMessageDialog(this, "Este veículo já está locado no momento.", "Veículo Indisponível", JOptionPane.WARNING_MESSAGE);
             updateStatusLabel();
@@ -710,7 +709,7 @@ public class VehicleDetailScreen extends JFrame {
             if (devolucaoSucesso) {
 
                 double multaCalculada = locacaoAtiva.calcularMulta();
-                double valorFinalLocacao = locacaoAtiva.getValorLocacao();
+                double valorFinalLocacao = locacaoAtiva.calcularValorTotal();
                 String mensagem = String.format("Devolução registrada com sucesso!\nValor final da locação: R$ %.2f", valorFinalLocacao);
                 if (multaCalculada > 0) {
                     mensagem += String.format("\nMulta aplicada: R$ %.2f", multaCalculada);
