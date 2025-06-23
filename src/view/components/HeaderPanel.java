@@ -7,8 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter; // Importar MouseAdapter
-import java.awt.event.MouseEvent; // Importar MouseEvent
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
@@ -16,6 +16,11 @@ import java.util.Objects;
 import java.io.File;
 import javax.imageio.ImageIO;
 
+/**
+ * `HeaderPanel` é um componente Swing que representa o cabeçalho da aplicação.
+ * Ele contém o logotipo do sistema, um campo de busca com botão, e informações do usuário logado
+ * (nome e foto de perfil), além de um botão de configurações que pode ser visível ou não.
+ */
 public class HeaderPanel extends JPanel {
     private final JTextField searchField;
     private JButton searchButton;
@@ -24,6 +29,13 @@ public class HeaderPanel extends JPanel {
     private JLabel systemLogoLabel;
     private JButton settingsButton;
 
+    /**
+     * Construtor de `HeaderPanel` com nome de usuário e caminho para a imagem de perfil.
+     * Inicializa a interface do cabeçalho, carregando imagens e configurando componentes.
+     *
+     * @param userName         O nome do usuário a ser exibido no cabeçalho.
+     * @param profileImagePath O caminho da imagem de perfil do usuário. Pode ser um recurso interno ou um caminho de arquivo.
+     */
     public HeaderPanel(String userName, String profileImagePath) {
         setLayout(new BorderLayout());
         setBackground(new Color(10, 38, 64));
@@ -31,7 +43,6 @@ public class HeaderPanel extends JPanel {
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Esquerda: logotipo do sistema (clicável) e botão de engrenagem (se funcionário)
         JPanel leftPanel = new JPanel(new GridBagLayout());
         leftPanel.setOpaque(false);
 
@@ -45,7 +56,7 @@ public class HeaderPanel extends JPanel {
             if (logoUrl != null) {
                 systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(logoUrl).getImage(), 70, 70));
             } else {
-                systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/logotipo.png")), 70, 70));
+                systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/icons/logotipo.png")), 70, 70));
             }
         } catch (Exception e) {
             System.err.println("Erro ao carregar logotipo do sistema: " + e.getMessage());
@@ -58,12 +69,12 @@ public class HeaderPanel extends JPanel {
 
         ImageIcon gearIcon = null;
         try {
-            URL gearUrl = getClass().getResource("/icons/gear-icon.png");
+            URL gearUrl = getClass().getResource("/images/icons/gear-icon.png");
             if (gearUrl != null) {
                 gearIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(gearUrl).getImage(), 25, 25));
             } else {
                 System.err.println("Ícone de engrenagem não encontrado como recurso. Tentando carregar de arquivo.");
-                gearIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/gear-icon.png")), 25, 25));
+                gearIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/icons/gear-icon.png")), 25, 25));
             }
         } catch (Exception e) {
             System.err.println("Erro ao carregar ícone de engrenagem: " + e.getMessage());
@@ -79,7 +90,6 @@ public class HeaderPanel extends JPanel {
         gbcLeft.insets = new Insets(0, 0, 0, 0);
         leftPanel.add(settingsButton, gbcLeft);
 
-        // Centro: campo de busca
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
 
@@ -101,7 +111,7 @@ public class HeaderPanel extends JPanel {
             }
         });
 
-        ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/lupa-icon.png")));
+        ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/icons/lupa-icon.png")));
         Image scaledLupa = ImageScaler.getScaledImage(lupaIcon.getImage(), 20, 20);
         searchButton = new JButton(new ImageIcon(scaledLupa));
         searchButton.setContentAreaFilled(false);
@@ -118,7 +128,6 @@ public class HeaderPanel extends JPanel {
         gbc.gridx = 2;
         centerPanel.add(searchButton, gbc);
 
-        // Direita: nome do usuário e foto de perfil
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
 
@@ -160,12 +169,12 @@ public class HeaderPanel extends JPanel {
         if (pfpIcon == null || (pfpIcon.getImageLoadStatus() != -1 && pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE)) {
             try {
                 Image defaultPfpImage = null;
-                URL defaultPfpUrl = getClass().getResource("/images/default_pfp.png");
+                URL defaultPfpUrl = getClass().getResource("/images/icons/default_pfp.png");
                 if (defaultPfpUrl != null) {
                     defaultPfpImage = ImageIO.read(defaultPfpUrl);
                 } else {
                     System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo local.");
-                    File defaultPfpFile = new File("src/images/default_pfp.png");
+                    File defaultPfpFile = new File("src/images/icons/default_pfp.png");
                     if (defaultPfpFile.exists()) {
                         defaultPfpImage = ImageIO.read(defaultPfpFile);
                     } else {
@@ -191,7 +200,7 @@ public class HeaderPanel extends JPanel {
         profileIconLabel = new JLabel(pfpIcon);
         profileIconLabel.setPreferredSize(new Dimension(pfpSize, pfpSize));
         profileIconLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        // O MouseListener será adicionado externamente pelo setProfileIconClickListener
+
 
         rightPanel.add(userLabel);
         rightPanel.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -202,15 +211,23 @@ public class HeaderPanel extends JPanel {
         add(rightPanel, BorderLayout.EAST);
     }
 
-    // Método refatorado para ser a única forma de definir o listener do ícone de perfil
+    /**
+     * Define um {@link ActionListener} para o ícone de perfil.
+     * Qualquer listener anterior é removido para evitar a duplicação de eventos.
+     *
+     * @param listener O {@link ActionListener} a ser executado quando o ícone de perfil for clicado.
+     */
     public void setProfileIconClickListener(ActionListener listener) {
-        // Primeiro, remova TODOS os MouseListeners existentes para evitar duplicação.
-        // Isso é seguro porque não estamos removendo MouseListeners que o próprio Swing pode ter adicionado.
         for (java.awt.event.MouseListener ml : profileIconLabel.getMouseListeners()) {
             profileIconLabel.removeMouseListener(ml);
         }
-        // Agora, adicione um novo MouseListener anônimo que irá disparar o ActionListener
+
         profileIconLabel.addMouseListener(new MouseAdapter() {
+            /**
+             * Manipula o evento de clique do mouse no ícone de perfil.
+             * Dispara o {@link ActionListener} fornecido.
+             * @param e O evento de mouse.
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (listener != null) {
@@ -220,32 +237,62 @@ public class HeaderPanel extends JPanel {
         });
     }
 
+    /**
+     * Retorna o texto atual contido no campo de busca.
+     * O texto é limpo de espaços em branco no início e no fim.
+     *
+     * @return Uma string contendo o texto do campo de busca.
+     */
     public String getSearchText() {
         return searchField.getText().trim();
     }
 
+    /**
+     * Define a visibilidade do botão de configurações.
+     *
+     * @param visible true para tornar o botão visível, false para ocultá-lo.
+     */
     public void showSettingsButton(boolean visible) {
         settingsButton.setVisible(visible);
     }
 
+    /**
+     * Define um {@link ActionListener} para o botão de configurações.
+     *
+     * @param actionListener O {@link ActionListener} a ser executado quando o botão de configurações for clicado.
+     */
     public void setSettingsAction(ActionListener actionListener) {
         settingsButton.addActionListener(actionListener);
     }
 
+    /**
+     * Define um {@link ActionListener} para o botão de busca.
+     *
+     * @param actionListener O {@link ActionListener} a ser executado quando o botão de busca for clicado.
+     */
     public void setSearchAction(ActionListener actionListener) {
         searchButton.addActionListener(actionListener);
     }
 
+    /**
+     * Define um {@link ActionListener} para o logotipo do sistema.
+     * Remove quaisquer listeners de mouse anônimos ou internos existentes
+     * para evitar a duplicação de eventos antes de adicionar o novo listener.
+     *
+     * @param listener O {@link ActionListener} a ser executado quando o logotipo for clicado.
+     */
     public void setLogoClickListener(ActionListener listener) {
-        // Remover MouseAdapter anônimo se já não tiver sido
         for (java.awt.event.MouseListener ml : systemLogoLabel.getMouseListeners()) {
-            // Heurística para anônimo ou auto-gerado
-            // (Uso de contains("$") é uma heurística, idealmente você saberia o tipo exato do seu próprio listener)
             if (ml.getClass().getName().contains("$")) {
                 systemLogoLabel.removeMouseListener(ml);
             }
         }
-        systemLogoLabel.addMouseListener(new MouseAdapter() { // Usar MouseAdapter aqui também
+        systemLogoLabel.addMouseListener(new MouseAdapter() {
+            /**
+             * Manipula o evento de clique do mouse no logotipo do sistema.
+             * Dispara o {@link ActionListener} fornecido.
+             * @param e O evento de mouse.
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 listener.actionPerformed(new ActionEvent(systemLogoLabel, ActionEvent.ACTION_PERFORMED, "logoClicked"));
@@ -253,10 +300,21 @@ public class HeaderPanel extends JPanel {
         });
     }
 
+    /**
+     * Define o texto no campo de busca.
+     *
+     * @param text O texto a ser definido no campo de busca.
+     */
     public void setSearchText(String text) {
         searchField.setText(text);
     }
 
+    /**
+     * Construtor de `HeaderPanel` que permite criar o cabeçalho apenas com o nome de usuário,
+     * utilizando um caminho de imagem de perfil padrão (nulo).
+     *
+     * @param userName O nome do usuário a ser exibido no cabeçalho.
+     */
     public HeaderPanel(String userName) {
         this(userName, null);
     }
