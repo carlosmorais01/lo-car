@@ -14,15 +14,6 @@ public class Locacao implements Serializable {
     private Veiculo veiculo;
     private Cliente cliente;
 
-    public Locacao(LocalDateTime dataLocacao, LocalDateTime dataPrevistaDevolucao, LocalDateTime dataDevolucao, Veiculo veiculo, Cliente cliente) {
-        this.dataLocacao = dataLocacao;
-        this.dataPrevistaDevolucao = dataPrevistaDevolucao;
-        this.dataDevolucao = dataDevolucao;
-        this.veiculo = veiculo;
-        this.cliente = cliente;
-        this.valorLocacao = calcularValorTotal();
-    }
-
     public Locacao(LocalDateTime dataLocacao, LocalDateTime dataPrevistaDevolucao, Veiculo veiculo, Cliente cliente) {
         this.dataLocacao = dataLocacao;
         this.dataPrevistaDevolucao = dataPrevistaDevolucao;
@@ -33,22 +24,13 @@ public class Locacao implements Serializable {
     }
 
     private long calcularNumeroDeDiasParaCobranca(LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) {
+        if (inicio == null || fim == null || !inicio.isBefore(fim)) {
             return 0;
         }
 
-        long diasCompletos = ChronoUnit.DAYS.between(inicio.toLocalDate(), fim.toLocalDate());
-
-        if (diasCompletos == 0 && inicio.isBefore(fim)) {
-            return 1;
-        }
-
-        double horas = ChronoUnit.HOURS.between(inicio, fim);
-        long diasArredondadosParaCima = (long) Math.ceil(horas / 24.0);
-
-        return Math.max(1, diasArredondadosParaCima);
+        long horas = ChronoUnit.HOURS.between(inicio, fim);
+        return Math.max(1, (long) Math.ceil(horas / 24.0));
     }
-
 
     public double calcularValorTotal() {
         if (dataDevolucao == null) {
@@ -63,8 +45,11 @@ public class Locacao implements Serializable {
             throw new IllegalStateException("Data de devolução não pode ser anterior à data de locação.");
         }
 
+        long diasPrevistos = calcularNumeroDeDiasParaCobranca(dataLocacao, dataPrevistaDevolucao);
         long diasEfetivos = calcularNumeroDeDiasParaCobranca(dataLocacao, dataDevolucao);
-        double valorDiarias = veiculo.getValorDiario() * diasEfetivos;
+
+        long diasParaCobrar = Math.max(diasPrevistos, diasEfetivos);
+        double valorDiarias = veiculo.getValorDiario() * diasParaCobrar;
 
         if (dataDevolucao.isAfter(dataPrevistaDevolucao)) {
             return valorDiarias + calcularMulta();
@@ -72,6 +57,7 @@ public class Locacao implements Serializable {
 
         return valorDiarias;
     }
+
 
     public double calcularValorPrevisto() {
         if (veiculo == null || dataLocacao == null || dataPrevistaDevolucao == null) {
