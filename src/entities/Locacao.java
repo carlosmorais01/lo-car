@@ -10,7 +10,7 @@ public class Locacao implements Serializable {
     private double valorLocacao;
     private LocalDateTime dataLocacao;
     private LocalDateTime dataPrevistaDevolucao;
-    private LocalDateTime dataDevolucao; // Pode ser null se ainda não devolvido
+    private LocalDateTime dataDevolucao;
     private Veiculo veiculo;
     private Cliente cliente;
 
@@ -40,13 +40,13 @@ public class Locacao implements Serializable {
         long diasCompletos = ChronoUnit.DAYS.between(inicio.toLocalDate(), fim.toLocalDate());
 
         if (diasCompletos == 0 && inicio.isBefore(fim)) {
-            return 1; // Pelo menos 1 dia se houver algum tempo de locação no mesmo dia ou dia seguinte sem completar 24h
+            return 1;
         }
 
         double horas = ChronoUnit.HOURS.between(inicio, fim);
         long diasArredondadosParaCima = (long) Math.ceil(horas / 24.0);
 
-        return Math.max(1, diasArredondadosParaCima); // Garante que o mínimo seja 1 dia
+        return Math.max(1, diasArredondadosParaCima);
     }
 
 
@@ -102,7 +102,6 @@ public class Locacao implements Serializable {
         return blocosDeTresHoras * veiculo.getValorDiario();
     }
 
-    // Getters e Setters (já existentes, sem modificações)
     public double getValorLocacao() {
         return valorLocacao;
     }
@@ -133,7 +132,7 @@ public class Locacao implements Serializable {
 
     public void setDataDevolucao(LocalDateTime dataDevolucao) {
         this.dataDevolucao = dataDevolucao;
-        this.valorLocacao = calcularValorTotal(); // Recalcula ao definir a data de devolução
+        this.valorLocacao = calcularValorTotal();
     }
 
     public Veiculo getVeiculo() {
