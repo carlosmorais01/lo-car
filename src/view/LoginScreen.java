@@ -5,8 +5,8 @@ import controller.AuthController;
 import entities.Cliente;
 import util.ImageScaler;
 
-import entities.Funcionario; // Importar Funcionario
-import entities.Pessoa;     // Importar Pessoa (se ainda não importado)
+import entities.Funcionario;
+import entities.Pessoa;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +14,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
 
+/**
+ * A classe `LoginScreen` representa a tela de login da aplicação LoCar!.
+ * Ela permite que os usuários insiram suas credenciais (email e senha) para acessar o sistema,
+ * ou optem por se cadastrar como um novo usuário.
+ */
 public class LoginScreen extends JFrame {
     private AuthController authController;
     private JTextField emailField;
@@ -21,11 +26,19 @@ public class LoginScreen extends JFrame {
     private JButton loginButton;
     private JButton registerButton;
 
+    /**
+     * Construtor para a tela de login.
+     * Inicializa o controlador de autenticação e a interface do usuário.
+     */
     public LoginScreen() {
         authController = new AuthController();
         initializeUI();
     }
 
+    /**
+     * Inicializa e configura os componentes da interface do usuário para a tela de login.
+     * Isso inclui o logotipo, campos de texto para email e senha, e botões de login e cadastro.
+     */
     private void initializeUI() {
         setTitle("LoCar! - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,11 +50,9 @@ public class LoginScreen extends JFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(UIManager.getColor("Panel.background"));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
-
-        // Adiciona um espaço superior
         mainPanel.add(Box.createVerticalStrut(20));
 
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/logo.png")));
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/icons/logo.png")));
         Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 350, 350);
         logoIcon = new ImageIcon(scaledImage);
 
@@ -50,21 +61,17 @@ public class LoginScreen extends JFrame {
         mainPanel.add(logoLabel);
 
         mainPanel.add(Box.createVerticalStrut(30));
-
-        // Campos de entrada
         emailField = new JTextField(20);
         criarCampoTextoArredondado(mainPanel, emailField);
         emailField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Email");
-        // Adiciona ActionListener para o Enter
-        emailField.addActionListener(e -> handleLogin()); //
+        emailField.addActionListener(e -> handleLogin());
 
         mainPanel.add(Box.createVerticalStrut(15));
 
         passwordField = new JPasswordField(20);
         criarCampoTextoArredondado(mainPanel, passwordField);
         passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Senha");
-        // Adiciona ActionListener para o Enter
-        passwordField.addActionListener(e -> handleLogin()); //
+        passwordField.addActionListener(e -> handleLogin());
 
         mainPanel.add(Box.createVerticalStrut(30));
 
@@ -75,6 +82,11 @@ public class LoginScreen extends JFrame {
         registerButton = new JButton("Cadastrar");
         registerButton.setPreferredSize(new Dimension(300, 70));
         registerButton.addActionListener(new ActionListener() {
+            /**
+             * Lida com a ação de clique do botão "Cadastrar".
+             * Fecha a tela de login e abre a tela de registro.
+             * @param e O evento de ação.
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleRegister();
@@ -85,6 +97,11 @@ public class LoginScreen extends JFrame {
         loginButton = new JButton("Entrar");
         loginButton.setPreferredSize(new Dimension(300, 70));
         loginButton.addActionListener(new ActionListener() {
+            /**
+             * Lida com a ação de clique do botão "Entrar".
+             * Invoca o método {@link #handleLogin()} para processar a tentativa de login.
+             * @param e O evento de ação.
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleLogin();
@@ -99,14 +116,27 @@ public class LoginScreen extends JFrame {
         add(mainPanel);
     }
 
+    /**
+     * Configura as propriedades de tamanho e borda para um campo de texto,
+     * adicionando-o ao painel principal.
+     *
+     * @param mainPanel O painel principal onde o campo de texto será adicionado.
+     * @param field O campo de texto a ser configurado.
+     */
     private void criarCampoTextoArredondado(JPanel mainPanel, JTextField field) {
-        field.setPreferredSize(new Dimension(600,70));
-        field.setMaximumSize(new Dimension(700, field.getPreferredSize().height + 10)); // Usar field.getPreferredSize()
+        field.setPreferredSize(new Dimension(600, 70));
+        field.setMaximumSize(new Dimension(700, field.getPreferredSize().height + 10));
         field.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         field.setBackground(Color.WHITE);
         mainPanel.add(field);
     }
 
+    /**
+     * Lida com a tentativa de login do usuário.
+     * Valida os campos de email e senha, tenta autenticar o usuário
+     * através do {@link AuthController}, e redireciona para a tela principal
+     * ({@link MainScreen}) em caso de sucesso, ou exibe uma mensagem de erro.
+     */
     private void handleLogin() {
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
@@ -116,7 +146,7 @@ public class LoginScreen extends JFrame {
             return;
         }
 
-        Pessoa authenticatedUser = authController.authenticate(email, password); // Retorna Pessoa
+        Pessoa authenticatedUser = authController.authenticate(email, password);
 
         if (authenticatedUser != null) {
             JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedUser.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
@@ -126,18 +156,18 @@ public class LoginScreen extends JFrame {
                 MainScreen mainScreen = new MainScreen((Cliente) authenticatedUser);
                 mainScreen.setVisible(true);
             } else if (authenticatedUser instanceof Funcionario) {
-                // Se o funcionário for para a MainScreen também, passe-o
-                MainScreen mainScreen = new MainScreen((Funcionario) authenticatedUser); // Novo construtor em MainScreen
+                MainScreen mainScreen = new MainScreen((Funcionario) authenticatedUser);
                 mainScreen.setVisible(true);
-                // Ou, se houver uma tela específica para funcionário:
-                // FuncionarioScreen funcionarioScreen = new FuncionarioScreen((Funcionario) authenticatedUser);
-                // funcionarioScreen.setVisible(true);
             }
         } else {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Lida com a ação de ir para a tela de cadastro.
+     * Fecha a tela de login e abre uma nova instância de {@link RegisterScreen}.
+     */
     private void handleRegister() {
         dispose();
         new RegisterScreen().setVisible(true);
