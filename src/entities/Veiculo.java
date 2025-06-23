@@ -301,6 +301,10 @@ public abstract class Veiculo implements java.io.Serializable {
         return locacoes;
     }
 
+    public void adicionarLocacao() {
+        this.locacoes++;
+    }
+
     public void setLocacoes(int locacoes) {
         this.locacoes = locacoes;
     }
