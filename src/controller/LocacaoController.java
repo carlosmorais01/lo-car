@@ -3,6 +3,7 @@ package controller;
 import entities.Cliente;
 import entities.Locacao;
 import entities.Veiculo;
+import exceptions.LocacaoControllerException;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -87,33 +88,6 @@ public class LocacaoController {
     }
 
     /**
-     * Uma classe interna auxiliar que estende ObjectOutputStream para permitir a anexação
-     * de objetos a um arquivo existente sem escrever o cabeçalho do stream novamente.
-     */
-    private static class AppendingObjectOutputStream extends ObjectOutputStream {
-        /**
-         * Construtor para AppendingObjectOutputStream.
-         *
-         * @param out O OutputStream para o qual os objetos serão escritos.
-         * @throws IOException Se ocorrer um erro de I/O.
-         */
-        public AppendingObjectOutputStream(OutputStream out) throws IOException {
-            super(out);
-        }
-
-        /**
-         * Sobrescreve o método writeStreamHeader para evitar que o cabeçalho do stream seja escrito.
-         * Isso é essencial para anexar objetos a um arquivo serializado existente.
-         *
-         * @throws IOException Se ocorrer um erro de I/O.
-         */
-        @Override
-        protected void writeStreamHeader() throws IOException {
-            reset();
-        }
-    }
-
-    /**
      * Realiza a operação de aluguel de um veículo.
      * Este método valida a disponibilidade do veículo e o saldo do cliente,
      * cria uma nova locação, a persiste, debita o saldo do cliente e
@@ -127,13 +101,11 @@ public class LocacaoController {
      */
     public boolean realizarLocacao(Cliente cliente, Veiculo veiculo, int dias, double valorTotal) {
         if (veiculoController.estaLocado(veiculo)) {
-            System.err.println("Veículo já locado.");
-            return false;
+            throw new LocacaoControllerException("Veículo já locado.");
         }
 
         if (cliente.getSaldo() < valorTotal) {
-            System.err.println("Saldo insuficiente.");
-            return false;
+            throw new LocacaoControllerException("Saldo insuficiente.");
         }
 
         Locacao novaLocacao = new Locacao(
@@ -148,22 +120,19 @@ public class LocacaoController {
         boolean locacaoSalva = saveAllLocacoes(locacoes);
         if (!locacaoSalva) {
             this.locacoes.remove(novaLocacao);
-            System.err.println("Falha ao salvar locação.");
-            return false;
+            throw new LocacaoControllerException("Falha ao salvar locação.");
         }
 
         cliente.debitarSaldo(valorTotal);
         boolean clienteAtualizado = authController.updateCliente(cliente);
         if (!clienteAtualizado) {
-            System.err.println("Erro ao atualizar saldo do cliente após locação.");
-            return false;
+            throw new LocacaoControllerException("Erro ao atualizar saldo do cliente após locação.");
         }
 
         veiculo.adicionarLocacao();
         boolean veiculoAtualizado = veiculoController.atualizarVeiculo(veiculo);
         if (!veiculoAtualizado) {
-            System.err.println("Erro ao atualizar veículo após locação.");
-            return false;
+            throw new LocacaoControllerException("Erro ao atualizar veículo após locação.");
         }
 
         return true;
@@ -194,8 +163,7 @@ public class LocacaoController {
      */
     public boolean registrarDevolucao(Locacao locacaoDevolvida) {
         if (locacaoDevolvida == null || locacaoDevolvida.getDataDevolucao() != null) {
-            System.err.println("Locação inválida ou já devolvida.");
-            return false;
+            throw new LocacaoControllerException("Locação inválida ou já devolvida.");
         }
 
         locacaoDevolvida.setDataDevolucao(LocalDateTime.now());
@@ -206,8 +174,7 @@ public class LocacaoController {
             cliente.debitarSaldo(multa);
             boolean clienteAtualizado = authController.updateCliente(cliente);
             if (!clienteAtualizado) {
-                System.err.println("Erro ao atualizar saldo do cliente com multa após devolução.");
-                return false;
+                throw new LocacaoControllerException("Erro ao atualizar saldo do cliente com multa após devolução.");
             }
         }
 
@@ -216,15 +183,13 @@ public class LocacaoController {
                         l.getDataLocacao().equals(locacaoDevolvida.getDataLocacao()));
 
         if (!removed) {
-            System.err.println("Erro: Locação a ser devolvida não encontrada na lista para atualização.");
-            return false;
+            throw new LocacaoControllerException("Erro: Locação a ser devolvida não encontrada na lista para atualização.");
         }
 
         this.locacoes.add(locacaoDevolvida);
         boolean salvo = saveAllLocacoes(locacoes);
         if (!salvo) {
-            System.err.println("Erro ao salvar locações após devolução.");
-            return false;
+            throw new LocacaoControllerException("Erro ao salvar locações após devolução.");
         }
         return true;
     }

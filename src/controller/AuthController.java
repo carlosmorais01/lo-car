@@ -3,6 +3,7 @@ package controller;
 import entities.Cliente;
 import entities.Funcionario;
 import entities.Pessoa;
+import exceptions.AuthControllerException;
 import util.PasswordHasher;
 
 import java.io.*;
@@ -60,7 +61,7 @@ public class AuthController {
     public Pessoa authenticate(String email, String password) {
         String hashedPassword = PasswordHasher.hashPassword(password);
         if (hashedPassword == null) {
-            return null;
+            throw new AuthControllerException("Erro ao processar a senha.");
         }
 
         List<Cliente> clients = loadClients();
@@ -79,7 +80,7 @@ public class AuthController {
             return authenticatedEmployee.get();
         }
 
-        return null;
+        throw new AuthControllerException("Email ou senha incorretos.");
     }
 
     /**
@@ -195,8 +196,7 @@ public class AuthController {
         List<Cliente> clients = loadClients();
         boolean removed = clients.removeIf(c -> c.getCpf().equals(clienteAtualizado.getCpf()));
         if (!removed) {
-            System.err.println("Erro: Cliente com CPF '" + clienteAtualizado.getCpf() + "' não encontrado para atualização.");
-            return false;
+            throw new AuthControllerException("Erro: Cliente com CPF '" + clienteAtualizado.getCpf() + "' não encontrado para atualização.");
         }
         clients.add(clienteAtualizado);
         return saveClients(clients);
@@ -217,12 +217,12 @@ public class AuthController {
                 c.getEmail().equals(newClient.getEmail()) || c.getCpf().equals(newClient.getCpf()));
 
         if (exists) {
-            return false;
+            throw new AuthControllerException("Email ou CPF já cadastrado.");
         }
 
         String hashedPassword = PasswordHasher.hashPassword(newClient.getSenha());
         if (hashedPassword == null) {
-            return false;
+            throw new AuthControllerException("Erro ao processar a senha para registro.");
         }
         newClient.setSenha(hashedPassword);
 
@@ -242,7 +242,7 @@ public class AuthController {
      */
     public String saveProfilePicture(String originalImagePath, String cpf) {
         if (originalImagePath == null || originalImagePath.isEmpty()) {
-            return null;
+            throw new AuthControllerException("Caminho de foto inválido: " + originalImagePath);
         }
 
         File originalFile = new File(originalImagePath);

@@ -6,6 +6,7 @@ import entities.Moto;
 import entities.Caminhao;
 import entities.Locacao;
 import enums.Cor;
+import exceptions.VeiculoControllerException;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -81,8 +82,7 @@ public class VeiculoController {
     public boolean atualizarVeiculo(Veiculo veiculoAtualizado) {
         boolean removed = veiculos.removeIf(v -> v.getPlaca().equals(veiculoAtualizado.getPlaca()));
         if (!removed) {
-            System.err.println("Erro ao atualizar: Veículo com placa '" + veiculoAtualizado.getPlaca() + "' não encontrado.");
-            return false;
+            throw new VeiculoControllerException("Erro ao atualizar: Veículo com placa '" + veiculoAtualizado.getPlaca() + "' não encontrado.");
         }
         veiculos.add(veiculoAtualizado);
         if (veiculoAtualizado instanceof Carro) {
@@ -125,9 +125,7 @@ public class VeiculoController {
             java.nio.file.Files.copy(originalFile.toPath(), newFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             return newFile.getAbsolutePath();
         } catch (IOException e) {
-            System.err.println("Erro ao salvar imagem do veículo '" + placaVeiculo + "': " + e.getMessage());
-            e.printStackTrace();
-            return null;
+            throw new VeiculoControllerException("Erro ao salvar imagem do veículo '" + placaVeiculo + "': " + e.getMessage());
         }
     }
 
@@ -154,13 +152,11 @@ public class VeiculoController {
     public boolean cadastrarVeiculo(Veiculo novoVeiculo) {
         boolean placaExiste = veiculos.stream().anyMatch(v -> v.getPlaca().equalsIgnoreCase(novoVeiculo.getPlaca()));
         if (placaExiste) {
-            System.err.println("Erro: Veículo com a placa '" + novoVeiculo.getPlaca() + "' já existe.");
-            return false;
+            throw new VeiculoControllerException("Erro: Veículo com a placa '" + novoVeiculo.getPlaca() + "' já existe.");
         }
         String savedPhotoPath = saveVehiclePicture(novoVeiculo.getCaminhoFoto(), novoVeiculo.getPlaca());
         if (savedPhotoPath == null && novoVeiculo.getCaminhoFoto() != null && !novoVeiculo.getCaminhoFoto().isEmpty()) {
-            System.err.println("Falha ao salvar a imagem do veículo. Cadastro abortado.");
-            return false;
+            throw new VeiculoControllerException("Falha ao salvar a imagem do veículo. Cadastro abortado.");
         }
         novoVeiculo.setCaminhoFoto(savedPhotoPath);
         veiculos.add(novoVeiculo);
@@ -171,6 +167,7 @@ public class VeiculoController {
         } else if (novoVeiculo instanceof Caminhao) {
             return salvarVeiculoEmArquivo((Caminhao) novoVeiculo, "dump/caminhao/caminhoes.dat");
         }
+
         return false;
     }
 
@@ -192,7 +189,7 @@ public class VeiculoController {
                     listaAtualizada.add((T) obj);
                 }
             }
-        } catch (java.io.EOFException eof) {
+        } catch (java.io.EOFException ignored) {
         } catch (Exception e) {
             System.err.println("Aviso: Erro ao carregar lista existente de " + caminhoDoArquivo + " para atualização: " + e.getMessage());
         }
