@@ -19,15 +19,15 @@ public class AuthController {
     /**
      * Caminho do arquivo onde os dados dos clientes são serializados.
      */
-    private static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
+    public static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
     /**
      * Caminho do arquivo onde os dados dos funcionários são serializados.
      */
-    private static final String EMPLOYEES_FILE_PATH = "dump/funcionarios/funcionarios.dat";
+    public static final String EMPLOYEES_FILE_PATH = "dump/funcionarios/funcionarios.dat";
     /**
      * Diretório onde as fotos de perfil são armazenadas.
      */
-    private static final String PROFILE_PICS_DIR = "dump/profile_pics/";
+    public static final String PROFILE_PICS_DIR = "dump/profile_pics/";
 
     /**
      * Construtor da classe AuthController.
@@ -146,19 +146,22 @@ public class AuthController {
      * @return Uma lista de objetos Cliente. Retorna uma lista vazia se o arquivo não existir ou houver erro durante a leitura.
      */
     public List<Cliente> loadClients() {
-        List<Cliente> clients = new ArrayList<>();
+        List<Cliente> clients = new ArrayList<>(); // Inicia com uma lista mutável
         File file = new File(CLIENTS_FILE_PATH);
 
         if (file.exists() && file.length() > 0) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 Object obj = ois.readObject();
                 if (obj instanceof List) {
-                    clients = (List<Cliente>) obj;
+                    // A SOLUÇÃO: Sempre crie um novo ArrayList a partir da lista carregada
+                    clients = new ArrayList<>((List<Cliente>) obj); //
                 }
             } catch (IOException e) {
                 System.err.println("Erro ao ler clientes do arquivo: " + e.getMessage());
+                clients = new ArrayList<>(); // Garante que clients não seja nulo ou problemático em caso de erro
             } catch (ClassNotFoundException e) {
                 System.err.println("Classe Cliente não encontrada durante a desserialização: " + e.getMessage());
+                clients = new ArrayList<>(); // Garante que clients não seja nulo ou problemático em caso de erro
             }
         }
         return clients;
