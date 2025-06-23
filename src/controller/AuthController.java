@@ -1,4 +1,3 @@
-// AuthController.java
 package controller;
 
 import entities.Cliente;
@@ -11,11 +10,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A classe AuthController gerencia operações de autenticação e persistência
+ * de dados para usuários (Clientes e Funcionários), incluindo carregamento,
+ * salvamento, registro e atualização de perfis, bem como o gerenciamento de fotos de perfil.
+ */
 public class AuthController {
+    /**
+     * Caminho do arquivo onde os dados dos clientes são serializados.
+     */
     private static final String CLIENTS_FILE_PATH = "dump/clientes/clientes.dat";
+    /**
+     * Caminho do arquivo onde os dados dos funcionários são serializados.
+     */
     private static final String EMPLOYEES_FILE_PATH = "dump/funcionarios/funcionarios.dat";
+    /**
+     * Diretório onde as fotos de perfil são armazenadas.
+     */
     private static final String PROFILE_PICS_DIR = "dump/profile_pics/";
 
+    /**
+     * Construtor da classe AuthController.
+     * Garante que os diretórios necessários para persistência de dados (clientes, funcionários, fotos de perfil)
+     * existam, criando-os se não o fizerem.
+     */
     public AuthController() {
         File dir = new File("dump/clientes/");
         if (!dir.exists()) {
@@ -31,6 +49,14 @@ public class AuthController {
         }
     }
 
+    /**
+     * Tenta autenticar um usuário (Cliente ou Funcionario) com base no email e senha fornecidos.
+     * A senha fornecida é primeiro hashed para comparação com as senhas armazenadas.
+     *
+     * @param email O email do usuário.
+     * @param password A senha do usuário (texto simples).
+     * @return O objeto Pessoa (Cliente ou Funcionario) se a autenticação for bem-sucedida e as credenciais corresponderem, caso contrário, null.
+     */
     public Pessoa authenticate(String email, String password) {
         String hashedPassword = PasswordHasher.hashPassword(password);
         if (hashedPassword == null) {
@@ -56,6 +82,12 @@ public class AuthController {
         return null;
     }
 
+    /**
+     * Salva a lista de funcionários em um arquivo serializado no caminho {@code EMPLOYEES_FILE_PATH}.
+     *
+     * @param employees A lista de objetos Funcionario a ser salva.
+     * @return true se a operação de salvamento for bem-sucedida, false caso contrário.
+     */
     public boolean saveEmployees(List<Funcionario> employees) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(EMPLOYEES_FILE_PATH))) {
             oos.writeObject(employees);
@@ -67,6 +99,13 @@ public class AuthController {
         }
     }
 
+    /**
+     * Carrega a lista de funcionários de um arquivo serializado.
+     * Se o arquivo não existir, estiver vazio ou houver um erro durante a leitura,
+     * uma lista vazia é retornada. Inclui tratamento para formatos de serialização antigos (objeto por objeto).
+     *
+     * @return Uma lista de objetos Funcionario.
+     */
     public List<Funcionario> loadEmployees() {
         List<Funcionario> employees = new ArrayList<>();
         File file = new File(EMPLOYEES_FILE_PATH);
@@ -101,6 +140,11 @@ public class AuthController {
         return employees;
     }
 
+    /**
+     * Carrega a lista de clientes de um arquivo serializado no caminho {@code CLIENTS_FILE_PATH}.
+     *
+     * @return Uma lista de objetos Cliente. Retorna uma lista vazia se o arquivo não existir ou houver erro durante a leitura.
+     */
     public List<Cliente> loadClients() {
         List<Cliente> clients = new ArrayList<>();
         File file = new File(CLIENTS_FILE_PATH);
@@ -120,6 +164,12 @@ public class AuthController {
         return clients;
     }
 
+    /**
+     * Salva a lista de clientes em um arquivo serializado no caminho {@code CLIENTS_FILE_PATH}.
+     *
+     * @param clients A lista de objetos Cliente a ser salva.
+     * @return true se a operação for bem-sucedida, false caso contrário.
+     */
     public boolean saveClients(List<Cliente> clients) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CLIENTS_FILE_PATH))) {
             oos.writeObject(clients);
@@ -132,25 +182,31 @@ public class AuthController {
     }
 
     /**
-     * NOVO MÉTODO: Atualiza um cliente na lista e salva no arquivo.
-     * Encontra o cliente pelo CPF, remove o antigo e adiciona o atualizado.
-     * @param clienteAtualizado O cliente com os dados atualizados.
-     * @return true se o cliente foi atualizado e salvo com sucesso, false caso contrário.
+     * Atualiza um cliente existente na lista de clientes e salva a lista atualizada no arquivo.
+     * O cliente é identificado pelo seu CPF. Se o cliente não for encontrado, a operação falha.
+     *
+     * @param clienteAtualizado O objeto Cliente com os dados atualizados.
+     * @return true se o cliente foi encontrado, atualizado e a lista salva com sucesso, false caso contrário.
      */
     public boolean updateCliente(Cliente clienteAtualizado) {
         List<Cliente> clients = loadClients();
-        // Remove o cliente antigo (pelo CPF)
         boolean removed = clients.removeIf(c -> c.getCpf().equals(clienteAtualizado.getCpf()));
         if (!removed) {
             System.err.println("Erro: Cliente com CPF '" + clienteAtualizado.getCpf() + "' não encontrado para atualização.");
-            return false; // Cliente não encontrado para atualização
+            return false;
         }
-        // Adiciona o cliente atualizado
         clients.add(clienteAtualizado);
-        // Salva a lista completa de volta
         return saveClients(clients);
     }
 
+    /**
+     * Adiciona um novo cliente à lista e o salva no arquivo.
+     * Antes de adicionar, verifica se o email ou CPF do novo cliente já existe.
+     * A senha do cliente é hashed antes de ser salva. A foto de perfil também é salva.
+     *
+     * @param newClient O novo cliente a ser adicionado.
+     * @return true se o cliente foi adicionado e salvo com sucesso, false caso contrário (ex: email/CPF já existe ou falha no hashing/salvamento da foto).
+     */
     public boolean registerClient(Cliente newClient) {
         List<Cliente> clients = loadClients();
 
@@ -173,6 +229,14 @@ public class AuthController {
         return saveClients(clients);
     }
 
+    /**
+     * Salva uma imagem de perfil em um diretório específico, renomeando-a com o CPF do usuário.
+     * Se o caminho da imagem original for nulo ou vazio, ou se houver um erro durante o salvamento, retorna null.
+     *
+     * @param originalImagePath O caminho absoluto da imagem original a ser copiada.
+     * @param cpf O CPF do usuário, usado para nomear o novo arquivo de imagem.
+     * @return O caminho absoluto do arquivo de imagem salvo, ou null em caso de falha.
+     */
     public String saveProfilePicture(String originalImagePath, String cpf) {
         if (originalImagePath == null || originalImagePath.isEmpty()) {
             return null;
