@@ -88,6 +88,8 @@ public class Locacao implements Serializable {
         return blocosDeTresHoras * veiculo.getValorDiario();
     }
 
+
+
     public double getValorLocacao() {
         return valorLocacao;
     }

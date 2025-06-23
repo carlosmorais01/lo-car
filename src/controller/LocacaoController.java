@@ -22,7 +22,7 @@ public class LocacaoController {
      * Caminho do arquivo onde os dados das locações são serializados.
      */
     private static final String LOCACOES_FILE_PATH = "dump/locacoes/locacoes.dat";
-    private List<Locacao> locacoes;
+    public List<Locacao> locacoes;
 
     private AuthController authController;
     private VeiculoController veiculoController;
@@ -40,6 +40,12 @@ public class LocacaoController {
         this.locacoes = loadLocacoes();
         this.authController = new AuthController();
         this.veiculoController = new VeiculoController();
+    }
+
+    public LocacaoController(AuthController authController, VeiculoController veiculoController) {
+        this.authController = authController;
+        this.veiculoController = veiculoController;
+        this.locacoes = new ArrayList<>();
     }
 
     /**
