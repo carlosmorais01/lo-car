@@ -16,6 +16,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * `CarrosselPanel` é um componente Swing que exibe uma lista de veículos em um formato de carrossel,
+ * com imagens que deslizam automaticamente e botões de navegação e indicadores de posição.
+ * Cada item do carrossel pode ser clicado para abrir a tela de detalhes do veículo.
+ */
 public class CarrosselPanel extends JPanel {
 
     private List<Veiculo> veiculos;
@@ -27,6 +32,13 @@ public class CarrosselPanel extends JPanel {
     private JLayeredPane imageLayeredPane;
     private Pessoa loggedInUser;
 
+    /**
+     * Construtor para `CarrosselPanel`.
+     *
+     * @param veiculos A lista de objetos {@link Veiculo} a serem exibidos no carrossel.
+     * @param loggedInUser O objeto {@link Pessoa} representando o usuário atualmente logado,
+     * necessário para passar para a tela de detalhes do veículo.
+     */
     public CarrosselPanel(List<Veiculo> veiculos, Pessoa loggedInUser) {
         this.veiculos = veiculos;
         this.loggedInUser = loggedInUser;
@@ -39,14 +51,24 @@ public class CarrosselPanel extends JPanel {
         startAutoSlide();
     }
 
+    /**
+     * Configura a interface do usuário do carrossel.
+     * Isso inclui a inicialização do `JLayeredPane` para sobrepor a descrição sobre a imagem,
+     * a criação de botões de navegação e indicadores de posição (dots),
+     * e a adição de um listener de clique para a imagem do carrossel.
+     */
     private void setupCarrosselUI() {
         imageLayeredPane = new JLayeredPane();
         imageLayeredPane.setLayout(new OverlayLayout(imageLayeredPane));
         imageLayeredPane.setPreferredSize(getPreferredSize());
-        imageLayeredPane.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Cursor de mão
-
-        // Adiciona MouseListener ao imageLayeredPane para cliques no carrossel
+        imageLayeredPane.setCursor(new Cursor(Cursor.HAND_CURSOR));
         imageLayeredPane.addMouseListener(new MouseAdapter() {
+            /**
+             * Manipula o evento de clique do mouse na imagem do carrossel.
+             * Ao clicar, a janela pai é fechada e uma nova {@link VehicleDetailScreen}
+             * é aberta com os detalhes do veículo atualmente exibido e o usuário logado.
+             * @param e O evento de mouse.
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!veiculos.isEmpty()) {
@@ -57,8 +79,6 @@ public class CarrosselPanel extends JPanel {
                 }
             }
         });
-
-        // ImageLabel como a camada base
         imageLabel = new JLabel();
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setVerticalAlignment(SwingConstants.CENTER);
@@ -67,7 +87,7 @@ public class CarrosselPanel extends JPanel {
         imageLayeredPane.add(imageLabel, JLayeredPane.DEFAULT_LAYER);
 
         JPanel descriptionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        descriptionPanel.setOpaque(false); // Deixa transparente para não cobrir imagem
+        descriptionPanel.setOpaque(false);
 
         descriptionLabel = new JLabel();
         descriptionLabel.setForeground(Color.WHITE);
@@ -83,37 +103,38 @@ public class CarrosselPanel extends JPanel {
         container.add(descriptionPanel, BorderLayout.SOUTH);
 
         imageLayeredPane.add(container, JLayeredPane.PALETTE_LAYER);
-
-
-        // Adiciona o imageLayeredPane ao centro do CarrosselPanel
         add(imageLayeredPane, BorderLayout.CENTER);
-
-        // Botões de navegação (setas) nas laterais do CarrosselPanel
         JButton prevButton = createArrowButton("icons/botao_esquerdo.png", -1);
         JButton nextButton = createArrowButton("icons/botao_direito.png", 1);
 
         add(prevButton, BorderLayout.WEST);
         add(nextButton, BorderLayout.EAST);
-
-        // Painel das "bolinhas" (no SOUTH do CarrosselPanel)
         dotsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         dotsPanel.setOpaque(false);
         add(dotsPanel, BorderLayout.SOUTH);
-
-        // ComponentListener para redimensionar a imagem do carrossel quando o painel for redimensionado
         addComponentListener(new java.awt.event.ComponentAdapter() {
+            /**
+             * Manipula o evento de redimensionamento do componente.
+             * Quando o carrossel é redimensionado, a imagem é atualizada para se ajustar às novas dimensões.
+             * @param e O evento de componente.
+             */
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
                 updateImageSize();
             }
         });
-
-        // Chamada inicial para carregar a primeira imagem e configurar bolinhas
         updateCarrossel();
-        // Garante que o redimensionamento inicial ocorra após o layout ter sido calculado
         SwingUtilities.invokeLater(this::updateImageSize);
     }
 
+    /**
+     * Cria um botão de seta para navegação no carrossel.
+     * O botão é estilizado para ser transparente e ter um ícone de seta.
+     *
+     * @param iconPath O caminho do ícone da seta dentro dos recursos do projeto.
+     * @param direction A direção da navegação (-1 para anterior, 1 para próximo).
+     * @return Um {@link JButton} configurado como um botão de seta.
+     */
     private JButton createArrowButton(String iconPath, int direction) {
         ImageIcon arrowIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/" + iconPath)));
         Image scaledArrow = ImageScaler.getScaledImage(arrowIcon.getImage(), 40, 40);
@@ -123,7 +144,7 @@ public class CarrosselPanel extends JPanel {
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        button.setMargin(new Insets(0, 10, 0, 10)); // Top, Left, Bottom, Right padding
+        button.setMargin(new Insets(0, 10, 0, 10));
 
         button.addActionListener(e -> {
             stopAutoSlide();
@@ -134,6 +155,11 @@ public class CarrosselPanel extends JPanel {
         return button;
     }
 
+    /**
+     * Inicia o timer para a funcionalidade de slide automático do carrossel.
+     * O carrossel avança para o próximo veículo a cada 8 segundos.
+     * Se um timer existente estiver ativo, ele é parado antes de iniciar um novo.
+     */
     private void startAutoSlide() {
         if (timer != null) {
             timer.stop();
@@ -145,12 +171,20 @@ public class CarrosselPanel extends JPanel {
         timer.start();
     }
 
+    /**
+     * Para o timer do slide automático do carrossel.
+     * Este método é chamado quando o usuário interage manualmente com o carrossel.
+     */
     private void stopAutoSlide() {
         if (timer != null) {
             timer.stop();
         }
     }
 
+    /**
+     * Atualiza o conteúdo visual do carrossel para exibir o veículo atual (`currentIndex`).
+     * Carrega a imagem do veículo, atualiza a descrição e os indicadores de posição (dots).
+     */
     private void updateCarrossel() {
         if (veiculos.isEmpty()) {
             imageLabel.setIcon(null);
@@ -194,8 +228,6 @@ public class CarrosselPanel extends JPanel {
         }
 
         descriptionLabel.setText(currentVeiculo.getDescricao());
-
-        // Atualiza as bolinhas
         dotsPanel.removeAll();
         for (int i = 0; i < veiculos.size(); i++) {
             JButton dot = new JButton("•");
@@ -218,27 +250,23 @@ public class CarrosselPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Atualiza o tamanho da imagem exibida no carrossel para se ajustar às dimensões atuais do painel.
+     * Isso garante que a imagem seja sempre exibida corretamente, mesmo após redimensionamentos.
+     */
     private void updateImageSize() {
         if (imageLabel.getIcon() instanceof ImageIcon currentIcon) {
             if (currentIcon.getImage() != null) {
                 int panelWidth = getWidth();
                 int panelHeight = getHeight();
                 int availableHeightForImage = panelHeight - dotsPanel.getPreferredSize().height - 20;
-
-                // Previna redimensionamento com tamanhos inválidos
                 if (panelWidth <= 1 || availableHeightForImage <= 1) {
-                    return; // aguarda próxima chamada válida
+                    return;
                 }
 
                 Image scaledImage = ImageScaler.getScaledImage(currentIcon.getImage(), panelWidth, availableHeightForImage);
                 imageLabel.setIcon(new ImageIcon(scaledImage));
-
-                // Ajusta os bounds do imageLayeredPane para que ele preencha o painel do carrossel
-                // e o OverlayLayout dentro dele posicione a imagem e a descrição.
                 imageLayeredPane.setBounds(0, 0, panelWidth, panelHeight);
-
-                // O dotsPanel está no SOUTH do BorderLayout principal, então o layout manager principal o posiciona.
-                // Não é necessário setBounds() para ele aqui, a menos que ele estivesse dentro do layeredPane.
             }
         }
     }
