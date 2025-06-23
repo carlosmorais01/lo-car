@@ -59,7 +59,7 @@ public class UserProfileScreen extends JFrame {
         this.authController = new AuthController();
         initializeUI();
         displayUserData();
-        setEditMode(false);
+        setEditMode(false); // Inicia em modo de visualização
     }
 
     private void initializeUI() {
