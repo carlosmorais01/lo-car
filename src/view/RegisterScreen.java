@@ -74,7 +74,7 @@ public class RegisterScreen extends JFrame {
         headerPanel.setBackground(UIManager.getColor("Panel.background"));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 20, 30));
 
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/logo.png")));
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/icons/logo.png")));
         Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 150, 150);
         logoIcon = new ImageIcon(scaledImage);
 
