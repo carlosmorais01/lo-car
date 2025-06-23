@@ -1,6 +1,6 @@
 package entities;
 
-import enums.*; // Importar todos os enums necessários
+import enums.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,38 +14,38 @@ class CarroTest {
 
     @BeforeEach
     void setUp() {
-        // Inicializa um objeto Carro antes de cada teste com valores de exemplo
+
         carro = new Carro(
-                "Carro Esportivo de Alta Performance", // descricao
-                "ESP1234", // placa
-                "MarcaCarro", // marca
-                "NomeCarro", // nome
-                "ModeloEsportivo", // modelo
-                2023, // ano
-                Cor.VERMELHO, // cor
-                Funcao.ALTO_DESEMPENHO, // funcao
-                15000.0, // quilometragem
-                2, // numeroPassageiros
-                8.0, // consumoCombustivelPLitro
-                280.0, // velocidadeMax
-                true, // automatico
-                Combustivel.GASOLINA, // combustivel
-                Tracao.TRASEIRA, // tracao
-                2, // quantAssento
-                true, // airBag
-                "/caminho/foto_carro.jpg", // caminhoFoto
-                300.0, // potencia
-                true, // vidroEletrico
-                true, // arCondicionado
-                true, // multimidia
-                true, // entradaUSB
-                false, // vidroFume
-                1400.0, // peso
-                false, // engate
-                true, // direcaoHidraulica
-                500.0, // valorDiario
-                4, // portas (específico de Carro)
-                true // aerofolio (específico de Carro)
+                "Carro Esportivo de Alta Performance",
+                "ESP1234",
+                "MarcaCarro",
+                "NomeCarro",
+                "ModeloEsportivo",
+                2023,
+                Cor.VERMELHO,
+                Funcao.ALTO_DESEMPENHO,
+                15000.0,
+                2,
+                8.0,
+                280.0,
+                true,
+                Combustivel.GASOLINA,
+                Tracao.TRASEIRA,
+                2,
+                true,
+                "/caminho/foto_carro.jpg",
+                300.0,
+                true,
+                true,
+                true,
+                true,
+                false,
+                1400.0,
+                false,
+                true,
+                500.0,
+                4,
+                true
         );
     }
 
@@ -54,11 +54,9 @@ class CarroTest {
     void testCarroConstructorInitialization() {
         assertNotNull(carro, "O objeto carro não deve ser nulo.");
 
-        // Testes de atributos específicos de Carro
         assertEquals(4, carro.getPortas(), "O número de portas deve ser inicializado corretamente.");
         assertTrue(carro.isAerofolio(), "O status de aerofólio deve ser inicializado como verdadeiro.");
 
-        // Opcional: Testar alguns atributos herdados para garantir que o construtor base foi chamado corretamente
         assertEquals("ESP1234", carro.getPlaca(), "A placa herdada deve ser inicializada corretamente.");
         assertEquals("MarcaCarro", carro.getMarca(), "A marca herdada deve ser inicializada corretamente.");
         assertEquals(500.0, carro.getValorDiario(), "O valor diário herdado deve ser inicializado corretamente.");

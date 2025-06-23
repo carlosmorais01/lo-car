@@ -5,9 +5,6 @@ package entities;
 import enums.*;
 
 
-
-// Classe de implementação concreta para testar a classe abstrata Veiculo
-
 public class VeiculoImpl extends Veiculo {
 
 
