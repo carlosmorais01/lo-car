@@ -17,6 +17,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
+/**
+ * A tela de registro de usuários para o sistema LoCar!.
+ * Permite que novos clientes se cadastrem fornecendo informações pessoais e de endereço.
+ */
 public class RegisterScreen extends JFrame {
     private AuthController authController;
 
@@ -26,7 +30,7 @@ public class RegisterScreen extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
-    private JTextField birthDateField; // Para a data de nascimento
+    private JTextField birthDateField;
     private JComboBox<Sexo> genderComboBox;
 
     private JTextField cityField;
@@ -42,11 +46,18 @@ public class RegisterScreen extends JFrame {
     private JButton registerButton;
     private JButton backButton;
 
+    /**
+     * Construtor para a classe RegisterScreen.
+     * Inicializa o controlador de autenticação e a interface do usuário.
+     */
     public RegisterScreen() {
         authController = new AuthController();
         initializeUI();
     }
 
+    /**
+     * Inicializa e configura os componentes da interface do usuário da tela de registro.
+     */
     private void initializeUI() {
         setTitle("LoCar! - Cadastro");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -107,7 +118,6 @@ public class RegisterScreen extends JFrame {
         genderPanel.setBackground(UIManager.getColor("Panel.background"));
         formPanel.add(genderPanel);
 
-        // Atributos de Endereço
         cityField = createStyledTextField("Cidade");
         formPanel.add(cityField);
         stateField = createStyledTextField("Estado");
@@ -125,7 +135,7 @@ public class RegisterScreen extends JFrame {
         imageSelectionPanel.setBackground(UIManager.getColor("Panel.background"));
 
         profileImagePreview = new JLabel();
-        profileImagePreview.setPreferredSize(new Dimension(100, 100)); // Tamanho da prévia
+        profileImagePreview.setPreferredSize(new Dimension(100, 100));
         profileImagePreview.setHorizontalAlignment(SwingConstants.CENTER);
         profileImagePreview.setVerticalAlignment(SwingConstants.CENTER);
         imageSelectionPanel.add(profileImagePreview);
@@ -173,6 +183,11 @@ public class RegisterScreen extends JFrame {
         add(mainPanel);
     }
 
+    /**
+     * Cria um JTextField com estilo padronizado e um placeholder.
+     * @param placeholder O texto do placeholder a ser exibido no campo.
+     * @return Um JTextField estilizado.
+     */
     private JTextField createStyledTextField(String placeholder) {
         JTextField field = new JTextField();
         field.setPreferredSize(new Dimension(280, 40));
@@ -187,6 +202,11 @@ public class RegisterScreen extends JFrame {
         return field;
     }
 
+    /**
+     * Cria um JPasswordField com estilo padronizado e um placeholder.
+     * @param placeholder O texto do placeholder a ser exibido no campo.
+     * @return Um JPasswordField estilizado.
+     */
     private JPasswordField createStyledPasswordField(String placeholder) {
         JPasswordField field = new JPasswordField();
         field.setPreferredSize(new Dimension(280, 40));
@@ -201,6 +221,10 @@ public class RegisterScreen extends JFrame {
         return field;
     }
 
+    /**
+     * Lida com a tentativa de registro do usuário, validando os campos
+     * e chamando o controlador de autenticação para registrar o cliente.
+     */
     private void handleRegisterAttempt() {
         String name = nameField.getText();
         String cpf = cpfField.getText();
@@ -218,7 +242,6 @@ public class RegisterScreen extends JFrame {
         String numberStr = numberField.getText();
         String cep = cepField.getText();
 
-        // 1. Validações básicas (campos vazios)
         if (name.isEmpty() || cpf.isEmpty() || phone.isEmpty() || email.isEmpty() || password.isEmpty() ||
                 confirmPassword.isEmpty() || birthDateStr.isEmpty() || selectedGender == null ||
                 city.isEmpty() || state.isEmpty() || neighborhood.isEmpty() || street.isEmpty() ||
@@ -227,23 +250,20 @@ public class RegisterScreen extends JFrame {
             return;
         }
 
-        // 2. Validação de senha
         if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, "As senhas não coincidem. Por favor, verifique.", "Erro de Cadastro", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 3. Validação de formato de data
         LocalDateTime birthDateTime = null;
         try {
             LocalDate birthLocalDate = LocalDate.parse(birthDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            birthDateTime = birthLocalDate.atStartOfDay(); // Converte para LocalDateTime no início do dia
+            birthDateTime = birthLocalDate.atStartOfDay();
         } catch (DateTimeParseException e) {
             JOptionPane.showMessageDialog(this, "Formato de data de nascimento inválido. Use dd/mm/aaaa.", "Erro de Cadastro", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 4. Validação de número (para o número da casa)
         int number;
         try {
             number = Integer.parseInt(numberStr);
@@ -256,7 +276,6 @@ public class RegisterScreen extends JFrame {
             return;
         }
 
-        // 5. Validações de formato
         if (!cpf.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
             JOptionPane.showMessageDialog(this, "Formato de CPF inválido. Use xxx.xxx.xxx-xx.", "Erro de Cadastro", JOptionPane.WARNING_MESSAGE);
             return;
@@ -281,19 +300,24 @@ public class RegisterScreen extends JFrame {
                 newAddress,
                 birthDateTime,
                 selectedGender,
-                selectedImagePath // Adiciona o caminho da foto aqui
+                selectedImagePath
         );
 
         boolean success = authController.registerClient(newClient);
 
         if (success) {
             JOptionPane.showMessageDialog(this, "Cadastro realizado com sucesso! Agora você pode fazer login.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            dispose(); // Fecha a tela de cadastro
-            new LoginScreen().setVisible(true); // Retorna para a tela de login
+            dispose();
+            new LoginScreen().setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Erro ao registrar. Email ou CPF já podem estar em uso.", "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    /**
+     * Abre um seletor de arquivos para o usuário escolher uma imagem de perfil.
+     * A imagem selecionada é exibida no preview e seu caminho é armazenado.
+     */
     private void selectProfileImage() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Selecione sua Foto de Perfil");
@@ -305,10 +329,10 @@ public class RegisterScreen extends JFrame {
             java.io.File fileToLoad = fileChooser.getSelectedFile();
             try {
                 ImageIcon originalIcon = new ImageIcon(fileToLoad.getAbsolutePath());
-                // Redimensiona para a prévia
+
                 Image scaledImage = ImageScaler.getScaledImage(originalIcon.getImage(), 100, 100);
                 profileImagePreview.setIcon(new ImageIcon(scaledImage));
-                selectedImagePath = fileToLoad.getAbsolutePath(); // Salva o caminho
+                selectedImagePath = fileToLoad.getAbsolutePath();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Erro ao carregar imagem: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
                 selectedImagePath = null;
