@@ -14,18 +14,22 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * A classe `VehicleRegistrationScreen` permite que funcionários cadastrem novos veículos
+ * ou editem veículos existentes no sistema LoCar!. A tela adapta seus campos
+ * com base no tipo de veículo selecionado (Carro, Moto ou Caminhão).
+ */
 public class VehicleRegistrationScreen extends JFrame {
 
     private Funcionario loggedInFuncionario;
     private VeiculoController veiculoController;
     private Veiculo veiculoToEdit;
 
-    // Campos de input para o Veículo (atributos gerais)
     private JTextField descricaoField;
     private JTextField placaField;
     private JTextField marcaField;
-    private JTextField nomeModeloField; // Nome (ex: Corolla) ou Modelo (ex: Civic)
-    private JTextField modeloAnoField; // Ano do modelo
+    private JTextField nomeModeloField;
+    private JTextField modeloAnoField;
     private JComboBox<Cor> corComboBox;
     private JComboBox<Funcao> funcaoComboBox;
     private JTextField quilometragemField;
@@ -48,23 +52,19 @@ public class VehicleRegistrationScreen extends JFrame {
     private JCheckBox direcaoHidraulicaCheckBox;
     private JTextField valorDiarioField;
 
-    // Campos específicos por tipo de veículo
     private JRadioButton carroRadio;
     private JRadioButton motoRadio;
     private JRadioButton caminhaoRadio;
     private ButtonGroup tipoVeiculoGroup;
-    private JPanel specificFieldsPanel; // Painel que muda conforme o tipo
+    private JPanel specificFieldsPanel;
 
-    // Campos específicos de Carro
     private JTextField portasField;
     private JCheckBox aerofolioCheckBox;
 
-    // Campos específicos de Moto
     private JTextField cilindradasField;
     private JCheckBox portaCargaCheckBox;
     private JTextField raioPneuField;
 
-    // Campos específicos de Caminhão
     private JTextField cargaMaximaField;
     private JTextField alturaField;
     private JTextField larguraField;
@@ -77,12 +77,23 @@ public class VehicleRegistrationScreen extends JFrame {
     private JButton registerVehicleButton;
     private JButton backButton;
 
+    /**
+     * Construtor para a tela de cadastro de um novo veículo.
+     *
+     * @param funcionario O objeto {@link Funcionario} que está logado e realizando o cadastro.
+     */
     public VehicleRegistrationScreen(Funcionario funcionario) {
         this.loggedInFuncionario = funcionario;
         this.veiculoController = new VeiculoController();
         initializeUI();
     }
 
+    /**
+     * Construtor para a tela de edição de um veículo existente.
+     *
+     * @param funcionario O objeto {@link Funcionario} que está logado e realizando a edição.
+     * @param veiculo     O objeto {@link Veiculo} a ser editado.
+     */
     public VehicleRegistrationScreen(Funcionario funcionario, Veiculo veiculo) {
         this.loggedInFuncionario = funcionario;
         this.veiculoController = new VeiculoController();
@@ -91,6 +102,11 @@ public class VehicleRegistrationScreen extends JFrame {
         populateFieldsForEdit();
     }
 
+    /**
+     * Inicializa e configura os componentes da interface do usuário para a tela de cadastro/edição de veículo.
+     * Isso inclui a seleção do tipo de veículo, campos para informações gerais, campos específicos por tipo,
+     * upload de imagem e botões de ação.
+     */
     private void initializeUI() {
         setTitle("LoCar! - Cadastrar Veículo");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -102,22 +118,19 @@ public class VehicleRegistrationScreen extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(UIManager.getColor("Panel.background"));
 
-        // Header (simplificado para esta tela, ou usar HeaderPanel se quiser)
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        headerPanel.setBackground(new Color(10, 38, 64)); // Mesma cor do HeaderPanel
+        headerPanel.setBackground(new Color(10, 38, 64));
         JLabel title = new JLabel("Cadastro de Veículo");
         title.setForeground(Color.WHITE);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 24f));
         headerPanel.add(title);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Painel do formulário principal
         JPanel formContentPanel = new JPanel();
         formContentPanel.setLayout(new BoxLayout(formContentPanel, BoxLayout.Y_AXIS));
         formContentPanel.setBackground(UIManager.getColor("Panel.background"));
         formContentPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
-        // Seleção do tipo de veículo (Rádio Buttons)
         JPanel typeSelectionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         typeSelectionPanel.setBackground(UIManager.getColor("Panel.background"));
         JLabel typeLabel = new JLabel("Tipo de Veículo:");
@@ -129,7 +142,7 @@ public class VehicleRegistrationScreen extends JFrame {
         motoRadio = new JRadioButton("Moto");
         caminhaoRadio = new JRadioButton("Caminhão");
 
-        carroRadio.setSelected(true); // Começa com Carro selecionado
+        carroRadio.setSelected(true);
         tipoVeiculoGroup.add(carroRadio);
         tipoVeiculoGroup.add(motoRadio);
         tipoVeiculoGroup.add(caminhaoRadio);
@@ -145,7 +158,6 @@ public class VehicleRegistrationScreen extends JFrame {
         formContentPanel.add(typeSelectionPanel);
         formContentPanel.add(Box.createVerticalStrut(20));
 
-        // Painel para campos gerais do veículo
         JPanel generalFieldsPanel = new JPanel(new GridLayout(0, 2, 20, 15));
         generalFieldsPanel.setBackground(UIManager.getColor("Panel.background"));
         generalFieldsPanel.setBorder(BorderFactory.createTitledBorder(
@@ -241,12 +253,9 @@ public class VehicleRegistrationScreen extends JFrame {
         direcaoHidraulicaCheckBox.setForeground(UIManager.getColor("Label.foreground"));
         generalFieldsPanel.add(direcaoHidraulicaCheckBox);
 
-
-        // Painel para campos específicos do tipo de veículo
         specificFieldsPanel = new JPanel(new CardLayout());
-        specificFieldsPanel.setOpaque(false); // Transparente para herdar o fundo do formContentPanel
+        specificFieldsPanel.setOpaque(false);
 
-        // Painel para campos de Carro
         JPanel carFields = new JPanel(new GridLayout(0, 2, 20, 15));
         carFields.setOpaque(false);
         portasField = createStyledTextField("Número de Portas");
@@ -257,7 +266,6 @@ public class VehicleRegistrationScreen extends JFrame {
         carFields.add(aerofolioCheckBox);
         specificFieldsPanel.add(carFields, "Carro");
 
-        // Painel para campos de Moto
         JPanel motoFields = new JPanel(new GridLayout(0, 2, 20, 15));
         motoFields.setOpaque(false);
         cilindradasField = createStyledTextField("Cilindradas");
@@ -270,7 +278,6 @@ public class VehicleRegistrationScreen extends JFrame {
         motoFields.add(raioPneuField);
         specificFieldsPanel.add(motoFields, "Moto");
 
-        // Painel para campos de Caminhão
         JPanel caminhaoFields = new JPanel(new GridLayout(0, 2, 20, 15));
         caminhaoFields.setOpaque(false);
         cargaMaximaField = createStyledTextField("Carga Máxima (kg)");
@@ -285,12 +292,11 @@ public class VehicleRegistrationScreen extends JFrame {
         caminhaoFields.add(tipoVagaoComboBox);
         specificFieldsPanel.add(caminhaoFields, "Caminhão");
 
-        // Painel de seleção de imagem do veículo
         JPanel imageUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         imageUploadPanel.setBackground(UIManager.getColor("Panel.background"));
 
         vehicleImagePreview = new JLabel();
-        vehicleImagePreview.setPreferredSize(new Dimension(150, 100)); // Tamanho da prévia
+        vehicleImagePreview.setPreferredSize(new Dimension(150, 100));
         vehicleImagePreview.setBorder(BorderFactory.createLineBorder(new Color(10, 40, 61), 1));
         vehicleImagePreview.setHorizontalAlignment(SwingConstants.CENTER);
         vehicleImagePreview.setVerticalAlignment(SwingConstants.CENTER);
@@ -307,15 +313,12 @@ public class VehicleRegistrationScreen extends JFrame {
         formContentPanel.add(Box.createVerticalStrut(20));
         formContentPanel.add(imageUploadPanel);
 
-
         JScrollPane scrollPane = new JScrollPane(formContentPanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.setBackground(UIManager.getColor("Panel.background"));
         scrollPane.getViewport().setBackground(UIManager.getColor("Panel.background"));
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-
-        // Painel de Botões (Finalizar Cadastro, Voltar)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
         buttonPanel.setBackground(UIManager.getColor("Panel.background"));
 
@@ -336,20 +339,21 @@ public class VehicleRegistrationScreen extends JFrame {
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
-
-        // Chame a atualização inicial para mostrar os campos de carro
         updateSpecificFieldsPanel();
     }
 
+    /**
+     * Preenche os campos do formulário com os dados de um veículo existente
+     * quando a tela é utilizada no modo de edição.
+     */
     private void populateFieldsForEdit() {
         if (veiculoToEdit == null) return;
 
-        // Campos gerais
         descricaoField.setText(veiculoToEdit.getDescricao());
         placaField.setText(veiculoToEdit.getPlaca());
-        placaField.setEditable(false); // Placa não pode ser editada (é um ID único)
+        placaField.setEditable(false);
         marcaField.setText(veiculoToEdit.getMarca());
-        nomeModeloField.setText(veiculoToEdit.getNome()); // Nome ou Modelo comercial
+        nomeModeloField.setText(veiculoToEdit.getNome());
         modeloAnoField.setText(String.valueOf(veiculoToEdit.getAno()));
         corComboBox.setSelectedItem(veiculoToEdit.getCor());
         funcaoComboBox.setSelectedItem(veiculoToEdit.getFuncao());
@@ -373,11 +377,9 @@ public class VehicleRegistrationScreen extends JFrame {
         direcaoHidraulicaCheckBox.setSelected(veiculoToEdit.isDirecaoHidraulica());
         valorDiarioField.setText(String.valueOf(veiculoToEdit.getValorDiario()));
 
-        // Imagem do veículo
-        selectedImagePath = veiculoToEdit.getCaminhoFoto(); // Define o caminho atual
-        loadAndSetVehicleImage(selectedImagePath); // Carrega a prévia da imagem
+        selectedImagePath = veiculoToEdit.getCaminhoFoto();
+        loadAndSetVehicleImage(selectedImagePath);
 
-        // Seleciona o tipo de rádio button e mostra os campos específicos
         if (veiculoToEdit instanceof Carro carro) {
             carroRadio.setSelected(true);
             portasField.setText(String.valueOf(carro.getPortas()));
@@ -395,13 +397,17 @@ public class VehicleRegistrationScreen extends JFrame {
             comprimentoField.setText(String.valueOf(caminhao.getComprimento()));
             tipoVagaoComboBox.setSelectedItem(caminhao.getTipoVagao());
         }
-        // Chama para atualizar o painel de campos específicos após selecionar o rádio button
         updateSpecificFieldsPanel();
-
-        // Altera o texto do botão de registro para "Salvar Alterações"
         registerVehicleButton.setText("Salvar Alterações");
     }
 
+    /**
+     * Carrega e define a imagem do veículo para a prévia no `vehicleImagePreview`.
+     * Tenta carregar a imagem do caminho fornecido (pode ser um arquivo local ou um recurso).
+     * Se a imagem não puder ser carregada, um texto "Sem Imagem" é exibido.
+     *
+     * @param imagePath O caminho da imagem do veículo.
+     */
     private void loadAndSetVehicleImage(String imagePath) {
         Image vehicleImg = null;
         if (imagePath != null && !imagePath.isEmpty()) {
@@ -431,6 +437,10 @@ public class VehicleRegistrationScreen extends JFrame {
         }
     }
 
+    /**
+     * Atualiza o painel de campos específicos do veículo com base na seleção do tipo de veículo.
+     * Utiliza um `CardLayout` para alternar entre os campos de Carro, Moto ou Caminhão.
+     */
     private void updateSpecificFieldsPanel() {
         CardLayout cl = (CardLayout) (specificFieldsPanel.getLayout());
         if (carroRadio.isSelected()) {
@@ -444,6 +454,13 @@ public class VehicleRegistrationScreen extends JFrame {
         repaint();
     }
 
+    /**
+     * Cria um {@link JTextField} com um estilo padronizado para a tela de registro de veículo,
+     * incluindo tamanho preferido, bordas e placeholder.
+     *
+     * @param placeholder O texto do placeholder para o campo.
+     * @return O {@link JTextField} estilizado.
+     */
     private JTextField createStyledTextField(String placeholder) {
         JTextField field = new JTextField();
         field.setPreferredSize(new Dimension(280, 40));
@@ -451,21 +468,34 @@ public class VehicleRegistrationScreen extends JFrame {
         field.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         field.setBackground(Color.WHITE);
         field.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
-        field.setFont(UIManager.getFont("TextField.font").deriveFont(16f)); // Fonte menor que o padrão do Main
+        field.setFont(UIManager.getFont("TextField.font").deriveFont(16f));
         return field;
     }
 
+    /**
+     * Cria um {@link JComboBox} estilizado para a seleção de enums, como Cor, Função, Combustível, Tração ou Vagão.
+     *
+     * @param <E>         O tipo da enumeração.
+     * @param values      Um array dos valores da enumeração.
+     * @param placeholder O texto do placeholder para o combobox.
+     * @return O {@link JComboBox} estilizado.
+     */
     private <E extends Enum<E>> JComboBox<E> createStyledComboBox(E[] values, String placeholder) {
         JComboBox<E> comboBox = new JComboBox<>(values);
         comboBox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
-        comboBox.setFont(UIManager.getFont("TextField.font").deriveFont(16f)); // Fonte menor que o padrão do Main
+        comboBox.setFont(UIManager.getFont("TextField.font").deriveFont(16f));
         comboBox.setBackground(Color.WHITE);
-        comboBox.setBorder(BorderFactory.createEmptyBorder()); // Sem borda, FlatLaf arredonda se TextComponent.arc estiver setado
+        comboBox.setBorder(BorderFactory.createEmptyBorder());
         comboBox.setPreferredSize(new Dimension(280, 40));
         comboBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, comboBox.getPreferredSize().height));
         return comboBox;
     }
 
+    /**
+     * Abre um seletor de arquivos para o funcionário escolher uma imagem para o veículo.
+     * A imagem selecionada é reescalada e exibida em `vehicleImagePreview`,
+     * e seu caminho absoluto é armazenado em `selectedImagePath`.
+     */
     private void selectVehicleImage() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Selecione a Imagem do Veículo");
@@ -488,8 +518,18 @@ public class VehicleRegistrationScreen extends JFrame {
         }
     }
 
+    /**
+     * Lida com a ação de cadastrar ou atualizar um veículo.
+     * <p>
+     * Coleta todos os dados dos campos do formulário, realiza validações básicas de preenchimento e formato numérico.
+     * Cria um objeto {@link Veiculo} do tipo correto (Carro, Moto ou Caminhão) com base na seleção do rádio button.
+     * Se estiver no modo de edição ({@code veiculoToEdit} não é nulo), chama `veiculoController.atualizarVeiculo()`;
+     * caso contrário, chama `veiculoController.cadastrarVeiculo()`.
+     * Exibe mensagens de sucesso ou erro e, em caso de sucesso, retorna à tela principal.
+     * </p>
+     */
     private void handleVehicleRegistration() {
-        // Validações básicas (campos vazios)
+
         if (placaField.getText().isEmpty() || marcaField.getText().isEmpty() || nomeModeloField.getText().isEmpty() ||
                 modeloAnoField.getText().isEmpty() || quilometragemField.getText().isEmpty() ||
                 numeroPassageirosField.getText().isEmpty() || consumoCombustivelField.getText().isEmpty() ||
@@ -500,8 +540,8 @@ public class VehicleRegistrationScreen extends JFrame {
             return;
         }
 
-        // Validações de números
         try {
+
             int ano = Integer.parseInt(modeloAnoField.getText());
             double quilometragem = Double.parseDouble(quilometragemField.getText().replace(",", "."));
             int numPassageiros = Integer.parseInt(numeroPassageirosField.getText());
@@ -512,9 +552,7 @@ public class VehicleRegistrationScreen extends JFrame {
             double valorDiario = Double.parseDouble(valorDiarioField.getText().replace(",", "."));
             int quantAssento = Integer.parseInt(quantAssentoField.getText());
 
-            // Validações específicas do tipo de veículo
             Veiculo novoVeiculo = null;
-            String tipoVeiculo = ((CardLayout)specificFieldsPanel.getLayout()).toString(); // Isto não pega o nome da carta, vai precisar de outra forma
 
             if (carroRadio.isSelected()) {
                 int portas = Integer.parseInt(portasField.getText());
@@ -566,10 +604,10 @@ public class VehicleRegistrationScreen extends JFrame {
 
             if (novoVeiculo != null) {
                 boolean success;
-                if (veiculoToEdit == null) { // NOVO VEÍCULO
+                if (veiculoToEdit == null) {
                     success = veiculoController.cadastrarVeiculo(novoVeiculo);
-                } else { // EDIÇÃO DE VEÍCULO EXISTENTE
-                    success = veiculoController.atualizarVeiculo(novoVeiculo); // NOVO MÉTODO no Controller
+                } else {
+                    success = veiculoController.atualizarVeiculo(novoVeiculo);
                 }
 
                 if (success) {
