@@ -1,23 +1,22 @@
-package controller; // Adapte ao seu pacote de testes
+package controller;
 
-import controller.VeiculoController; // Adapte ao seu pacote de controladores
-import entities.Carro; // Assumindo que Carro é uma subclasse concreta de Veiculo
-import entities.Caminhao; // Assumindo que Caminhao é uma subclasse concreta de Veiculo
-import entities.Moto; // Assumindo que Moto é uma subclasse concreta de Veiculo
+import entities.Carro;
+import entities.Caminhao;
+import entities.Moto;
 import entities.Veiculo;
-import entities.Locacao; // Para testar estaLocado e filtrarVeiculos
+import entities.Locacao;
 import enums.Combustivel;
 import enums.Cor;
 import enums.Funcao;
-import enums.Sexo; // Necessário para criar Cliente
+import enums.Sexo;
 import enums.Tracao;
-import enums.Vagao; // Necessário para Caminhao
-import exceptions.VeiculoControllerException; // Importar a exceção
+import enums.Vagao;
+import exceptions.VeiculoControllerException;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*; // Para mocks, spy, when, verify, anyList, anyString, any
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,68 +30,61 @@ public class VeiculoControllerTest {
 
     private VeiculoController veiculoController;
 
-    // Não precisamos mockar LocacaoController ou AuthController diretamente aqui
-    // mas precisaremos mockar o método carregarLocacoes do próprio VeiculoController espiado.
 
-    // Caminhos reais dos arquivos de dump (para limpeza)
+
     private static final String VEHICLE_PICS_DIR_ACTUAL = "dump/vehicle_pics/";
     private static final String CARROS_FILE = "dump/carros/carros.dat";
     private static final String MOTOS_FILE = "dump/moto/motos.dat";
     private static final String CAMINHOES_FILE = "dump/caminhao/caminhoes.dat";
-    private static final String LOCACOES_FILE_PATH_ACTUAL = "dump/locacoes/locacoes.dat"; // Para limpeza de locacoes
+    private static final String LOCACOES_FILE_PATH_ACTUAL = "dump/locacoes/locacoes.dat";
 
     @BeforeAll
     static void setupClass() throws IOException {
-        // Garante que os diretórios existam
+
         new File("dump/carros").mkdirs();
         new File("dump/moto").mkdirs();
         new File("dump/caminhao").mkdirs();
-        new File("dump/locacoes").mkdirs(); // Para o arquivo de locacoes
+        new File("dump/locacoes").mkdirs();
         new File(VEHICLE_PICS_DIR_ACTUAL).mkdirs();
-        cleanUpAllTestFiles(); // Limpa todos os arquivos de teste
+        cleanUpAllTestFiles();
     }
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // Inicializa os mocks (se houvesse)
+        MockitoAnnotations.openMocks(this);
 
-        // Instancia o VeiculoController e o transforma em SPY
         veiculoController = spy(new VeiculoController());
 
-        // Limpa arquivos de dados antes de cada teste para garantir isolamento
         clearSpecificVehicleDataFiles();
 
-        // Configura os mocks para os métodos internos que lidam com I/O
-        // Isso garante que os testes não toquem o disco real para carregar/salvar listas,
-        // a menos que estejamos testando a persistência explicitamente.
+
+
         doReturn(new ArrayList<>()).when(veiculoController).carregarTodosVeiculos();
         doReturn(new ArrayList<>()).when(veiculoController).carregarVeiculosDeArquivo(eq(CARROS_FILE), any());
         doReturn(new ArrayList<>()).when(veiculoController).carregarVeiculosDeArquivo(eq(MOTOS_FILE), any());
         doReturn(new ArrayList<>()).when(veiculoController).carregarVeiculosDeArquivo(eq(CAMINHOES_FILE), any());
-        doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes(); // Mocka o carregamento de locações para estaLocado/filtrarVeiculos
+        doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes();
 
-        // Stub para o método salvarVeiculoEmArquivo, que é chamado por cadastrarVeiculo
         doReturn(true).when(veiculoController).salvarVeiculoEmArquivo(any(Veiculo.class), anyString());
-        // Stub para o método salvarListaDeVeiculosEmArquivo, chamado por excluir/atualizar
+
         doReturn(true).when(veiculoController).salvarListaDeVeiculosEmArquivo(anyList(), anyString());
-        // Stub para saveVehiclePicture, ele será mockado para retornar um caminho simulado,
-        // mas o teste de exceção para ele é feito separadamente.
+
+
         doReturn("path/to/mocked/image.png").when(veiculoController).saveVehiclePicture(anyString(), anyString());
 
-        // Garante que a lista interna de veículos do controller seja vazia no início de cada teste
-        // Isso é necessário porque o construtor do controller chama carregarTodosVeiculos(),
-        // e nós acabamos de mockar esse comportamento para retornar uma lista vazia.
-        // O spy vai capturar isso.
-        // No entanto, para manipulações diretas que o controller fará,
-        // vamos simular a lista interna do controller.
-        // Se a lista 'veiculos' fosse private, você teria que testar através dos métodos públicos.
-        // Mas como ela pode ser acessada (se for public ou tiver um getter), podemos controlá-la assim.
-        veiculoController.veiculos = new ArrayList<>(); // Reseta a lista interna do spy para cada teste
+
+
+
+
+
+
+
+        veiculoController.veiculos = new ArrayList<>();
     }
 
     @AfterEach
     void tearDown() {
-        clearSpecificVehicleDataFiles(); // Limpa arquivos de dados após cada teste
+        clearSpecificVehicleDataFiles();
     }
 
     @AfterAll
@@ -111,7 +103,6 @@ public class VeiculoControllerTest {
         }
     }
 
-    // --- Métodos Auxiliares de Limpeza e Criação de Entidades ---
     private static void deleteDirectoryRecursive(Path path) throws IOException {
         if (Files.exists(path)) {
             Files.walk(path)
@@ -147,7 +138,6 @@ public class VeiculoControllerTest {
         new File(LOCACOES_FILE_PATH_ACTUAL).delete();
     }
 
-    // Métodos auxiliares para criar instâncias de veículos concretas
     private Carro createTestCarro(String placa, double valorDiario) {
         return new Carro("DescCarro", placa, "MarcaCarro", "NomeCarro", "ModeloCarro", 2020, Cor.PRETO, Funcao.PASSEIO,
                 10000, 5, 10.0, 180.0, true, Combustivel.GASOLINA, Tracao.DIANTEIRA,
@@ -169,25 +159,22 @@ public class VeiculoControllerTest {
                 false, 10000, true, true, valorDiario, 20000, 4.0, 2.5, 7.0, Vagao.BAU_SECO);
     }
 
-    // Método auxiliar para criar uma locação (para testar estaLocado/filtrar)
-    // Método auxiliar para criar uma locação (para testar estaLocado/filtrar)
+
     private Locacao createTestLocacao(Veiculo veiculo, LocalDateTime dataDevolucao) {
-        // Criar um Cliente para a Locação
+
         entities.Cliente clienteTest = new entities.Cliente(
                 "Test Client", "123.123.123-12", "999999999", "test@client.com", "hashedpass",
                 new entities.Endereco("City", "ST", "Bairro", "Rua", 1, "12345-000"),
                 LocalDateTime.of(1990, 1, 1, 0, 0), Sexo.MASCULINO, null
         );
 
-        // CORREÇÃO AQUI: Use o construtor de 4 parâmetros
         Locacao locacao = new Locacao(
                 LocalDateTime.now().minusDays(5),
                 LocalDateTime.now().plusDays(2),
-                veiculo, // Terceiro parâmetro: Veiculo
-                clienteTest // Quarto parâmetro: Cliente
+                veiculo,
+                clienteTest
         );
 
-        // Se dataDevolucao foi fornecida, configure-a após a criação da Locacao
         if (dataDevolucao != null) {
             locacao.setDataDevolucao(dataDevolucao);
         }
@@ -201,9 +188,9 @@ public class VeiculoControllerTest {
     @DisplayName("Cadastrar veículo com placa já existente - Lança VeiculoControllerException")
     void testCadastrarVeiculoPlacaExistenteThrowsException() {
         Carro carroExistente = createTestCarro("ABC-1234", 200.0);
-        veiculoController.veiculos.add(carroExistente); // Adiciona diretamente à lista interna do SPY
+        veiculoController.veiculos.add(carroExistente);
 
-        Carro novoCarroComPlacaExistente = createTestCarro("ABC-1234", 250.0); // Mesma placa
+        Carro novoCarroComPlacaExistente = createTestCarro("ABC-1234", 250.0);
 
         VeiculoControllerException thrown = assertThrows(
                 VeiculoControllerException.class,
@@ -212,8 +199,8 @@ public class VeiculoControllerTest {
         );
         assertEquals("Erro: Veículo com a placa 'ABC-1234' já existe.", thrown.getMessage());
         assertEquals(1, veiculoController.listarTodos().size(), "A quantidade de veículos não deveria mudar");
-        verify(veiculoController, never()).saveVehiclePicture(anyString(), anyString()); // Não deveria tentar salvar foto
-        verify(veiculoController, never()).salvarVeiculoEmArquivo(any(Veiculo.class), anyString()); // Não deveria tentar salvar
+        verify(veiculoController, never()).saveVehiclePicture(anyString(), anyString());
+        verify(veiculoController, never()).salvarVeiculoEmArquivo(any(Veiculo.class), anyString());
     }
 
     @Test
@@ -221,12 +208,11 @@ public class VeiculoControllerTest {
     @DisplayName("Cadastrar veículo com falha ao salvar imagem - Lança VeiculoControllerException")
     void testCadastrarVeiculoSavePictureFailsThrowsException() throws IOException {
         Carro novoCarro = createTestCarro("FALHA-FOTO", 300.0);
-        novoCarro.setCaminhoFoto("caminho/fake/foto.jpg"); // Necessário para acionar a tentativa de salvar foto
+        novoCarro.setCaminhoFoto("caminho/fake/foto.jpg");
 
-        // Mock saveVehiclePicture para lançar a exceção ou retornar null
         doThrow(new VeiculoControllerException("Erro ao salvar imagem")).when(veiculoController).saveVehiclePicture(anyString(), anyString());
-        // Se saveVehiclePicture retornar null para caminho inválido, o controller checa por null
-        // doReturn(null).when(veiculoController).saveVehiclePicture(anyString(), anyString());
+
+
 
 
         VeiculoControllerException thrown = assertThrows(
@@ -234,26 +220,24 @@ public class VeiculoControllerTest {
                 () -> veiculoController.cadastrarVeiculo(novoCarro),
                 "Deveria lançar VeiculoControllerException se a imagem não puder ser salva"
         );
-        // Ajustar a mensagem de erro esperada com base na lógica do seu saveVehiclePicture
-        assertEquals("Erro ao salvar imagem", thrown.getMessage()); // Ou "Falha ao salvar a imagem do veículo. Cadastro abortado." se o seu código original retornasse null e lançasse ali.
+
+        assertEquals("Erro ao salvar imagem", thrown.getMessage());
 
         assertTrue(veiculoController.listarTodos().isEmpty(), "Nenhum veículo deveria ser adicionado à lista");
-        verify(veiculoController).saveVehiclePicture(anyString(), anyString()); // Verifica se tentou salvar foto
-        verify(veiculoController, never()).salvarVeiculoEmArquivo(any(Veiculo.class), anyString()); // Não deveria tentar salvar o veículo
+        verify(veiculoController).saveVehiclePicture(anyString(), anyString());
+        verify(veiculoController, never()).salvarVeiculoEmArquivo(any(Veiculo.class), anyString());
     }
 
-    // --- Testes para atualizarVeiculo ---
     @Test
     @Order(6)
     @DisplayName("Atualizar veículo existente com sucesso")
     void testAtualizarVeiculoSuccess() throws IOException {
         Carro carroOriginal = createTestCarro("ATT-1234", 200.0);
-        veiculoController.veiculos.add(carroOriginal); // Adiciona diretamente à lista interna do SPY
+        veiculoController.veiculos.add(carroOriginal);
 
-        Carro carroAtualizado = createTestCarro("ATT-1234", 250.0); // Mesma placa, valor diário diferente
+        Carro carroAtualizado = createTestCarro("ATT-1234", 250.0);
         carroAtualizado.setNome("Carro Atualizado");
 
-        // Mock salvarListaDeVeiculosEmArquivo para retornar sucesso
         doReturn(true).when(veiculoController).salvarListaDeVeiculosEmArquivo(anyList(), anyString());
 
         boolean result = veiculoController.atualizarVeiculo(carroAtualizado);
@@ -272,7 +256,6 @@ public class VeiculoControllerTest {
     void testAtualizarVeiculoNotFoundThrowsException() {
         Carro carroInexistente = createTestCarro("NAO-EXISTE", 300.0);
 
-        // Garante que a lista interna do controller está vazia
         veiculoController.veiculos.clear();
 
         VeiculoControllerException thrown = assertThrows(
@@ -285,13 +268,12 @@ public class VeiculoControllerTest {
         verify(veiculoController, never()).salvarListaDeVeiculosEmArquivo(anyList(), anyString());
     }
 
-    // --- Testes para excluirVeiculo ---
     @Test
     @Order(8)
     @DisplayName("Excluir veículo existente com sucesso")
     void testExcluirVeiculoSuccess() throws IOException {
         Carro carroParaExcluir = createTestCarro("DEL-1234", 100.0);
-        veiculoController.veiculos.add(carroParaExcluir); // Adiciona à lista interna do SPY
+        veiculoController.veiculos.add(carroParaExcluir);
 
         doReturn(true).when(veiculoController).salvarListaDeVeiculosEmArquivo(anyList(), anyString());
 
@@ -308,7 +290,7 @@ public class VeiculoControllerTest {
     void testExcluirVeiculoNotFound() {
         Carro carroInexistente = createTestCarro("DEL-NAO-EXISTE", 100.0);
 
-        veiculoController.veiculos.clear(); // Garante lista vazia
+        veiculoController.veiculos.clear();
 
         boolean result = veiculoController.excluirVeiculo(carroInexistente);
 
@@ -321,9 +303,9 @@ public class VeiculoControllerTest {
     @Order(11)
     @DisplayName("Salvar imagem de veículo com caminho nulo - Retorna null")
     void testSaveVehiclePictureNullPathReturnsNull() {
-        // Seu método lançaria VeiculoControllerException se você tivesse alterado
-        // "return null" para "throw new VeiculoControllerException" aqui.
-        // Como ele retorna null, o teste verifica null.
+
+
+
         String savedPath = veiculoController.saveVehiclePicture(null, "NULL-PATH");
         assertNull(savedPath, "Deveria retornar null para caminho original nulo");
     }
@@ -333,13 +315,12 @@ public class VeiculoControllerTest {
     @DisplayName("Verificar veiculo locado - Retorna true")
     void testEstaLocadoTrue() {
         Veiculo veiculoLocado = createTestCarro("LOC-0001", 100.0);
-        Locacao locacaoAtiva = createTestLocacao(veiculoLocado, null); // dataDevolucao null = ativa
+        Locacao locacaoAtiva = createTestLocacao(veiculoLocado, null);
 
-        // Mock carregarLocacoes para retornar uma lista com a locação ativa
         doReturn(List.of(locacaoAtiva)).when(veiculoController).carregarLocacoes();
 
         assertTrue(veiculoController.estaLocado(veiculoLocado), "Veículo deveria estar locado");
-        verify(veiculoController).carregarLocacoes(); // Verifica se carregarLocacoes foi chamado
+        verify(veiculoController).carregarLocacoes();
     }
 
     @Test
@@ -347,7 +328,7 @@ public class VeiculoControllerTest {
     @DisplayName("Verificar veiculo nao locado - Retorna false")
     void testEstaLocadoFalse() {
         Veiculo veiculoNaoLocado = createTestCarro("NAO-LOCADO", 100.0);
-        // Mock carregarLocacoes para retornar lista vazia ou com locações inativas
+
         doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes();
 
         assertFalse(veiculoController.estaLocado(veiculoNaoLocado), "Veículo não deveria estar locado");
@@ -376,7 +357,7 @@ public class VeiculoControllerTest {
         Moto moto1 = createTestMoto("MOTO-002", 80.0); moto1.setCor(Cor.AZUL);
 
         veiculoController.veiculos.addAll(List.of(carro1, carro2, moto1));
-        doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes(); // Todos disponíveis
+        doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes();
 
         List<Veiculo> resultados = veiculoController.filtrarVeiculos(null, 120.0, Cor.BRANCO, "Todos", null, null, "Todos os Modelos");
 
@@ -393,7 +374,7 @@ public class VeiculoControllerTest {
         Caminhao caminhao1 = createTestCaminhao("CAM-002", 500.0);
 
         veiculoController.veiculos.addAll(List.of(carro1, moto1, caminhao1));
-        doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes(); // Todos disponíveis
+        doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes();
 
         List<Veiculo> carros = veiculoController.filtrarVeiculos(null, null, Cor.TODAS, "Todos", null, null, "Carro");
         assertEquals(1, carros.size());

@@ -7,7 +7,7 @@ import entities.Pessoa;
 import entities.TestVehicle;
 import entities.Veiculo;
 import enums.Sexo;
-import exceptions.LocacaoControllerException; // Importar a nova exceção
+import exceptions.LocacaoControllerException;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -116,8 +116,6 @@ public class LocacaoControllerTest {
     private Veiculo createTestVeiculo(String placa, double valorDiario) {
         return new TestVehicle(placa, valorDiario);
     }
-
-    // --- Testes para realizarLocacao ---
     @Test
     @Order(1)
     @DisplayName("Realizar locacao com sucesso")
@@ -151,16 +149,13 @@ public class LocacaoControllerTest {
     @Order(2)
     @DisplayName("Realizar locacao - veiculo ja locado - Lanca LocacaoControllerException")
     void testRealizarLocacaoVeiculoJaLocadoThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente2@test.com", "222.222.222-22", "senha123");
         cliente.adicionarSaldo(1000.0);
         Veiculo veiculo = createTestVeiculo("DEF-5678", 100.0);
         int dias = 5;
         double valorTotal = 500.0;
 
-        when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(true); // Veículo já locado
-
-        // Act & Assert
+        when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(true);
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.realizarLocacao(cliente, veiculo, dias, valorTotal),
@@ -178,16 +173,12 @@ public class LocacaoControllerTest {
     @Order(3)
     @DisplayName("Realizar locacao - saldo insuficiente - Lanca LocacaoControllerException")
     void testRealizarLocacaoSaldoInsuficienteThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente3@test.com", "333.333.333-33", "senha123");
-        // Saldo inicial 0, valorTotal 500.0, então é insuficiente
         Veiculo veiculo = createTestVeiculo("GHI-9012", 100.0);
         int dias = 5;
         double valorTotal = 500.0;
 
-        when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(false); // Veículo está disponível
-
-        // Act & Assert
+        when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(false);
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.realizarLocacao(cliente, veiculo, dias, valorTotal),
@@ -205,7 +196,6 @@ public class LocacaoControllerTest {
     @Order(4)
     @DisplayName("Realizar locacao - falha ao salvar locacoes - Lanca LocacaoControllerException")
     void testRealizarLocacaoSaveAllLocacoesFailsThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente4@test.com", "444.444.444-44", "senha123");
         cliente.adicionarSaldo(1000.0);
         Veiculo veiculo = createTestVeiculo("JKL-3456", 100.0);
@@ -213,10 +203,7 @@ public class LocacaoControllerTest {
         double valorTotal = 500.0;
 
         when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(false);
-        // Simula que saveAllLocacoes retorna FALSE (falha)
         doReturn(false).when(locacaoController).saveAllLocacoes(anyList());
-
-        // Act & Assert
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.realizarLocacao(cliente, veiculo, dias, valorTotal),
@@ -231,10 +218,9 @@ public class LocacaoControllerTest {
     }
 
     @Test
-    @Order(4) // Adicional: Falha ao atualizar cliente
+    @Order(4)
     @DisplayName("Realizar locacao - falha ao atualizar cliente - Lanca LocacaoControllerException")
     void testRealizarLocacaoUpdateClientFailsThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente_fail_update_c@test.com", "555.555.555-55", "senha123");
         cliente.adicionarSaldo(1000.0);
         Veiculo veiculo = createTestVeiculo("MNO-7890", 100.0);
@@ -242,32 +228,23 @@ public class LocacaoControllerTest {
         double valorTotal = 500.0;
 
         when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(false);
-        doReturn(true).when(locacaoController).saveAllLocacoes(anyList()); // Salva locação com sucesso
-        when(authControllerMock.updateCliente(any(Cliente.class))).thenReturn(false); // ATUALIZAÇÃO DO CLIENTE FALHA
-
-        // Act & Assert
+        doReturn(true).when(locacaoController).saveAllLocacoes(anyList());
+        when(authControllerMock.updateCliente(any(Cliente.class))).thenReturn(false);
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.realizarLocacao(cliente, veiculo, dias, valorTotal),
                 "Deveria lançar LocacaoControllerException se a atualização do cliente falhar"
         );
         assertEquals("Erro ao atualizar saldo do cliente após locação.", thrown.getMessage());
-
-        // A locação foi adicionada e removida (rollback), então a lista interna deve estar vazia.
-        // Se a remoção da locação após falha no cliente/veículo não for explícita no controller,
-        // o locacaoController.locacoes.size() pode ser 1.
-        // Pelo seu código, ela não é removida se o authController.updateCliente ou veiculoController.atualizarVeiculo falhar.
-        // Então, se o teste falha aqui, a lista interna DEVERIA ter 1 elemento.
-        assertEquals(1, locacaoController.locacoes.size(), "A locação deveria permanecer na lista se o cliente/veículo falhar a atualização, a menos que haja rollback explícito."); // Ajuste este assert conforme seu rollback real.
-        verify(veiculoControllerMock, never()).atualizarVeiculo(any(Veiculo.class)); // Veículo não deveria ser atualizado
-        verify(locacaoController, times(1)).saveAllLocacoes(anyList()); // saveAllLocacoes foi chamado com sucesso
+        assertEquals(1, locacaoController.locacoes.size(), "A locação deveria permanecer na lista se o cliente/veículo falhar a atualização, a menos que haja rollback explícito.");
+        verify(veiculoControllerMock, never()).atualizarVeiculo(any(Veiculo.class));
+        verify(locacaoController, times(1)).saveAllLocacoes(anyList());
     }
 
     @Test
-    @Order(4) // Adicional: Falha ao atualizar veículo
+    @Order(4)
     @DisplayName("Realizar locacao - falha ao atualizar veiculo - Lanca LocacaoControllerException")
     void testRealizarLocacaoUpdateVehicleFailsThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente_fail_update_v@test.com", "666.666.666-66", "senha123");
         cliente.adicionarSaldo(1000.0);
         Veiculo veiculo = createTestVeiculo("PQR-1234", 100.0);
@@ -277,9 +254,7 @@ public class LocacaoControllerTest {
         when(veiculoControllerMock.estaLocado(veiculo)).thenReturn(false);
         doReturn(true).when(locacaoController).saveAllLocacoes(anyList());
         when(authControllerMock.updateCliente(any(Cliente.class))).thenReturn(true);
-        when(veiculoControllerMock.atualizarVeiculo(any(Veiculo.class))).thenReturn(false); // ATUALIZAÇÃO DO VEÍCULO FALHA
-
-        // Act & Assert
+        when(veiculoControllerMock.atualizarVeiculo(any(Veiculo.class))).thenReturn(false);
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.realizarLocacao(cliente, veiculo, dias, valorTotal),
@@ -288,8 +263,8 @@ public class LocacaoControllerTest {
         assertEquals("Erro ao atualizar veículo após locação.", thrown.getMessage());
 
         assertEquals(1, locacaoController.locacoes.size(), "A locação deveria permanecer na lista se a atualização do veículo falhar.");
-        verify(authControllerMock, times(1)).updateCliente(any(Cliente.class)); // Cliente deveria ter sido atualizado
-        verify(veiculoControllerMock, times(1)).atualizarVeiculo(any(Veiculo.class)); // Atualização do veículo tentada
+        verify(authControllerMock, times(1)).updateCliente(any(Cliente.class));
+        verify(veiculoControllerMock, times(1)).atualizarVeiculo(any(Veiculo.class));
         verify(locacaoController, times(1)).saveAllLocacoes(anyList());
     }
 
@@ -354,22 +329,19 @@ public class LocacaoControllerTest {
     @Order(10)
     @DisplayName("Registrar devolucao - locacao nula ou ja devolvida - Lanca LocacaoControllerException")
     void testRegistrarDevolucaoInvalidLocacaoThrowsException() {
-        // Teste 1: Locação nula
         LocacaoControllerException thrownNull = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.registrarDevolucao(null),
                 "Deveria lançar LocacaoControllerException para locação nula"
         );
         assertEquals("Locação inválida ou já devolvida.", thrownNull.getMessage());
-
-        // Teste 2: Locação já devolvida
         Locacao locacaoAlreadyReturned = new Locacao(
                 LocalDateTime.now().minusDays(5),
                 LocalDateTime.now().minusDays(3),
                 createTestVeiculo("TEST-5555", 100.0),
                 createTestClient("cliente9@test.com", "999.999.999-99", "senha123")
         );
-        locacaoAlreadyReturned.setDataDevolucao(LocalDateTime.now().minusDays(1)); // Define a devolução após a criação
+        locacaoAlreadyReturned.setDataDevolucao(LocalDateTime.now().minusDays(1));
 
         LocacaoControllerException thrownReturned = assertThrows(
                 LocacaoControllerException.class,
@@ -386,7 +358,6 @@ public class LocacaoControllerTest {
     @Order(11)
     @DisplayName("Registrar devolucao - locacao nao encontrada na lista interna - Lanca LocacaoControllerException")
     void testRegistrarDevolucaoLocacaoNotFoundInListThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente10@test.com", "101.010.101-10", "senha123");
         Veiculo veiculo = createTestVeiculo("TEST-6666", 100.0);
 
@@ -396,9 +367,7 @@ public class LocacaoControllerTest {
                 veiculo,
                 cliente
         );
-        doReturn(new ArrayList<>()).when(locacaoController).loadLocacoes(); // Simula que a locação não está na lista
-
-        // Act & Assert
+        doReturn(new ArrayList<>()).when(locacaoController).loadLocacoes();
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.registrarDevolucao(locacao),
@@ -411,10 +380,9 @@ public class LocacaoControllerTest {
     }
 
     @Test
-    @Order(11) // Adicional: Falha ao atualizar cliente na devolução
+    @Order(11)
     @DisplayName("Registrar devolucao - falha ao atualizar cliente com multa - Lanca LocacaoControllerException")
     void testRegistrarDevolucaoUpdateClientFailsThrowsException() {
-        // Arrange
         Cliente cliente = createTestClient("cliente_devol_fail@test.com", "777.777.777-70", "senha123");
         cliente.adicionarSaldo(1000.0);
         Veiculo veiculo = createTestVeiculo("MULTA-FAIL", 50.0);
@@ -430,9 +398,7 @@ public class LocacaoControllerTest {
         doReturn(currentLocacoes).when(locacaoController).loadLocacoes();
 
         doReturn(true).when(locacaoController).saveAllLocacoes(anyList());
-        when(authControllerMock.updateCliente(any(Cliente.class))).thenReturn(false); // Simula falha na atualização do cliente
-
-        // Act & Assert
+        when(authControllerMock.updateCliente(any(Cliente.class))).thenReturn(false);
         LocacaoControllerException thrown = assertThrows(
                 LocacaoControllerException.class,
                 () -> locacaoController.registrarDevolucao(locacaoToDevolve),
@@ -440,11 +406,9 @@ public class LocacaoControllerTest {
         );
         assertEquals("Erro ao atualizar saldo do cliente com multa após devolução.", thrown.getMessage());
 
-        verify(authControllerMock, times(1)).updateCliente(any(Cliente.class)); // Verifica se tentou atualizar o cliente
-        verify(locacaoController, never()).saveAllLocacoes(anyList()); // Não deveria salvar se a atualização do cliente falhou
+        verify(authControllerMock, times(1)).updateCliente(any(Cliente.class));
+        verify(locacaoController, never()).saveAllLocacoes(anyList());
     }
-
-    // --- Testes de persistência (saveAllLocacoes e loadLocacoes) reais, sem mocks, para verificar a serialização ---
     @Test
     @Order(12)
     @DisplayName("Persistencia: Salvamento e carregamento real de locacoes")
@@ -457,17 +421,13 @@ public class LocacaoControllerTest {
         cliente.adicionarSaldo(1000.0);
 
         Veiculo veiculo = createTestVeiculo("IO-1234", 75.0);
-
-        // Locacao1 usa o construtor de 4 parâmetros.
-        // A data de devolução será setada pelo método registrarDevolucao para locações reais
-        // Para este teste de persistência, podemos simular uma locação já devolvida ou não.
         Locacao locacao1 = new Locacao(
                 LocalDateTime.now().minusDays(3),
-                LocalDateTime.now().minusDays(1), // Data prevista para devolução no passado
+                LocalDateTime.now().minusDays(1),
                 veiculo,
                 cliente
         );
-        locacao1.setDataDevolucao(LocalDateTime.now().minusHours(1)); // Setar data de devolução para simular que já foi devolvida para este teste de persistência
+        locacao1.setDataDevolucao(LocalDateTime.now().minusHours(1));
 
         Locacao locacao2 = new Locacao(
                 LocalDateTime.now().plusDays(1),
@@ -481,21 +441,18 @@ public class LocacaoControllerTest {
 
         boolean saved = realIOController.saveAllLocacoes(realIOController.locacoes);
         assertTrue(saved, "Deveria salvar locações no arquivo com sucesso");
-
-        // Carrega as locações usando uma nova instância para garantir que foi lido do arquivo
         LocacaoController anotherIOController = new LocacaoController(authControllerMock, veiculoControllerMock);
         List<Locacao> loadedLocacoes = anotherIOController.loadLocacoes();
 
         assertNotNull(loadedLocacoes, "A lista de locações carregada não deve ser nula");
         assertEquals(2, loadedLocacoes.size(), "Deveria carregar 2 locações do arquivo");
-        // Verificar propriedades para garantir que os objetos foram serializados/desserializados corretamente
         assertEquals(locacao1.getVeiculo().getPlaca(), loadedLocacoes.get(0).getVeiculo().getPlaca());
         assertEquals(locacao1.getCliente().getEmail(), loadedLocacoes.get(0).getCliente().getEmail());
         assertEquals(locacao1.getDataDevolucao(), loadedLocacoes.get(0).getDataDevolucao());
 
         assertEquals(locacao2.getVeiculo().getPlaca(), loadedLocacoes.get(1).getVeiculo().getPlaca());
         assertEquals(locacao2.getCliente().getEmail(), loadedLocacoes.get(1).getCliente().getEmail());
-        assertNull(loadedLocacoes.get(1).getDataDevolucao()); // locacao2 não foi devolvida
+        assertNull(loadedLocacoes.get(1).getDataDevolucao());
 
         new File(LOCACOES_FILE_PATH_ACTUAL).delete();
     }

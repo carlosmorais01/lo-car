@@ -1,13 +1,13 @@
-package controller; // Mantenha o pacote correto do seu teste
+package controller;
 
-import controller.AuthController; // Mantenha o pacote correto do seu controller
+import controller.AuthController;
 import entities.Cliente;
 import entities.Endereco;
 import entities.Funcionario;
 import entities.Pessoa;
 import enums.Sexo;
-import exceptions.AuthControllerException; // Importar a nova exceção
-import org.junit.jupiter.api.*; // Importar todas as anotações Junit
+import exceptions.AuthControllerException;
+import org.junit.jupiter.api.*;
 import util.PasswordHasher;
 
 import java.io.File;
@@ -20,51 +20,48 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*; // Importar asserções
+import static org.junit.jupiter.api.Assertions.*;
 
-// Mantenha a ordem dos testes para garantir um fluxo de estado
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthControllerTest {
 
     private AuthController authController;
 
-    // Caminhos de arquivo de dados (usei os do AuthController diretamente)
-    // Em um cenário de produção, considere usar caminhos temporários ou mocks para IO.
-    // Para simplificar e seguir o fluxo do seu projeto:
+
+
     private static final String CLIENTES_FILE_PATH_ACTUAL = AuthController.CLIENTS_FILE_PATH;
     private static final String EMPLOYEES_FILE_PATH_ACTUAL = AuthController.EMPLOYEES_FILE_PATH;
     private static final String PROFILE_PICS_DIR_ACTUAL = AuthController.PROFILE_PICS_DIR;
 
 
-    @BeforeAll // Executado uma vez antes de todos os testes
+    @BeforeAll
     static void setupClass() throws IOException {
-        // Garante que os diretórios de dump existam
+
         new File("dump/clientes/").mkdirs();
         new File("dump/funcionarios/").mkdirs();
         new File(PROFILE_PICS_DIR_ACTUAL).mkdirs();
         cleanUpAllTestFiles();
     }
 
-    @BeforeEach // Executado antes de cada método de teste
+    @BeforeEach
     void setUp() {
         authController = new AuthController();
-        clearDataFiles(); // Limpa arquivos de dados antes de cada teste
+        clearDataFiles();
     }
 
-    @AfterEach // Executado depois de cada método de teste
+    @AfterEach
     void tearDown() {
-        clearDataFiles(); // Limpa arquivos de dados depois de cada teste
+        clearDataFiles();
     }
 
-    @AfterAll // Executado uma vez depois de todos os testes
+    @AfterAll
     static void tearDownClass() throws IOException {
         cleanUpAllTestFiles();
-        // Deleta os diretórios de teste recursivamente
+
         deleteDirectoryRecursive(Path.of("dump/clientes/"));
         deleteDirectoryRecursive(Path.of("dump/funcionarios/"));
         deleteDirectoryRecursive(Path.of(PROFILE_PICS_DIR_ACTUAL));
 
-        // Tenta deletar o diretório pai 'dump' se estiver vazio
         try {
             Files.deleteIfExists(Path.of("dump"));
         } catch (java.nio.file.DirectoryNotEmptyException e) {
@@ -72,7 +69,6 @@ public class AuthControllerTest {
         }
     }
 
-    // --- Métodos Auxiliares para Limpeza ---
     private static void cleanUpAllTestFiles() throws IOException {
         Files.deleteIfExists(Path.of(CLIENTES_FILE_PATH_ACTUAL));
         Files.deleteIfExists(Path.of(EMPLOYEES_FILE_PATH_ACTUAL));
@@ -87,7 +83,7 @@ public class AuthControllerTest {
     private void clearDataFiles() {
         new File(CLIENTES_FILE_PATH_ACTUAL).delete();
         new File(EMPLOYEES_FILE_PATH_ACTUAL).delete();
-        // Limpar fotos de perfil específicas (se necessário), ou confiar no @AfterAll
+
     }
 
     private static void deleteDirectoryRecursive(Path path) throws IOException {
@@ -104,7 +100,6 @@ public class AuthControllerTest {
         }
     }
 
-    // --- Métodos Auxiliares para Criar Entidades de Teste ---
     private Endereco createTestEndereco() {
         return new Endereco("Cidade Teste", "Estado Teste", "Bairro Teste", "Rua Teste", 123, "12345-678");
     }
@@ -115,7 +110,7 @@ public class AuthControllerTest {
                 cpf,
                 "9999-8888",
                 email,
-                PasswordHasher.hashPassword(password), // Senha já hashed para salvar no DB
+                PasswordHasher.hashPassword(password),
                 createTestEndereco(),
                 LocalDateTime.of(1990, 1, 1, 0, 0),
                 Sexo.FEMININO,
@@ -129,7 +124,7 @@ public class AuthControllerTest {
                 cpf,
                 "7777-6666",
                 email,
-                PasswordHasher.hashPassword(password), // Senha já hashed para salvar no DB
+                PasswordHasher.hashPassword(password),
                 createTestEndereco(),
                 LocalDateTime.of(1985, 5, 10, 0, 0),
                 Sexo.MASCULINO,
@@ -137,14 +132,13 @@ public class AuthControllerTest {
         );
     }
 
-    // --- Testes para Autenticação ---
     @Test
     @Order(1)
     @DisplayName("Teste de autenticação com cliente válido")
     void testAuthenticateValidClient() {
         String email = "cliente_autenticacao@test.com";
         String password = "senha123";
-        Cliente cliente = createTestClient(email, "111.111.111-11", password); // createTestClient já hasheia a senha
+        Cliente cliente = createTestClient(email, "111.111.111-11", password);
         authController.saveClients(List.of(cliente));
 
         Pessoa authenticatedPerson = authController.authenticate(email, password);
@@ -160,7 +154,7 @@ public class AuthControllerTest {
     void testAuthenticateValidEmployee() {
         String email = "funcionario_autenticacao@test.com";
         String password = "admin123";
-        Funcionario funcionario = createTestFuncionario(email, "000.111.222-33", password); // createTestFuncionario já hasheia
+        Funcionario funcionario = createTestFuncionario(email, "000.111.222-33", password);
         authController.saveEmployees(List.of(funcionario));
 
         Pessoa authenticatedPerson = authController.authenticate(email, password);
@@ -176,8 +170,7 @@ public class AuthControllerTest {
     void testAuthenticateInvalidCredentialsThrowsException() {
         authController.saveClients(List.of(createTestClient("valido@test.com", "111.111.111-12", "senhaValida")));
         authController.saveEmployees(List.of(createTestFuncionario("valido_func@test.com", "222.222.222-33", "senhaValidaFunc")));
-
-        // Agora esperamos uma exceção
+        
         AuthControllerException thrown = assertThrows(
                 AuthControllerException.class,
                 () -> authController.authenticate("inexistente@test.com", "senhaInvalida"),
@@ -195,7 +188,6 @@ public class AuthControllerTest {
         Cliente cliente = createTestClient(email, "987.654.321-00", correctPassword);
         authController.saveClients(List.of(cliente));
 
-        // Agora esperamos uma exceção
         AuthControllerException thrown = assertThrows(
                 AuthControllerException.class,
                 () -> authController.authenticate(email, "senhaErrada"),
@@ -213,36 +205,12 @@ public class AuthControllerTest {
         Cliente cliente = createTestClient(email, "123.000.456-00", password);
         authController.saveClients(List.of(cliente));
 
-        // Agora esperamos uma exceção
         AuthControllerException thrown = assertThrows(
                 AuthControllerException.class,
                 () -> authController.authenticate("emailIncorreto@test.com", password),
                 "Deveria lançar AuthControllerException para email incorreto"
         );
         assertEquals("Email ou senha incorretos.", thrown.getMessage());
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("Teste de autenticação com erro de hash de senha - Lanca AuthControllerException")
-    void testAuthenticatePasswordHashErrorThrowsException() {
-        // Para simular um erro no PasswordHasher.hashPassword (retornando null),
-        // precisaríamos mockar PasswordHasher. Como ele é static, é mais complexo.
-        // Uma alternativa é, se possível, passar null como senha para testar o 'if (hashedPassword == null)'
-        // mas o PasswordHasher em si não retorna null para input não-null.
-        // Este teste é mais conceitual sem refatoração do PasswordHasher.
-        // No entanto, se o PasswordHasher retornasse null para uma senha específica,
-        // o AuthController lançaria a exceção.
-
-        // Exemplo hipotético (se PasswordHasher.hashPassword pudesse retornar null):
-        // try (MockedStatic<PasswordHasher> mocked = mockStatic(PasswordHasher.class)) {
-        //     mocked.when(() -> PasswordHasher.hashPassword(anyString())).thenReturn(null);
-        //     AuthControllerException thrown = assertThrows(AuthControllerException.class,
-        //         () -> authController.authenticate("test@test.com", "password"),
-        //         "Deveria lançar AuthControllerException para erro de hash de senha"
-        //     );
-        //     assertEquals("Erro ao processar a senha.", thrown.getMessage());
-        // }
     }
 
     @Test
@@ -293,24 +261,21 @@ public class AuthControllerTest {
         String uniqueEmail = "reg_hash_error@test.com";
         Cliente newClient = createTestClient(uniqueEmail, uniqueCpf, "senhaQualquer");
 
-        // Simular que PasswordHasher.hashPassword retorna null.
-        // Isso requer Mockito para métodos estáticos (Mockito.mockStatic).
-        // Se você não está usando Mockito em AuthControllerTest, este teste é mais complexo.
-        // Para o escopo, vou deixar um comentário.
-        // Exemplo:
-        // try (MockedStatic<PasswordHasher> mocked = mockStatic(PasswordHasher.class)) {
-        //     mocked.when(() -> PasswordHasher.hashPassword(anyString())).thenReturn(null);
-        //     AuthControllerException thrown = assertThrows(
-        //         AuthControllerException.class,
-        //         () -> authController.registerClient(newClient),
-        //         "Deveria lançar AuthControllerException para erro de hash de senha ao registrar"
-        //     );
-        //     assertEquals("Erro ao processar a senha para registro.", thrown.getMessage());
-        // }
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
-
-    // --- Testes para Update de Cliente ---
     @Test
     @Order(9)
     @DisplayName("Teste de atualização de cliente existente")
@@ -339,7 +304,7 @@ public class AuthControllerTest {
         String cpf = "111.000.222-33";
         Cliente nonExistentClient = createTestClient("inexistente@test.com", cpf, "senhaQualquer");
 
-        authController.saveClients(new ArrayList<>()); // Garante que não há clientes salvos
+        authController.saveClients(new ArrayList<>());
 
         AuthControllerException thrown = assertThrows(
                 AuthControllerException.class,
@@ -350,7 +315,6 @@ public class AuthControllerTest {
         assertEquals(0, authController.loadClients().size(), "A lista de clientes deve permanecer vazia");
     }
 
-    // --- Testes para Carregamento e Salvamento (Esses não lançam AuthControllerException, apenas retornam boolean/lista) ---
     @Test
     @Order(11)
     @DisplayName("Teste de salvamento e carregamento de clientes")
@@ -395,7 +359,6 @@ public class AuthControllerTest {
         assertTrue(clients.isEmpty(), "Deveria retornar uma lista vazia se o arquivo não existir");
     }
 
-    // --- Testes para saveProfilePicture ---
     @Test
     @Order(14)
     @DisplayName("Teste de salvamento de foto de perfil com sucesso")
@@ -439,14 +402,13 @@ public class AuthControllerTest {
     @Order(17)
     @DisplayName("Teste de salvamento de foto de perfil com arquivo original inexistente - Nao lanca AuthControllerException (trata IOException)")
     void testSaveProfilePictureNonExistentOriginalFileReturnsNull() {
-        // Este método ainda imprime no System.err e retorna null para IOException,
-        // ele não foi modificado para lançar AuthControllerException nesse caso.
-        // O teste deve refletir o comportamento atual.
+
+
+
         String savedPath = authController.saveProfilePicture("caminho/inexistente/foto.jpg", "111.222.333-00");
         assertNull(savedPath, "Deveria retornar null para arquivo original inexistente");
     }
 
-    // --- Métodos Auxiliares para Testes de Arquivo ---
     private String createTempPhotoFile(String fileName) {
         try {
             Path tempDir = Path.of(System.getProperty("java.io.tmpdir"), "test_images_" + UUID.randomUUID());
