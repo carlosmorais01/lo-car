@@ -8,7 +8,33 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
 
+/**
+ * A classe `Main` é o ponto de entrada principal da aplicação LoCar!.
+ * Ela configura a aparência (Look and Feel) da interface do usuário usando FlatLaf,
+ * carrega fontes personalizadas e inicia o processo de geração de dados iniciais (dump)
+ * antes de exibir a tela de login.
+ */
 public class Main {
+    /**
+     * O método principal que inicia a aplicação.
+     * <p>
+     * Este método realiza as seguintes operações:
+     * <ol>
+     * <li>Configura o tema FlatDarkLaf para a aplicação.</li>
+     * <li>Define várias propriedades de UI para customizar a aparência dos componentes Swing,
+     * como bordas arredondadas e cores padrão para painéis, botões, rótulos, campos de texto, etc.</li>
+     * <li>Tenta carregar a fonte personalizada "Roboto Slab" a partir dos recursos da aplicação.
+     * Se a fonte não for encontrada ou houver um erro, ele tenta usar "Montserrat" ou "Roboto" como fallback.</li>
+     * <li>Aplica a fonte selecionada a diversos componentes da UI.</li>
+     * <li>Chama {@code DumpGenerator.rodarDump()} para garantir que os dados iniciais necessários
+     * para a aplicação (como clientes, veículos, etc.) sejam gerados ou carregados.</li>
+     * <li>Inicia a {@code LoginScreen} em um thread de despacho de eventos da Swing,
+     * tornando-a visível para o usuário.</li>
+     * </ol>
+     * </p>
+     *
+     * @param args Argumentos da linha de comando (não utilizados nesta aplicação).
+     */
     public static void main(String[] args) {
         try {
             FlatDarkLaf.setup();
