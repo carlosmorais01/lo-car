@@ -75,9 +75,9 @@ public class LocacaoController {
      *
      * @return true se a operação de salvamento for bem-sucedida, false caso contrário.
      */
-    public boolean saveAllLocacoes() {
+    public boolean saveAllLocacoes(List<Locacao> novasLocacoes) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(LOCACOES_FILE_PATH))) {
-            oos.writeObject(locacoes);
+            oos.writeObject(novasLocacoes);
             return true;
         } catch (IOException e) {
             System.err.println("Erro ao salvar locações no arquivo: " + e.getMessage());
@@ -139,14 +139,13 @@ public class LocacaoController {
         Locacao novaLocacao = new Locacao(
                 LocalDateTime.now(),
                 LocalDateTime.now().plusDays(dias),
-                null,
                 veiculo,
                 cliente
         );
 
         this.locacoes.add(novaLocacao);
 
-        boolean locacaoSalva = saveAllLocacoes();
+        boolean locacaoSalva = saveAllLocacoes(locacoes);
         if (!locacaoSalva) {
             this.locacoes.remove(novaLocacao);
             System.err.println("Falha ao salvar locação.");
@@ -160,7 +159,7 @@ public class LocacaoController {
             return false;
         }
 
-        veiculo.setLocacoes(veiculo.getLocacoes() + 1);
+        veiculo.adicionarLocacao();
         boolean veiculoAtualizado = veiculoController.atualizarVeiculo(veiculo);
         if (!veiculoAtualizado) {
             System.err.println("Erro ao atualizar veículo após locação.");
@@ -190,19 +189,19 @@ public class LocacaoController {
      * Este método define a data de devolução para a locação, calcula e aplica multas ao saldo do cliente,
      * e persiste as atualizações tanto na locação quanto no cliente.
      *
-     * @param locacao A locação a ser finalizada (devolvida).
+     * @param locacaoDevolvida A locação a ser finalizada (devolvida).
      * @return true se a devolução foi registrada e persistida com sucesso, false caso contrário.
      */
-    public boolean registrarDevolucao(Locacao locacao) {
-        if (locacao == null || locacao.getDataDevolucao() != null) {
+    public boolean registrarDevolucao(Locacao locacaoDevolvida) {
+        if (locacaoDevolvida == null || locacaoDevolvida.getDataDevolucao() != null) {
             System.err.println("Locação inválida ou já devolvida.");
             return false;
         }
 
-        locacao.setDataDevolucao(LocalDateTime.now());
-        double multa = locacao.calcularMulta();
+        locacaoDevolvida.setDataDevolucao(LocalDateTime.now());
+        double multa = locacaoDevolvida.calcularMulta();
 
-        Cliente cliente = locacao.getCliente();
+        Cliente cliente = locacaoDevolvida.getCliente();
         if (multa > 0) {
             cliente.debitarSaldo(multa);
             boolean clienteAtualizado = authController.updateCliente(cliente);
@@ -213,16 +212,16 @@ public class LocacaoController {
         }
 
         boolean removed = this.locacoes.removeIf(l ->
-                l.getVeiculo().getPlaca().equals(locacao.getVeiculo().getPlaca()) &&
-                        l.getDataLocacao().equals(locacao.getDataLocacao()));
+                l.getVeiculo().getPlaca().equals(locacaoDevolvida.getVeiculo().getPlaca()) &&
+                        l.getDataLocacao().equals(locacaoDevolvida.getDataLocacao()));
 
         if (!removed) {
             System.err.println("Erro: Locação a ser devolvida não encontrada na lista para atualização.");
             return false;
         }
 
-        this.locacoes.add(locacao);
-        boolean salvo = saveAllLocacoes();
+        this.locacoes.add(locacaoDevolvida);
+        boolean salvo = saveAllLocacoes(locacoes);
         if (!salvo) {
             System.err.println("Erro ao salvar locações após devolução.");
             return false;
