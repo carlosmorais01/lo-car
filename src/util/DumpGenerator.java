@@ -127,7 +127,7 @@ public class DumpGenerator {
             Cliente cliente2 = new Cliente("Maria Oliveira", "987.654.321-99", "62991122334", "maria.oliveira@gmail.com", "6b08d780140e292a4af8ba3f2333fc1357091442d7e807c6cad92e8dcd0240b7", endC2, LocalDateTime.of(1985, Month.MARCH, 20, 0, 0), Sexo.FEMININO, "/images/pfp_dump/maria.png");
 
             Endereco endC3 = new Endereco("Anápolis", "GO", "Jardim das Américas", "Rua C", 20, "75000-000");
-            Cliente cliente3 = new Cliente("Pedro Souza", "111.222.333-44", "62995544332", "pedro.souza@gmail.com", "e5857b335afdf35ca81a110bc81f38682f8a89892cc597f5398dfef82d42b513", endC3, LocalDateTime.of(1995, Month.JULY, 1, 0, 0), Sexo.MASCULINO, "/images/pfp_dump/pedro.png");
+            Cliente cliente3 = new Cliente("Pedro Souza", "111.222.333-44", "62995544332", "pedro.souza@gmail.com", "b578dc5fcbfabbc7e96400601d0858c951f04929faef033bbbc117ab935c6ae9", endC3, LocalDateTime.of(1995, Month.JULY, 1, 0, 0), Sexo.MASCULINO, "/images/pfp_dump/pedro.png");
 
             clientes.add(cliente1);
             clientes.add(cliente2);
