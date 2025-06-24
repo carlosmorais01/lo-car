@@ -6,9 +6,9 @@ import java.io.Serial;
 import java.io.Serializable; // Importar Serializable
 import java.time.LocalDateTime;
 
-public class Cliente extends Pessoa implements Serializable { // Adicionar implements Serializable
+public class Cliente extends Pessoa implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L; // Adicionar serialVersionUID
+    private static final long serialVersionUID = 1L;
     private double saldo;
 
     public Cliente(String nome, String cpf, String telefone, String email, String senha, Endereco endereco, LocalDateTime dataNascimento, Sexo sexo, String caminhoFoto) {
