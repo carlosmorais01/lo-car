@@ -1,4 +1,3 @@
-// src/test/java/entities/TestVehicle.java (Atualize este arquivo)
 package entities;
 
 import enums.Combustivel;
@@ -19,7 +18,6 @@ public class TestVehicle extends Veiculo {
                 false, 1200.0, false, true, valorDiario);
     }
 
-    // Adicione este método para suportar o teste
     public void adicionarLocacao() {
         setLocacoes(getLocacoes() + 1);
     }

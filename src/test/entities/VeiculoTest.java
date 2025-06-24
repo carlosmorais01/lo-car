@@ -1,7 +1,6 @@
 package entities;
 
 
-
 import enums.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,114 +10,45 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 
-
 @DisplayName("Testes para a classe Veiculo")
-
 class VeiculoTest {
 
 
-
-    private VeiculoImpl veiculo;
-
+    private TestVehicle veiculo;
 
 
     @BeforeEach
-
     void setUp() {
-
-        veiculo = new VeiculoImpl(
-
-                "Descrição Teste",
-
-                "ABC1234",
-
-                "Marca Teste",
-
-                "Nome Teste",
-
-                "Modelo Teste",
-
-                2020,
-
-                Cor.AZUL,
-
-                Funcao.PASSEIO,
-
-                10000.5,
-
-                5,
-
-                10.0,
-
-                180.0,
-
-                true,
-
-                Combustivel.GASOLINA,
-
-                Tracao.DIANTEIRA,
-
-                5,
-
-                true,
-
-                "/caminho/foto.jpg",
-
-                150.0,
-
-                true,
-
-                true,
-
-                true,
-
-                true,
-
-                false,
-
-                1200.0,
-
-                false,
-
-                true,
-
-                250.0
-
-        );
-
+        veiculo = new TestVehicle("ABC1234", 150.0);
     }
-
-
 
     @Test
 
     @DisplayName("Deve inicializar o veículo com os valores corretos via construtor")
-
     void testConstructorInitialization() {
 
         assertNotNull(veiculo, "O objeto veículo não deve ser nulo.");
 
-        assertEquals("Descrição Teste", veiculo.getDescricao(), "A descrição deve ser inicializada corretamente.");
+        assertEquals("DescTest", veiculo.getDescricao(), "A descrição deve ser inicializada corretamente.");
 
         assertEquals("ABC1234", veiculo.getPlaca(), "A placa deve ser inicializada corretamente.");
 
-        assertEquals("Marca Teste", veiculo.getMarca(), "A marca deve ser inicializada corretamente.");
+        assertEquals("MarcaTest", veiculo.getMarca(), "A marca deve ser inicializada corretamente.");
 
-        assertEquals("Nome Teste", veiculo.getNome(), "O nome deve ser inicializado corretamente.");
+        assertEquals("NomeTest", veiculo.getNome(), "O nome deve ser inicializado corretamente.");
 
-        assertEquals("Modelo Teste", veiculo.getModelo(), "O modelo deve ser inicializado corretamente.");
+        assertEquals("ModeloTest", veiculo.getModelo(), "O modelo deve ser inicializado corretamente.");
 
         assertEquals(2020, veiculo.getAno(), "O ano deve ser inicializado corretamente.");
 
-        assertEquals(Cor.AZUL, veiculo.getCor(), "A cor deve ser inicializada corretamente.");
+        assertEquals(Cor.PRETO, veiculo.getCor(), "A cor deve ser inicializada corretamente.");
 
         assertEquals(Funcao.PASSEIO, veiculo.getFuncao(), "A função deve ser inicializada corretamente.");
 
-        assertEquals(10000.5, veiculo.getQuilometragem(), "A quilometragem deve ser inicializada corretamente.");
+        assertEquals(10000, veiculo.getQuilometragem(), "A quilometragem deve ser inicializada corretamente.");
 
         assertEquals(5, veiculo.getNumeroPassageiros(), "O número de passageiros deve ser inicializado corretamente.");
 
@@ -136,7 +66,7 @@ class VeiculoTest {
 
         assertTrue(veiculo.isAirBag(), "O status de airbag deve ser inicializado como verdadeiro.");
 
-        assertEquals("/caminho/foto.jpg", veiculo.getCaminhoFoto(), "O caminho da foto deve ser inicializado corretamente.");
+        assertEquals("foto.jpg", veiculo.getCaminhoFoto(), "O caminho da foto deve ser inicializado corretamente.");
 
         assertEquals(150.0, veiculo.getPotencia(), "A potência deve ser inicializada corretamente.");
 
@@ -156,18 +86,16 @@ class VeiculoTest {
 
         assertTrue(veiculo.isDirecaoHidraulica(), "O status de direção hidráulica deve ser inicializado como verdadeiro.");
 
-        assertEquals(250.0, veiculo.getValorDiario(), "O valor diário deve ser inicializado corretamente.");
+        assertEquals(150.0, veiculo.getValorDiario(), "O valor diário deve ser inicializado corretamente.");
 
         assertEquals(0, veiculo.getLocacoes(), "O contador de locações deve ser inicializado como 0.");
 
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a descrição")
-
     void testGetSetDescricao() {
 
         String novaDescricao = "Nova Descrição de Teste";
@@ -179,11 +107,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a placa")
-
     void testGetSetPlaca() {
 
         String novaPlaca = "DEF5678";
@@ -195,11 +121,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o número de locações")
-
     void testGetSetLocacoes() {
 
         veiculo.setLocacoes(5);
@@ -209,11 +133,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a marca")
-
     void testGetSetMarca() {
 
         String novaMarca = "Nova Marca";
@@ -225,11 +147,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o modelo")
-
     void testGetSetModelo() {
 
         String novoModelo = "Novo Modelo";
@@ -241,11 +161,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o nome")
-
     void testGetSetNome() {
 
         String novoNome = "Novo Nome";
@@ -257,11 +175,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o ano")
-
     void testGetSetAno() {
 
         veiculo.setAno(2022);
@@ -271,11 +187,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a cor")
-
     void testGetSetCor() {
 
         veiculo.setCor(Cor.VERMELHO);
@@ -285,11 +199,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a função")
-
     void testGetSetFuncao() {
 
         veiculo.setFuncao(Funcao.CARGA);
@@ -299,11 +211,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a quilometragem")
-
     void testGetSetQuilometragem() {
 
         veiculo.setQuilometragem(20000.0);
@@ -313,11 +223,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o número de passageiros")
-
     void testGetSetNumeroPassageiros() {
 
         veiculo.setNumeroPassageiros(7);
@@ -327,11 +235,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o consumo de combustível por litro")
-
     void testGetSetConsumoCombustivelPLitro() {
 
         veiculo.setConsumoCombustivelPLitro(12.5);
@@ -341,11 +247,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a velocidade máxima")
-
     void testGetSetVelocidadeMax() {
 
         veiculo.setVelocidadeMax(200.0);
@@ -355,11 +259,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de automático")
-
     void testGetSetAutomatico() {
 
         veiculo.setAutomatico(false);
@@ -369,11 +271,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o tipo de combustível")
-
     void testGetSetCombustivel() {
 
         veiculo.setCombustivel(Combustivel.ALCOOL);
@@ -383,11 +283,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o tipo de tração")
-
     void testGetSetTracao() {
 
         veiculo.setTracao(Tracao.INTEGRAL);
@@ -397,11 +295,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a quantidade de assentos")
-
     void testGetSetQuantAssento() {
 
         veiculo.setQuantAssento(7);
@@ -411,11 +307,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de airbag")
-
     void testGetSetAirBag() {
 
         veiculo.setAirBag(false);
@@ -425,11 +319,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o caminho da foto")
-
     void testGetSetCaminhoFoto() {
 
         String novoCaminho = "/novo/caminho/foto.png";
@@ -441,11 +333,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter a potência")
-
     void testGetSetPotencia() {
 
         veiculo.setPotencia(200.0);
@@ -455,11 +345,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de vidro elétrico")
-
     void testGetSetVidroEletrico() {
 
         veiculo.setVidroEletrico(false);
@@ -469,11 +357,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de ar condicionado")
-
     void testGetSetArCondicionado() {
 
         veiculo.setArCondicionado(false);
@@ -483,11 +369,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de multimídia")
-
     void testGetSetMultimidia() {
 
         veiculo.setMultimidia(false);
@@ -497,11 +381,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de entrada USB")
-
     void testGetSetEntradaUSB() {
 
         veiculo.setEntradaUSB(false);
@@ -511,11 +393,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de vidro fumê")
-
     void testGetSetVidroFume() {
 
         veiculo.setVidroFume(true);
@@ -525,11 +405,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o peso")
-
     void testGetSetPeso() {
 
         veiculo.setPeso(1500.0);
@@ -539,11 +417,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de engate")
-
     void testGetSetEngate() {
 
         veiculo.setEngate(true);
@@ -553,11 +429,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o status de direção hidráulica")
-
     void testGetSetDirecaoHidraulica() {
 
         veiculo.setDirecaoHidraulica(false);
@@ -567,11 +441,9 @@ class VeiculoTest {
     }
 
 
-
     @Test
 
     @DisplayName("Deve permitir alterar e obter o valor diário")
-
     void testGetSetValorDiario() {
 
         veiculo.setValorDiario(300.0);
