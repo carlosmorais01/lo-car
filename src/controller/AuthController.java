@@ -80,7 +80,7 @@ public class AuthController {
             return authenticatedEmployee.get();
         }
 
-        throw new AuthControllerException("Email ou senha incorretos.");
+        return null;
     }
 
     /**
