@@ -2,6 +2,7 @@ application
 controller
 entities
 enums
+exceptions
 util
 view
 view.components
