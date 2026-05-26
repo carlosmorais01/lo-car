@@ -60,27 +60,32 @@ public class AuthController {
      */
     public Pessoa authenticate(String email, String password) {
         String hashedPassword = PasswordHasher.hashPassword(password);
+
         if (hashedPassword == null) {
             throw new AuthControllerException("Erro ao processar a senha.");
         }
 
         List<Cliente> clients = loadClients();
         Optional<Cliente> authenticatedClient = clients.stream()
-                .filter(c -> c.getEmail().equals(email) && c.getSenha().equals(hashedPassword))
+                .filter(c -> c.getEmail().equals(email)
+                        && c.getSenha().equals(hashedPassword))
                 .findFirst();
+
         if (authenticatedClient.isPresent()) {
             return authenticatedClient.get();
         }
 
         List<Funcionario> employees = loadEmployees();
         Optional<Funcionario> authenticatedEmployee = employees.stream()
-                .filter(f -> f.getEmail().equals(email) && f.getSenha().equals(hashedPassword))
+                .filter(f -> f.getEmail().equals(email)
+                        && f.getSenha().equals(hashedPassword))
                 .findFirst();
+
         if (authenticatedEmployee.isPresent()) {
             return authenticatedEmployee.get();
         }
 
-        return null;
+        throw new AuthControllerException("Email ou senha incorretos.");
     }
 
     /**
