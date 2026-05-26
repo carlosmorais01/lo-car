@@ -126,7 +126,7 @@ class AuthControllerTest {
                 PasswordHasher.hashPassword(password),
                 createTestEndereco(),
                 LocalDateTime.of(1985, 5, 10, 0, 0),
-                Sexo.MASCULINO
+                Sexo.MASCULINO,
                 null
         );
     }
