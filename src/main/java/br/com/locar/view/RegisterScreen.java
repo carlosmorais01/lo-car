@@ -157,7 +157,7 @@ public class RegisterScreen extends JFrame {
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
         buttonPanel.setBackground(UIManager.getColor("Panel.background"));
 
-        backButtonm = new JButton("Voltar");
+        backButton = new JButton("Voltar");
         backButton.setPreferredSize(new Dimension(200, 70));
         backButton.addActionListener(new ActionListener() {
             @Override
