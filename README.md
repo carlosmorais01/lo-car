@@ -94,7 +94,7 @@ descricao#placa#marca#nome#modelo#ano#cor#funcao#quilometragem#numeroPassageiros
 
 
 - Email: jose_borges@discente.ufg.br
-- LinkedIn: [JOSÉ BORGES DA CRUZ](https://www.linkedin.com/in/josé-borges-da-cruz-3a7284369/)
+- LinkedIn: [José Borges](https://www.linkedin.com/in/jos%C3%A9-borges-913957308/)
 
 
 - Email: viniciusespindola@discente.ufg.br
