@@ -1,8 +1,15 @@
 package br.com.locar.controller;
 
-import br.com.locar.entities.*;
-import br.com.locar.enums.Sexo;
-import br.com.locar.exceptions.LocacaoControllerException;
+import br.com.locar.core.controller.AuthController;
+import br.com.locar.core.controller.LocacaoController;
+import br.com.locar.core.controller.VeiculoController;
+import br.com.locar.core.entities.Cliente;
+import br.com.locar.core.entities.Veiculo;
+import br.com.locar.core.entities.enums.Sexo;
+import br.com.locar.core.exceptions.LocacaoControllerException;
+import br.com.locar.core.entities.Endereco;
+import br.com.locar.core.entities.Locacao;
+import br.com.locar.entities.TestVehicle;
 import br.com.locar.util.PasswordHasher;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;

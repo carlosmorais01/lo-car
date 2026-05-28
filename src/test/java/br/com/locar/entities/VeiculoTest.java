@@ -1,9 +1,9 @@
 package br.com.locar.entities;
 
-import br.com.locar.enums.Combustivel;
-import br.com.locar.enums.Cor;
-import br.com.locar.enums.Funcao;
-import br.com.locar.enums.Tracao;
+import br.com.locar.core.entities.enums.Combustivel;
+import br.com.locar.core.entities.enums.Cor;
+import br.com.locar.core.entities.enums.Funcao;
+import br.com.locar.core.entities.enums.Tracao;
 import org.junit.jupiter.api.BeforeEach;
 
 import org.junit.jupiter.api.DisplayName;

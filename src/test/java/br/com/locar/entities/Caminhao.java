@@ -1,6 +1,7 @@
 package br.com.locar.entities;
 
-import br.com.locar.enums.*;
+import br.com.locar.core.entities.enums.*;
+import br.com.locar.terrestre.entities.Caminhao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

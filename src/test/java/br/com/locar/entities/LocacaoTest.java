@@ -1,6 +1,10 @@
 package br.com.locar.entities;
 
-import br.com.locar.enums.Sexo;
+import br.com.locar.core.entities.Cliente;
+import br.com.locar.core.entities.Veiculo;
+import br.com.locar.core.entities.enums.Sexo;
+import br.com.locar.core.entities.Endereco;
+import br.com.locar.core.entities.Locacao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
