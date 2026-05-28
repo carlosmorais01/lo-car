@@ -51,11 +51,11 @@ public class HeaderPanel extends JPanel {
 
         ImageIcon systemLogoIcon = null;
         try {
-            URL logoUrl = getClass().getResource("/br/com/locar/images/icons/logotipo.png");
+            URL logoUrl = getClass().getResource("/br/com/locar/ui/images/icons/logotipo.png");
             if (logoUrl != null) {
                 systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(logoUrl).getImage(), 70, 70));
             } else {
-                systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("src/images/icons/logotipo.png")), 70, 70));
+                systemLogoIcon = new ImageIcon(ImageScaler.getScaledImage(ImageIO.read(new File("/br/com/locar/ui/images/icons/logotipo.png")), 70, 70));
             }
         } catch (Exception e) {
             System.err.println("Erro ao carregar logotipo do sistema: " + e.getMessage());
@@ -68,7 +68,7 @@ public class HeaderPanel extends JPanel {
 
         ImageIcon gearIcon = null;
         try {
-            URL gearUrl = getClass().getResource("/br/com/locar/images/icons/gear-icon.png");
+            URL gearUrl = getClass().getResource("/br/com/locar/ui/images/icons/gear-icon.png");
             if (gearUrl != null) {
                 gearIcon = new ImageIcon(ImageScaler.getScaledImage(new ImageIcon(gearUrl).getImage(), 25, 25));
             } else {
@@ -110,7 +110,7 @@ public class HeaderPanel extends JPanel {
             }
         });
 
-        ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/br/com/locar/images/icons/lupa-icon.png")));
+        ImageIcon lupaIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/br/com/locar/ui/images/icons/lupa-icon.png")));
         Image scaledLupa = ImageScaler.getScaledImage(lupaIcon.getImage(), 20, 20);
         searchButton = new JButton(new ImageIcon(scaledLupa));
         searchButton.setContentAreaFilled(false);
@@ -168,12 +168,12 @@ public class HeaderPanel extends JPanel {
         if (pfpIcon == null || (pfpIcon.getImageLoadStatus() != -1 && pfpIcon.getImageLoadStatus() != MediaTracker.COMPLETE)) {
             try {
                 Image defaultPfpImage = null;
-                URL defaultPfpUrl = getClass().getResource("/br/com/locar/images/icons/default_pfp.png");
+                URL defaultPfpUrl = getClass().getResource("/br/com/locar/ui/images/icons/default_pfp.png");
                 if (defaultPfpUrl != null) {
                     defaultPfpImage = ImageIO.read(defaultPfpUrl);
                 } else {
                     System.err.println("Recurso de PFP padrão não encontrado. Tentando carregar de arquivo local.");
-                    File defaultPfpFile = new File("src/images/icons/default_pfp.png");
+                    File defaultPfpFile = new File("/br/com/locar/ui/images/icons/default_pfp.png");
                     if (defaultPfpFile.exists()) {
                         defaultPfpImage = ImageIO.read(defaultPfpFile);
                     } else {

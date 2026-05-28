@@ -24,7 +24,23 @@ import java.util.stream.Stream;
  */
 public class VeiculoController {
 
-    List<Veiculo> veiculos;
+    private List<Veiculo> veiculos;
+
+    public void setVeiculos(List<Veiculo> veiculos) {
+        this.veiculos = veiculos;
+    }
+
+    public void addVeiculo(Veiculo veiculo) {
+        this.veiculos.add(veiculo);
+    }
+
+    public void limparVeiculos(){
+        this.veiculos.clear();
+    }
+
+    public void addAllVeiculos(List<Veiculo> veiculos) {
+        this.veiculos.addAll(veiculos);
+    }
 
     /**
      * Diretório onde as imagens dos veículos são armazenadas.
@@ -134,7 +150,7 @@ public class VeiculoController {
      *
      * @return Uma lista consolidada de todos os objetos Veiculo carregados.
      */
-    List<Veiculo> carregarTodosVeiculos() {
+    public List<Veiculo> carregarTodosVeiculos() {
         List<Veiculo> veiculosCarregados = new ArrayList<>();
         veiculosCarregados.addAll(carregarVeiculosDeArquivo("dump/carros/carros.dat", Carro.class));
         veiculosCarregados.addAll(carregarVeiculosDeArquivo("dump/moto/motos.dat", Moto.class));
@@ -180,7 +196,7 @@ public class VeiculoController {
      * @param caminhoDoArquivo  O caminho do arquivo .dat onde o veículo será salvo.
      * @return true se o veículo foi salvo com sucesso, false caso contrário.
      */
-    <T extends Veiculo> boolean salvarVeiculoEmArquivo(T veiculoParaSalvar, String caminhoDoArquivo) {
+    public <T extends Veiculo> boolean salvarVeiculoEmArquivo(T veiculoParaSalvar, String caminhoDoArquivo) {
         List<T> listaAtualizada = new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(caminhoDoArquivo))) {
             while (true) {
@@ -212,7 +228,7 @@ public class VeiculoController {
      * @param tipo    A classe do tipo de veículo esperado (ex: Carro.class).
      * @return Uma lista de objetos do tipo especificado. Retorna uma lista vazia se o arquivo não existir, estiver vazio ou houver erro.
      */
-    <T extends Veiculo> List<T> carregarVeiculosDeArquivo(String caminho, Class<T> tipo) {
+    public <T extends Veiculo> List<T> carregarVeiculosDeArquivo(String caminho, Class<T> tipo) {
         List<T> lista = new ArrayList<>();
         File file = new File(caminho);
 
@@ -366,7 +382,7 @@ public class VeiculoController {
      * @param caminhoDoArquivo O caminho do arquivo .dat onde a lista será salva.
      * @return true se a lista foi salva com sucesso, false caso contrário.
      */
-    <T extends Veiculo> boolean salvarListaDeVeiculosEmArquivo(List<T> lista, String caminhoDoArquivo) {
+    public <T extends Veiculo> boolean salvarListaDeVeiculosEmArquivo(List<T> lista, String caminhoDoArquivo) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(caminhoDoArquivo))) {
             oos.writeObject(lista);
             return true;
