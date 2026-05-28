@@ -4,6 +4,7 @@ import br.com.locar.core.controller.AuthController;
 import br.com.locar.core.entities.Cliente;
 import br.com.locar.core.entities.Funcionario;
 import br.com.locar.core.entities.Pessoa;
+import br.com.locar.core.exceptions.AuthControllerException;
 import br.com.locar.util.ImageScaler;
 import com.formdev.flatlaf.FlatClientProperties;
 
@@ -51,7 +52,7 @@ public class LoginScreen extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
         mainPanel.add(Box.createVerticalStrut(20));
 
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/br/com/locar/images/icons/logo.png")));
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/br/com/locar/ui/images/icons/logo.png")));
         Image scaledImage = ImageScaler.getScaledImage(logoIcon.getImage(), 350, 350);
         logoIcon = new ImageIcon(scaledImage);
 
@@ -137,28 +138,30 @@ public class LoginScreen extends JFrame {
      * ({@link MainScreen}) em caso de sucesso, ou exibe uma mensagem de erro.
      */
     private void handleLogin() {
-        String email = emailField.getText();
-        String password = new String(passwordField.getPassword());
+        try {
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
 
-        if (email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos.", "Erro de Login", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Pessoa authenticatedUser = authController.authenticate(email, password);
-
-        if (authenticatedUser != null) {
-            JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedUser.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            dispose();
-
-            if (authenticatedUser instanceof Cliente) {
-                MainScreen mainScreen = new MainScreen((Cliente) authenticatedUser);
-                mainScreen.setVisible(true);
-            } else if (authenticatedUser instanceof Funcionario) {
-                MainScreen mainScreen = new MainScreen((Funcionario) authenticatedUser);
-                mainScreen.setVisible(true);
+            if (email.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos.", "Erro de Login", JOptionPane.WARNING_MESSAGE);
+                return;
             }
-        } else {
+
+            Pessoa authenticatedUser = authController.authenticate(email, password);
+
+            if (authenticatedUser != null) {
+                JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo, " + authenticatedUser.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+
+                if (authenticatedUser instanceof Cliente) {
+                    MainScreen mainScreen = new MainScreen((Cliente) authenticatedUser);
+                    mainScreen.setVisible(true);
+                } else if (authenticatedUser instanceof Funcionario) {
+                    MainScreen mainScreen = new MainScreen((Funcionario) authenticatedUser);
+                    mainScreen.setVisible(true);
+                }
+            }
+        } catch (AuthControllerException e) {
             JOptionPane.showMessageDialog(this, "Email ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
         }
     }

@@ -3,7 +3,6 @@ package br.com.locar.ui.view;
 import br.com.locar.core.controller.LocacaoController;
 import br.com.locar.core.controller.VeiculoController;
 import br.com.locar.core.entities.*;
-import br.com.locar.entities.*;
 import br.com.locar.terrestre.entities.*;
 import br.com.locar.util.ImageScaler;
 import br.com.locar.ui.view.components.HeaderPanel;

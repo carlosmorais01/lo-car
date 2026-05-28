@@ -3,7 +3,6 @@ package br.com.locar.ui.view;
 import br.com.locar.core.controller.VeiculoController;
 import br.com.locar.core.entities.Veiculo;
 import br.com.locar.core.entities.enums.*;
-import br.com.locar.entities.*;
 import br.com.locar.terrestre.entities.Caminhao;
 import br.com.locar.terrestre.entities.Carro;
 import br.com.locar.core.entities.Funcionario;

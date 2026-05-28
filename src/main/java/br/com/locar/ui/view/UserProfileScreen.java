@@ -481,13 +481,13 @@ public class UserProfileScreen extends JFrame {
 
             ImageIcon qrCodeIcon = null;
             try {
-                URL imageUrl = getClass().getResource("/br/com/locar/images/icons/qr-code.jpg");
+                URL imageUrl = getClass().getResource("/br/com/locar/ui/images/icons/qr-code.jpg");
                 if (imageUrl != null) {
                     Image originalImage = ImageIO.read(imageUrl);
                     Image scaledImage = ImageScaler.getScaledImage(originalImage, 200, 200);
                     qrCodeIcon = new ImageIcon(scaledImage);
                 } else {
-                    System.err.println("Imagem do QR Code estático não encontrada em: /images/icons/qr-code.jpg");
+                    System.err.println("Imagem do QR Code estático não encontrada em: /br/com/locar/ui/images/icons/qr-code.jpg");
                     qrCodeIcon = new ImageIcon(new byte[0]);
                 }
             } catch (IOException e) {
