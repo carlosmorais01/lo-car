@@ -1,7 +1,11 @@
 package br.com.locar.util;
 
+import br.com.locar.core.entities.Cliente;
+import br.com.locar.core.entities.Endereco;
+import br.com.locar.core.entities.Funcionario;
+import br.com.locar.core.entities.enums.*;
 import br.com.locar.entities.*;
-import br.com.locar.enums.*;
+import br.com.locar.terrestre.entities.*;
 
 import java.io.File;
 import java.io.FileOutputStream;

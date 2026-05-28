@@ -2,7 +2,7 @@ package br.com.locar;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import br.com.locar.util.DumpGenerator;
-import br.com.locar.view.LoginScreen;
+import br.com.locar.ui.view.LoginScreen;
 
 import javax.swing.*;
 import java.awt.*;

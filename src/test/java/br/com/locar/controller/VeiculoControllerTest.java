@@ -1,8 +1,13 @@
 package br.com.locar.controller;
 
-import br.com.locar.entities.*;
-import br.com.locar.enums.*;
-import br.com.locar.exceptions.VeiculoControllerException;
+import br.com.locar.core.controller.VeiculoController;
+import br.com.locar.core.entities.Cliente;
+import br.com.locar.core.entities.Endereco;
+import br.com.locar.core.entities.Locacao;
+import br.com.locar.core.entities.Veiculo;
+import br.com.locar.core.entities.enums.*;
+import br.com.locar.core.exceptions.VeiculoControllerException;
+import br.com.locar.terrestre.entities.*;
 import org.junit.jupiter.api.*;
 import org.mockito.MockitoAnnotations;
 

@@ -1,11 +1,12 @@
 package br.com.locar.controller;
 
-import br.com.locar.entities.Cliente;
-import br.com.locar.entities.Endereco;
-import br.com.locar.entities.Funcionario;
-import br.com.locar.entities.Pessoa;
-import br.com.locar.enums.Sexo;
-import br.com.locar.exceptions.AuthControllerException;
+import br.com.locar.core.controller.AuthController;
+import br.com.locar.core.entities.Cliente;
+import br.com.locar.core.entities.Endereco;
+import br.com.locar.core.entities.Funcionario;
+import br.com.locar.core.entities.Pessoa;
+import br.com.locar.core.entities.enums.Sexo;
+import br.com.locar.core.exceptions.AuthControllerException;
 import br.com.locar.util.PasswordHasher;
 import org.junit.jupiter.api.*;
 
