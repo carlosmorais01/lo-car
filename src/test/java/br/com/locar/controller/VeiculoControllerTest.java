@@ -7,7 +7,9 @@ import br.com.locar.core.entities.Locacao;
 import br.com.locar.core.entities.Veiculo;
 import br.com.locar.core.entities.enums.*;
 import br.com.locar.core.exceptions.VeiculoControllerException;
-import br.com.locar.terrestre.entities.*;
+import br.com.locar.terrestre.entities.Caminhao;
+import br.com.locar.terrestre.entities.Carro;
+import br.com.locar.terrestre.entities.Moto;
 import org.junit.jupiter.api.*;
 import org.mockito.MockitoAnnotations;
 
@@ -19,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,8 +29,6 @@ import static org.mockito.Mockito.*;
 class VeiculoControllerTest {
 
     private VeiculoController veiculoController;
-
-
 
     private static final String VEHICLE_PICS_DIR_ACTUAL = "dump/vehicle_pics/";
     private static final String CARROS_FILE = "dump/carros/carros.dat";
@@ -78,7 +77,7 @@ class VeiculoControllerTest {
 
 
 
-        veiculoController.veiculos = new ArrayList<>();
+        veiculoController.setVeiculos(new ArrayList<>());
     }
 
     @AfterEach
@@ -187,7 +186,7 @@ class VeiculoControllerTest {
     @DisplayName("Cadastrar veículo com placa já existente - Lança VeiculoControllerException")
     void testCadastrarVeiculoPlacaExistenteThrowsException() {
         Carro carroExistente = createTestCarro("ABC-1234", 200.0);
-        veiculoController.veiculos.add(carroExistente);
+        veiculoController.addVeiculo(carroExistente);
 
         Carro novoCarroComPlacaExistente = createTestCarro("ABC-1234", 250.0);
 
@@ -232,7 +231,7 @@ class VeiculoControllerTest {
     @DisplayName("Atualizar veículo existente com sucesso")
     void testAtualizarVeiculoSuccess() throws IOException {
         Carro carroOriginal = createTestCarro("ATT-1234", 200.0);
-        veiculoController.veiculos.add(carroOriginal);
+        veiculoController.addVeiculo(carroOriginal);
 
         Carro carroAtualizado = createTestCarro("ATT-1234", 250.0);
         carroAtualizado.setNome("Carro Atualizado");
@@ -255,7 +254,7 @@ class VeiculoControllerTest {
     void testAtualizarVeiculoNotFoundThrowsException() {
         Carro carroInexistente = createTestCarro("NAO-EXISTE", 300.0);
 
-        veiculoController.veiculos.clear();
+        veiculoController.limparVeiculos();
 
         VeiculoControllerException thrown = assertThrows(
                 VeiculoControllerException.class,
@@ -272,7 +271,7 @@ class VeiculoControllerTest {
     @DisplayName("Excluir veículo existente com sucesso")
     void testExcluirVeiculoSuccess() throws IOException {
         Carro carroParaExcluir = createTestCarro("DEL-1234", 100.0);
-        veiculoController.veiculos.add(carroParaExcluir);
+        veiculoController.addVeiculo(carroParaExcluir);
 
         doReturn(true).when(veiculoController).salvarListaDeVeiculosEmArquivo(anyList(), anyString());
 
@@ -289,7 +288,7 @@ class VeiculoControllerTest {
     void testExcluirVeiculoNotFound() {
         Carro carroInexistente = createTestCarro("DEL-NAO-EXISTE", 100.0);
 
-        veiculoController.veiculos.clear();
+        veiculoController.limparVeiculos();
 
         boolean result = veiculoController.excluirVeiculo(carroInexistente);
 
@@ -355,7 +354,7 @@ class VeiculoControllerTest {
         Carro carro2 = createTestCarro("CAR-004", 150.0); carro2.setCor(Cor.PRETO);
         Moto moto1 = createTestMoto("MOTO-002", 80.0); moto1.setCor(Cor.AZUL);
 
-        veiculoController.veiculos.addAll(List.of(carro1, carro2, moto1));
+        veiculoController.addAllVeiculos(List.of(carro1, carro2, moto1));
         doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes();
 
         List<Veiculo> resultados = veiculoController.filtrarVeiculos(null, 120.0, Cor.BRANCO, "Todos", null, null, "Todos os Modelos");
@@ -372,7 +371,7 @@ class VeiculoControllerTest {
         Moto moto1 = createTestMoto("MOTO-003", 80.0);
         Caminhao caminhao1 = createTestCaminhao("CAM-002", 500.0);
 
-        veiculoController.veiculos.addAll(List.of(carro1, moto1, caminhao1));
+        veiculoController.addAllVeiculos(List.of(carro1, moto1, caminhao1));
         doReturn(new ArrayList<>()).when(veiculoController).carregarLocacoes();
 
         List<Veiculo> carros = veiculoController.filtrarVeiculos(null, null, Cor.TODAS, "Todos", null, null, "Carro");
@@ -409,30 +408,12 @@ class VeiculoControllerTest {
 
         Locacao locacaoDevolvida = createTestLocacao(carroDevolvido, LocalDateTime.now().minusDays(1));
 
-        veiculoController.veiculos.addAll(List.of(carroProximo, carroNaoProximo, carroDevolvido));
+        veiculoController.addAllVeiculos(List.of(carroProximo, carroNaoProximo, carroDevolvido));
         doReturn(List.of(locacaoProxima, locacaoNaoProxima, locacaoDevolvida)).when(veiculoController).carregarLocacoes();
 
         List<Veiculo> resultados = veiculoController.filtrarVeiculos(null, null, Cor.TODAS, "Próximos de Devolução", null, null, "Todos os Modelos");
 
         assertEquals(1, resultados.size());
         assertEquals("PROX-001", resultados.get(0).getPlaca());
-    }
-
-    private String createTempPhotoFile(String fileName) {
-        try {
-            Path tempDir = Path.of(System.getProperty("java.io.tmpdir"), "test_images_" + UUID.randomUUID().toString());
-            Files.createDirectories(tempDir);
-
-            String name = fileName.substring(0, fileName.lastIndexOf('.'));
-            String extension = fileName.substring(fileName.lastIndexOf('.'));
-            Path tempFilePath = Files.createTempFile(tempDir, name, extension);
-
-            Files.write(tempFilePath, new byte[]{1, 2, 3, 4, 5});
-            return tempFilePath.toAbsolutePath().toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("Falha ao criar arquivo temporário para teste de foto: " + e.getMessage());
-            return null;
-        }
     }
 }
